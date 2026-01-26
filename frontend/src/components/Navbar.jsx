@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Menu } from 'lucide-react';
 import './Navbar.css';
 
 const Navbar = ({ onMenuToggle }) => {
@@ -12,8 +12,13 @@ const Navbar = ({ onMenuToggle }) => {
 
     return (
         <nav className="navbar">
-            <div className="navbar-brand">
-                <h2>NutriPro</h2>
+            <div className="navbar-left">
+                <button className="btn-menu mobile-only" onClick={() => onMenuToggle(true)}>
+                    <Menu size={24} />
+                </button>
+                <div className="navbar-brand">
+                    <h2>NutriPro</h2>
+                </div>
             </div>
 
             <div className="navbar-content-right">

@@ -381,33 +381,37 @@
 @media (max-width: 768px) {
     .dashboard {
         padding: var(--space-md);
+        width: 100%;
+        overflow-x: hidden;
+        /* Prevent horizontal jitter */
     }
 
     .dashboard-header-modern {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--space-lg);
+        gap: var(--space-md);
         text-align: left;
         border-bottom: none;
-        margin-bottom: var(--space-xl);
+        margin-bottom: var(--space-lg);
     }
 
     .header-left h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        /* More compact for mobile headers */
+        margin-top: 4px;
     }
 
     .header-actions {
         width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-sm);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .header-actions .btn {
         width: 100%;
-        padding: 0.75rem 0.5rem;
-        font-size: 0.85rem;
-        white-space: nowrap;
+        padding: 0.875rem;
+        justify-content: center;
     }
 
     .stats-grid-modern {
@@ -417,15 +421,31 @@
 
     .stat-card-modern {
         padding: var(--space-md);
+        gap: var(--space-md);
+    }
+
+    .stat-number-row h3 {
+        font-size: 1.5rem;
     }
 
     .dashboard-main-grid {
-        gap: var(--space-lg);
+        gap: var(--space-md);
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-calendar-section,
+    .dashboard-activity-section {
+        min-height: auto;
+        padding: var(--space-md);
     }
 }
 
 @media (max-width: 480px) {
-    .header-actions {
-        grid-template-columns: 1fr;
+    .dashboard {
+        padding: 12px;
+    }
+
+    .current-date {
+        font-size: 0.75rem;
     }
 }
