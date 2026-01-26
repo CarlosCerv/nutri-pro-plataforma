@@ -124,6 +124,7 @@ const MenuBuilder = () => {
     ];
 
     const [activeSidebarTab, setActiveSidebarTab] = useState('search'); // 'search' | 'quick_meals'
+    const [activeMobileView, setActiveMobileView] = useState('plan'); // 'search' | 'plan' | 'summary'
 
     // Load template or plan if provided
     // Load template, plan, or draft
@@ -638,7 +639,7 @@ const MenuBuilder = () => {
                 <BackButton to="/mealplans" className="mr-2" />
                 <div className="header-title">
                     <h1>Constructor de Menús</h1>
-                    <p>Arrastra alimentos y comidas completas para armar tu plan</p>
+                    <p>Arma tu plan profesional</p>
                 </div>
                 <div className="header-actions">
                     <button
@@ -646,11 +647,11 @@ const MenuBuilder = () => {
                         onClick={() => setShowFilters(!showFilters)}
                     >
                         <Filter size={18} />
-                        Filtros Clínicos
+                        <span className="btn-text">Filtros</span>
                     </button>
                     <button className="btn btn-success" onClick={handleSaveClick}>
                         <Save size={18} />
-                        Guardar Plan
+                        <span className="btn-text">Guardar</span>
                     </button>
                 </div>
             </div>
@@ -661,21 +662,21 @@ const MenuBuilder = () => {
                 onDragEnd={handleDragEnd}
                 sensors={sensors}
             >
-                <div className="builder-layout">
+                <div className={`builder-layout view-${activeMobileView}`}>
                     {/* Left Panel: Food Search & Quick Meals */}
-                    <div className="foods-panel">
+                    <div className={`foods-panel ${activeMobileView === 'search' ? 'active-mobile' : ''}`}>
                         <div className="foods-panel-tabs">
                             <button
                                 className={`panel-tab ${activeSidebarTab === 'search' ? 'active' : ''}`}
                                 onClick={() => setActiveSidebarTab('search')}
                             >
-                                <Search size={16} /> Buscador
+                                <Search size={16} /> <span className="tab-label">Buscador</span>
                             </button>
                             <button
                                 className={`panel-tab ${activeSidebarTab === 'quick_meals' ? 'active' : ''}`}
                                 onClick={() => setActiveSidebarTab('quick_meals')}
                             >
-                                <div className="icon-meal">🍵</div> Comidas
+                                <div className="icon-meal">🍵</div> <span className="tab-label">Comidas</span>
                             </button>
                         </div>
 
@@ -685,7 +686,7 @@ const MenuBuilder = () => {
                                     <Search size={18} />
                                     <input
                                         type="text"
-                                        placeholder="Buscar alimentos..."
+                                        placeholder="Buscar..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
@@ -696,10 +697,10 @@ const MenuBuilder = () => {
                                         <DraggableFoodItem key={food.id} food={food} />
                                     ))}
                                     {searchTerm && searchResults.length === 0 && (
-                                        <div className="no-results">No se encontraron alimentos</div>
+                                        <div className="no-results">Sin resultados</div>
                                     )}
                                     {!searchTerm && searchResults.length === 0 && (
-                                        <div className="search-hint">Busca alimentos para comenzar</div>
+                                        <div className="search-hint">Busca alimentos...</div>
                                     )}
                                 </div>
                             </>
@@ -713,7 +714,7 @@ const MenuBuilder = () => {
                     </div>
 
                     {/* Center Panel: Meal Slots */}
-                    <div className="meals-panel">
+                    <div className={`meals-panel ${activeMobileView === 'plan' ? 'active-mobile' : ''}`}>
                         {Object.entries(meals).map(([key, meal]) => (
                             <MealSlot
                                 key={key}
@@ -731,7 +732,7 @@ const MenuBuilder = () => {
                     </div>
 
                     {/* Right Panel: Summary */}
-                    <div className="summary-panel">
+                    <div className={`summary-panel ${activeMobileView === 'summary' ? 'active-mobile' : ''}`}>
                         {showFilters && (
                             <div className="filters-container">
                                 <ClinicalFilters
@@ -758,7 +759,7 @@ const MenuBuilder = () => {
                                     <div className="progress-bar">
                                         <div
                                             className="progress-fill protein"
-                                            style={{ width: `${Math.min((totals.protein * 4 / totals.calories) * 100, 100)}%` }}
+                                            style={{ width: `${totals.calories > 0 ? Math.min((totals.protein * 4 / totals.calories) * 100, 100) : 0}%` }}
                                         ></div>
                                     </div>
                                 </div>
@@ -770,7 +771,7 @@ const MenuBuilder = () => {
                                     <div className="progress-bar">
                                         <div
                                             className="progress-fill carbs"
-                                            style={{ width: `${Math.min((totals.carbs * 4 / totals.calories) * 100, 100)}%` }}
+                                            style={{ width: `${totals.calories > 0 ? Math.min((totals.carbs * 4 / totals.calories) * 100, 100) : 0}%` }}
                                         ></div>
                                     </div>
                                 </div>
@@ -782,7 +783,7 @@ const MenuBuilder = () => {
                                     <div className="progress-bar">
                                         <div
                                             className="progress-fill fats"
-                                            style={{ width: `${Math.min((totals.fats * 9 / totals.calories) * 100, 100)}%` }}
+                                            style={{ width: `${totals.calories > 0 ? Math.min((totals.fats * 9 / totals.calories) * 100, 100) : 0}%` }}
                                         ></div>
                                     </div>
                                 </div>
@@ -791,6 +792,30 @@ const MenuBuilder = () => {
                     </div>
                 </div>
 
+                {/* Mobile Navigation */}
+                <div className="mobile-builder-nav">
+                    <button
+                        className={`nav-item ${activeMobileView === 'search' ? 'active' : ''}`}
+                        onClick={() => setActiveMobileView('search')}
+                    >
+                        <Search size={22} />
+                        <span>Buscador</span>
+                    </button>
+                    <button
+                        className={`nav-item ${activeMobileView === 'plan' ? 'active' : ''}`}
+                        onClick={() => setActiveMobileView('plan')}
+                    >
+                        <div className="nav-plan-icon">🍽️</div>
+                        <span>Plan</span>
+                    </button>
+                    <button
+                        className={`nav-item ${activeMobileView === 'summary' ? 'active' : ''}`}
+                        onClick={() => setActiveMobileView('summary')}
+                    >
+                        <Filter size={22} />
+                        <span>Resumen</span>
+                    </button>
+                </div>
                 <DragOverlay>
                     {activeDragItem ? (
                         <div className={activeDragItem.id && activeDragItem.id.toString().startsWith('food-') ? "drag-preview-item" : "drag-preview"}>
