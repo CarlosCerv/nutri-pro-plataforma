@@ -153,12 +153,34 @@
     font-size: 0.85rem;
 }
 
-/* Mobile Responsive */
+/* Mobile Responsive Precision */
 @media (max-width: 768px) {
+    .appointments-page {
+        padding: var(--space-lg);
+    }
+
+    .appointments-tabs {
+        gap: var(--space-xs);
+        overflow-x: auto;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid var(--gray-100);
+    }
+
+    .tab-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .appointments-list-grouped {
+        gap: var(--space-xl);
+    }
+
     .appointment-card-new {
         grid-template-columns: 1fr;
-        gap: var(--space-md);
-        text-align: left;
+        gap: 12px;
+        padding: var(--space-lg);
     }
 
     .appt-time-col {
@@ -166,16 +188,41 @@
         border-right: none;
         padding-right: 0;
         justify-content: flex-start;
-        gap: var(--space-md);
-        border-bottom: 1px solid var(--gray-100);
-        padding-bottom: var(--space-md);
+        gap: 12px;
+        border-bottom: 1px solid var(--gray-50);
+        padding-bottom: 12px;
+    }
+
+    .appt-time {
+        font-size: 1.1rem;
+    }
+
+    .appt-info-col {
+        gap: 4px;
+    }
+
+    .patient-name {
+        font-size: 1rem;
     }
 
     .appt-actions-col {
         justify-content: stretch;
+        gap: 8px;
+        margin-top: 4px;
     }
 
     .appt-actions-col .btn {
         flex: 1;
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .appointments-page {
+        padding: 12px;
+    }
+
+    .appointment-card-new {
+        padding: 16px;
     }
 }

@@ -255,22 +255,67 @@
     margin-bottom: var(--space-sm);
 }
 
-/* Responsive */
+/* Responsive Accuracy */
 @media (max-width: 768px) {
     .diet-templates-page {
         padding: var(--space-lg);
     }
 
+    .templates-filters {
+        margin-bottom: var(--space-xl);
+    }
+
+    .search-box {
+        padding: 0.875rem 1rem;
+    }
+
     .templates-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-lg);
     }
 
     .category-filters {
         overflow-x: auto;
         flex-wrap: nowrap;
-        padding-bottom: 0.5rem;
+        padding-bottom: 8px;
         margin-right: -1rem;
         padding-right: 1rem;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        /* Hide scrollbar for cleaner look */
+    }
+
+    .category-filters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-btn {
+        white-space: nowrap;
+        padding: 8px 16px;
+    }
+
+    .template-card {
+        padding: var(--space-lg);
+    }
+
+    .template-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    .template-meta h3 {
+        font-size: 1.15rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .diet-templates-page {
+        padding: 12px;
+    }
+
+    .template-stats {
+        padding: 12px;
+        gap: var(--space-sm);
     }
 }
