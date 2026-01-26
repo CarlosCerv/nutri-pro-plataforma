@@ -3,10 +3,10 @@ import { Plus } from 'lucide-react';
 
 const DashboardHeader = ({ userName, date, onNewPatient, onNewAppointment }) => {
     return (
-        <div className="dashboard-header-modern">
-            <div className="header-left">
+        <div className="dashboard-header-container">
+            <div className="header-meta">
                 <p className="current-date">{date}</p>
-                <h1>Buenos días, <span className="text-primary">{userName}</span> 👋</h1>
+                <h1 className="welcome-text">Buenos días, <span className="highlight-name">{userName}</span></h1>
             </div>
             <div className="header-actions">
                 <button className="btn btn-action-secondary" onClick={onNewPatient}>
