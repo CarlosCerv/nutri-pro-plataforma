@@ -108,24 +108,28 @@
     flex-shrink: 0;
 }
 
-.blue-tint {
-    background: #eff6ff;
-    color: #2563eb;
+/* Unified Premium Pink Icons */
+.stat-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, white, var(--primary-50));
+    color: var(--primary-600);
+    border: 1.5px solid var(--primary-100);
+    box-shadow: 0 4px 10px rgba(219, 39, 119, 0.08);
+    transition: all 0.3s ease;
 }
 
-.purple-tint {
-    background: #f5f3ff;
-    color: #7c3aed;
-}
-
-.green-tint {
-    background: #f0fdf4;
-    color: #16a34a;
-}
-
-.orange-tint {
-    background: #fff7ed;
-    color: #ea580c;
+.stat-card-modern:hover .stat-icon-wrapper {
+    background: var(--primary-600);
+    color: white;
+    transform: scale(1.05) rotate(-5deg);
+    box-shadow: 0 8px 15px rgba(219, 39, 119, 0.2);
+    border-color: var(--primary-600);
 }
 
 .stat-info .stat-label {

@@ -145,14 +145,12 @@ const Dashboard = () => {
                         value={statsData.totalPatients}
                         trendValue={`${statsData.activePatients} Activos`}
                         icon={Users}
-                        colorClass="blue-tint"
                     />
                     <StatCard
                         label="Citas Hoy"
                         value={statsData.todayAppointments}
                         trendValue={`${statsData.upcomingAppointments} Próximas`}
                         icon={Calendar}
-                        colorClass="purple-tint"
                     />
                     <StatCard
                         label="Consultas Mes"
@@ -160,7 +158,6 @@ const Dashboard = () => {
                         trend={statsData.monthlyChange >= 0 ? 'positive' : 'negative'}
                         trendValue={`${Math.abs(statsData.monthlyChange)}%`}
                         icon={Activity}
-                        colorClass="green-tint"
                     />
                     <StatCard
                         label="Tasa de Éxito"
@@ -168,7 +165,6 @@ const Dashboard = () => {
                         trend={statsData.successRateChange >= 0 ? 'positive' : 'negative'}
                         trendValue={`${Math.abs(statsData.successRateChange)}%`}
                         icon={TrendingUp}
-                        colorClass="orange-tint"
                     />
                 </section>
 
