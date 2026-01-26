@@ -722,10 +722,12 @@ const MenuBuilder = () => {
     return (
         <div className="menu-builder-page fade-in">
             <div className="builder-header">
-                <BackButton to="/mealplans" className="mr-2" />
-                <div className="header-title">
-                    <h1>Constructor</h1>
-                    <p className="desktop-only text-xs">Arma tu plan profesional</p>
+                <div className="header-info-group">
+                    <BackButton to="/mealplans" className="mr-2" />
+                    <div className="header-title">
+                        <h1>Constructor</h1>
+                        <p className="desktop-only text-xs">Arma tu plan profesional</p>
+                    </div>
                 </div>
                 <div className="header-actions">
                     <button
