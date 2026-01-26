@@ -351,53 +351,63 @@
 
     .dashboard-inner-container {
         padding: 12px;
-        gap: var(--space-xl);
+        gap: 16px;
+        /* Reduced from 32px for better vertical density */
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
         box-sizing: border-box;
+        padding-bottom: 100px;
+        /* Safe area at the bottom */
     }
 
     .dashboard-header-container {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--space-lg);
-        padding-bottom: var(--space-lg);
+        gap: 10px;
+        padding-bottom: 8px;
     }
 
     .header-actions {
         width: 100%;
         display: grid;
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
     }
 
     .header-actions .btn {
         width: 100%;
         box-sizing: border-box;
         justify-content: center;
-        padding: 1rem;
-        font-size: 1rem;
+        padding: 0.875rem;
+        font-size: 0.95rem;
     }
 
     .welcome-text {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
     }
 
     .stats-overview-section {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
         width: 100%;
     }
 
     .stat-card-modern {
-        padding: var(--space-lg);
+        padding: 14px 16px;
+        /* Compact padding */
         width: 100%;
         box-sizing: border-box;
+        gap: 12px;
+    }
+
+    .stat-icon-wrapper {
+        width: 48px;
+        height: 48px;
     }
 
     .dashboard-content-splits {
-        gap: var(--space-lg);
+        gap: 16px;
         width: 100%;
         grid-template-columns: 1fr;
     }
@@ -409,9 +419,8 @@
     }
 
     .calendar-view-box {
-        padding: 12px;
+        padding: 10px;
         overflow-x: auto;
-        /* Allow sub-component scroll if needed, but not page */
     }
 
     /* Target nested components to ensure they don't break parent bounds */
@@ -423,18 +432,18 @@
 
 @media (max-width: 480px) {
     .dashboard-inner-container {
-        padding: 12px;
+        padding: 8px;
     }
 
     .card-header-v2 {
-        padding: var(--space-lg);
+        padding: 16px;
     }
 
     .card-header-v2 h2 {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
 
     .stat-number-row h3 {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
     }
 }

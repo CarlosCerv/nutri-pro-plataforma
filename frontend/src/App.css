@@ -1,15 +1,17 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
+  overflow-x: hidden;
+  /* Prevent horizontal jitter at root */
 }
 
 .main-content {
   flex: 1;
   margin-left: 260px;
-  /* Matched to new Sidebar width */
   display: flex;
   flex-direction: column;
   transition: margin-left 0.3s ease-in-out;
+  min-height: 100vh;
 }
 
 .content-area {
