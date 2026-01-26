@@ -1,155 +1,203 @@
+/* NewPatient Redesign - Luxury & Mobile-Ready */
 .new-patient-page {
-    padding: var(--space-2xl);
-    max-width: 1000px;
+    padding: var(--space-xl) var(--space-2xl);
+    max-width: 960px;
     margin: 0 auto;
 }
 
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-md);
-    background: transparent;
-    border: 1px solid var(--border-medium);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all var(--transition-base);
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: var(--space-lg);
+.card-form {
+    padding: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--gray-50);
 }
 
-.btn-back:hover {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--border-dark);
-}
-
-.patient-form {
-    padding: var(--space-2xl);
-}
-
-.form-section {
-    margin-bottom: var(--space-2xl);
-    padding-bottom: var(--space-2xl);
-    border-bottom: 1px solid var(--border-light);
-}
-
-.form-section:last-of-type {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.form-section h3 {
-    font-size: 1.25rem;
-    margin-bottom: var(--space-lg);
-    color: var(--text-primary);
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-lg);
-}
-
-.form-group {
+.form-layout-stack {
     display: flex;
     flex-direction: column;
 }
 
-.required {
-    color: var(--error);
-    margin-left: 0.25rem;
+.form-card-section {
+    padding: var(--space-xl) var(--space-2xl);
+    border-bottom: 1px solid var(--gray-50);
 }
 
-.textarea {
-    resize: vertical;
-    min-height: 100px;
-    font-family: 'Inter', sans-serif;
+.form-card-section.bg-alt-faint {
+    background: #fbfbfb;
 }
 
-.form-actions {
+.form-card-section h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: var(--space-xl);
+}
+
+.section-title-compact {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-600);
+    margin: var(--space-xl) 0 var(--space-lg);
     display: flex;
-    gap: var(--space-md);
-    justify-content: flex-end;
-    margin-top: var(--space-2xl);
-    padding-top: var(--space-2xl);
-    border-top: 1px solid var(--border-light);
+    align-items: center;
+    gap: 12px;
 }
 
-.form-actions .btn {
-    min-width: 150px;
+.section-title-compact::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--primary-100);
 }
 
-.error-message {
-    padding: var(--space-md);
-    background: #fee2e2;
-    color: #991b1b;
-    border-radius: var(--radius-md);
+/* Grids */
+.form-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+}
+
+.form-fields-grid-triple {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+}
+
+.mb-gutter {
     margin-bottom: var(--space-lg);
-    font-size: 0.875rem;
-    font-weight: 500;
 }
 
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gray-600);
+    letter-spacing: 0.01em;
+}
+
+.req {
+    color: var(--primary-500);
+}
+
+.field-input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    transition: all 0.25s;
+    background: white;
+}
+
+.field-input:focus {
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 5px var(--primary-50);
+    outline: none;
+}
+
+.field-textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+/* Premium Select Custom Styles (inherited from general dropdown system) */
+.premium-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.premium-select-container .select-trigger {
+    height: 47px;
+    border: 1.5px solid var(--gray-200);
+    box-sizing: border-box;
+}
+
+.premium-select-container .select-trigger.active {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 5px var(--primary-50);
+}
+
+/* Actions Footer (Consistent with NewAppointment) */
+.form-footer-actions {
+    padding: var(--space-xl) var(--space-2xl);
+    background: white;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-lg);
+    border-top: 1px solid var(--gray-50);
+}
+
+/* MOBILE OPTIMIZATION */
 @media (max-width: 768px) {
     .new-patient-page {
-        padding: var(--space-md);
+        padding: 12px;
     }
 
-    .page-header {
-        margin-bottom: var(--space-xl);
-    }
-
-    .patient-form {
+    .form-card-section {
         padding: var(--space-lg);
     }
 
-    .form-section {
-        margin-bottom: var(--space-xl);
-        padding-bottom: var(--space-xl);
-    }
-
-    .form-grid {
+    .form-fields-grid,
+    .form-fields-grid-triple {
         grid-template-columns: 1fr;
-        gap: var(--space-md);
+        gap: var(--space-lg);
     }
 
-    .form-actions {
+    .form-footer-actions {
         flex-direction: column;
-        /* Stacked: Save on top of Cancel */
-        gap: var(--space-md);
-        margin-top: var(--space-xl);
-        padding-top: var(--space-xl);
+        padding: var(--space-lg);
     }
 
-    .form-actions .btn {
+    .btn-v2-primary,
+    .btn-v2-secondary {
         width: 100%;
-        min-width: 0;
+        justify-content: center;
+        padding: 1rem;
     }
 
-    .form-actions button[type="submit"] {
-        order: -1;
-        /* Ensure "Guardar" is the primary action at the top */
+    .form-card-section h3 {
+        font-size: 1.15rem;
+        margin-bottom: var(--space-lg);
     }
 }
 
-.section-subtitle {
-    display: block;
-    width: 100%;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--primary-600);
-    margin-bottom: var(--space-md);
-    padding-bottom: var(--space-xs);
-    border-bottom: 2px solid var(--primary-100);
-    margin-top: var(--space-lg);
+@media (max-width: 480px) {
+    .new-patient-page {
+        padding: 8px;
+    }
+
+    .card-form {
+        border-radius: var(--radius-xl);
+    }
 }
 
-.form-legend {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--space-lg);
-    font-style: italic;
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.shadow-luxury {
+    box-shadow: 0 15px 35px rgba(219, 39, 119, 0.15);
 }
