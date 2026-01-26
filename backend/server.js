@@ -31,6 +31,14 @@ connectDB();
 // Start appointment reminder cron job
 startReminderCron();
 
+// Request logging middleware
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV !== 'test') {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin || 'No Origin'}`);
+    }
+    next();
+});
+
 // Middleware
 const allowedOrigins = [
     'http://localhost:5173',
