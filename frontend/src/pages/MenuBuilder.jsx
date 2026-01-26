@@ -125,6 +125,7 @@ const MenuBuilder = () => {
 
     const [activeSidebarTab, setActiveSidebarTab] = useState('search'); // 'search' | 'quick_meals'
     const [activeMobileView, setActiveMobileView] = useState('plan'); // 'search' | 'plan' | 'summary'
+    const [quickAddFood, setQuickAddFood] = useState(null); // Track which food is being added via click
 
     // Load template or plan if provided
     // Load template, plan, or draft
@@ -452,6 +453,64 @@ const MenuBuilder = () => {
         }
     };
 
+    // Quick Add handler for Mobile
+    const handleQuickAdd = (targetMealKey) => {
+        if (!quickAddFood || !targetMealKey) return;
+
+        const isMeal = quickAddFood.type === 'prepared_meal';
+
+        if (isMeal) {
+            const newFoods = quickAddFood.items.map(item => ({
+                id: `food-${Math.random().toString(36).substr(2, 9)}`,
+                foodRef: null,
+                name: item.name,
+                image: null,
+                nutrition: {},
+                servingSizes: [],
+                quantity: item.quantity,
+                quantityGrams: item.quantityGrams,
+                calories: item.calories,
+                protein: item.protein,
+                carbohydrates: item.carbohydrates,
+                fats: item.fats
+            }));
+
+            setMeals(prev => ({
+                ...prev,
+                [targetMealKey]: {
+                    ...prev[targetMealKey],
+                    foods: [...prev[targetMealKey].foods, ...newFoods]
+                }
+            }));
+        } else {
+            const newFood = {
+                ...quickAddFood,
+                id: `food-${Math.random().toString(36).substr(2, 9)}`,
+                foodRef: quickAddFood.id,
+                image: quickAddFood.image || quickAddFood.img,
+                nutrition: quickAddFood.nutrition,
+                servingSizes: quickAddFood.servingSizes,
+                quantity: quickAddFood.quantity,
+                quantityGrams: quickAddFood.quantityGrams,
+                calories: quickAddFood.calories,
+                protein: quickAddFood.protein,
+                carbohydrates: quickAddFood.carbohydrates,
+                fats: quickAddFood.fats
+            };
+
+            setMeals(prev => ({
+                ...prev,
+                [targetMealKey]: {
+                    ...prev[targetMealKey],
+                    foods: [...prev[targetMealKey].foods, newFood]
+                }
+            }));
+        }
+
+        setQuickAddFood(null);
+        setActiveMobileView('plan'); // Switch to plan view to show user the result
+    };
+
     const handleRemoveFood = (foodId) => {
         setMeals(prev => {
             const next = { ...prev };
@@ -696,7 +755,11 @@ const MenuBuilder = () => {
 
                                     <div className="foods-list">
                                         {searchResults.map(food => (
-                                            <DraggableFoodItem key={food.id} food={food} />
+                                            <DraggableFoodItem
+                                                key={food.id}
+                                                food={food}
+                                                onQuickAdd={setQuickAddFood}
+                                            />
                                         ))}
                                         {searchTerm && searchResults.length === 0 && (
                                             <div className="no-results">Sin resultados</div>
@@ -709,7 +772,12 @@ const MenuBuilder = () => {
                             ) : (
                                 <div className="foods-list">
                                     {PREPARED_MEALS.map(meal => (
-                                        <DraggableFoodItem key={meal.id} food={meal} isMeal={true} />
+                                        <DraggableFoodItem
+                                            key={meal.id}
+                                            food={meal}
+                                            isMeal={true}
+                                            onQuickAdd={setQuickAddFood}
+                                        />
                                     ))}
                                 </div>
                             )}
@@ -848,6 +916,39 @@ const MenuBuilder = () => {
                     onSave={handleSaveConfirm}
                     totals={totals}
                 />
+            )}
+            {/* Quick Add Selector Modal */}
+            {quickAddFood && (
+                <div className="quick-add-overlay fade-in" onClick={() => setQuickAddFood(null)}>
+                    <div className="quick-add-modal slide-up" onClick={e => e.stopPropagation()}>
+                        <div className="quick-add-header">
+                            <h3>Agregar a...</h3>
+                            <button className="btn-close-subtle" onClick={() => setQuickAddFood(null)}><X size={20} /></button>
+                        </div>
+                        <div className="quick-add-info">
+                            <span className="food-name-preview">{quickAddFood.name}</span>
+                        </div>
+                        <div className="meal-targets-grid">
+                            {Object.entries(meals).map(([key, meal]) => (
+                                <button
+                                    key={key}
+                                    className="meal-target-btn"
+                                    onClick={() => handleQuickAdd(key)}
+                                >
+                                    <span className="meal-icon">
+                                        {key === 'breakfast' && '🍳'}
+                                        {key === 'morningSnack' && '🍎'}
+                                        {key === 'lunch' && '🍲'}
+                                        {key === 'afternoonSnack' && '🥜'}
+                                        {key === 'dinner' && '🥗'}
+                                        {key === 'eveningSnack' && '🥛'}
+                                    </span>
+                                    <span className="meal-label">{meal.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

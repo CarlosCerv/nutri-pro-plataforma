@@ -852,6 +852,150 @@
     }
 }
 
+/* Quick Add Mobile Button */
+.btn-primary-mobile {
+    background: var(--primary-500) !important;
+    color: white !important;
+    border-color: var(--primary-600) !important;
+    box-shadow: 0 4px 10px rgba(236, 72, 153, 0.2);
+    transform: scale(1.1);
+}
+
+.btn-primary-mobile:hover {
+    background: var(--primary-600) !important;
+    transform: scale(1.15);
+}
+
+/* Quick Add Overlay & Modal */
+.quick-add-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-end;
+    /* Bottom sheet style */
+    justify-content: center;
+}
+
+.quick-add-modal {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 24px 24px 0 0;
+    padding: 1.5rem;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.quick-add-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.quick-add-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #111827;
+    font-weight: 700;
+}
+
+.btn-close-subtle {
+    background: #f3f4f6;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+.quick-add-info {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: var(--primary-50);
+    border-radius: 12px;
+    border: 1px dashed var(--primary-200);
+}
+
+.food-name-preview {
+    font-weight: 600;
+    color: var(--primary-700);
+    font-size: 0.95rem;
+}
+
+.meal-targets-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+}
+
+.meal-target-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #f3f4f6;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.meal-target-btn:hover {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    transform: translateY(-2px);
+}
+
+.meal-target-btn:active {
+    transform: scale(0.95);
+}
+
+.meal-icon {
+    font-size: 1.5rem;
+}
+
+.meal-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Animations */
+.slide-up {
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Hide desktop-only elements on mobile */
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .btn-primary-mobile {
+        display: none !important;
+    }
+}
+
 /* Food Quantity Selector */
 .food-quantity-selector {
     cursor: auto;

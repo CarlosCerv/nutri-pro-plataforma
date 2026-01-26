@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, X, Repeat } from 'lucide-react';
+import { GripVertical, X, Repeat, Plus } from 'lucide-react';
 
-const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate }) => {
+const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate, onQuickAdd }) => {
     // Defensive checks
     if (!food || !food.id || !food.name) {
         console.warn('DraggableFoodItem: Invalid food item', food);
@@ -39,7 +39,7 @@ const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate }) => {
             style={style}
             className={`draggable-food-item ${isDragging ? 'dragging' : ''}`}
         >
-            <div className="drag-handle" {...attributes} {...listeners}>
+            <div className="drag-handle desktop-only" {...attributes} {...listeners}>
                 <GripVertical size={16} />
             </div>
 
@@ -96,6 +96,15 @@ const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate }) => {
             </div>
 
             <div className="food-actions">
+                {onQuickAdd && (
+                    <button
+                        className="btn-icon-small btn-primary-mobile"
+                        onClick={() => onQuickAdd(food)}
+                        title="Agregar al plan"
+                    >
+                        <Plus size={18} />
+                    </button>
+                )}
                 {onExchange && (
                     <button
                         className="btn-icon-small"
