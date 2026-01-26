@@ -48,11 +48,16 @@ app.use(cors({
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
 
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
+        // Normalize origin and allowed origins (remove trailing slashes)
+        const normalizedOrigin = origin.replace(/\/$/, "");
+        const normalizedAllowed = allowedOrigins.map(o => o ? o.replace(/\/$/, "") : o);
+
+        if (normalizedAllowed.indexOf(normalizedOrigin) !== -1 || normalizedOrigin.startsWith('http://localhost:')) {
             callback(null, true);
         } else {
             console.warn(`CORS blocked request from origin: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
+            // Don't throw a hard error to avoid 500, just reject
+            callback(null, false);
         }
     },
     credentials: true,
