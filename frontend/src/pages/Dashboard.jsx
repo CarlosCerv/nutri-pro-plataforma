@@ -41,7 +41,7 @@ const Dashboard = () => {
             const patients = patientsRes.data.data;
             const appointments = appointmentsRes.data.data;
 
-            // Stats calculation logic (keeping same logic but cleaner state)
+            // Stats calculation logic
             const activePatients = patients.filter(p => p.status === 'active').length;
             const today = new Date().toISOString().split('T')[0];
             const todayAppts = appointments.filter(a =>
