@@ -95,23 +95,43 @@
 
 @media (max-width: 768px) {
     .new-patient-page {
-        padding: var(--space-lg);
+        padding: var(--space-md);
+    }
+
+    .page-header {
+        margin-bottom: var(--space-xl);
     }
 
     .patient-form {
         padding: var(--space-lg);
     }
 
+    .form-section {
+        margin-bottom: var(--space-xl);
+        padding-bottom: var(--space-xl);
+    }
+
     .form-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-md);
     }
 
     .form-actions {
-        flex-direction: column-reverse;
+        flex-direction: column;
+        /* Stacked: Save on top of Cancel */
+        gap: var(--space-md);
+        margin-top: var(--space-xl);
+        padding-top: var(--space-xl);
     }
 
     .form-actions .btn {
         width: 100%;
+        min-width: 0;
+    }
+
+    .form-actions button[type="submit"] {
+        order: -1;
+        /* Ensure "Guardar" is the primary action at the top */
     }
 }
 

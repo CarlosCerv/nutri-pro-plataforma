@@ -196,9 +196,24 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+    .patients-page {
+        padding: var(--space-md);
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-lg);
+        margin-bottom: var(--space-xl);
+    }
+
+    .search-bar {
+        padding: 0.75rem 1rem;
+        margin-bottom: var(--space-lg);
+    }
+
     .patients-list-header {
         display: none;
-        /* Hide header on mobile */
     }
 
     .patient-row {
@@ -208,15 +223,19 @@
         position: relative;
     }
 
+    .patient-cell-profile {
+        padding-right: 40px;
+        /* Space for arrow/actions if needed */
+    }
+
     .patient-cell-actions {
-        position: absolute;
-        top: var(--space-lg);
-        right: var(--space-lg);
+        display: none;
+        /* Hide desktop button, use row click */
     }
 
     .patient-cell-contact {
         padding-left: 56px;
-        /* Align with name under avatar */
+        gap: 4px;
     }
 
     .patient-cell-status {

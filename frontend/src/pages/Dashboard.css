@@ -380,26 +380,52 @@
 
 @media (max-width: 768px) {
     .dashboard {
-        padding: var(--space-lg);
+        padding: var(--space-md);
     }
 
     .dashboard-header-modern {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--space-lg);
+        text-align: left;
+        border-bottom: none;
+        margin-bottom: var(--space-xl);
+    }
+
+    .header-left h1 {
+        font-size: 1.75rem;
     }
 
     .header-actions {
         width: 100%;
-        overflow-x: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-sm);
     }
 
     .header-actions .btn {
-        flex: 1;
+        width: 100%;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
         white-space: nowrap;
     }
 
     .stats-grid-modern {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+
+    .stat-card-modern {
+        padding: var(--space-md);
+    }
+
+    .dashboard-main-grid {
+        gap: var(--space-lg);
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
         grid-template-columns: 1fr;
     }
 }
