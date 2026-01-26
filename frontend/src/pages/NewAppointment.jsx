@@ -4,6 +4,7 @@ import { appointmentsAPI, patientsAPI } from '../services/api';
 import { ArrowLeft, Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import { useEffect } from 'react';
+import SearchableSelect from '../components/SearchableSelect';
 import './NewAppointment.css';
 
 const NewAppointment = () => {
@@ -123,22 +124,13 @@ const NewAppointment = () => {
                                     <label className="field-label" htmlFor="patient">
                                         Seleccionar Paciente <span className="req">*</span>
                                     </label>
-                                    <select
-                                        id="patient"
-                                        name="patient"
-                                        className="field-input"
+                                    <SearchableSelect
+                                        options={patients}
                                         value={formData.patient}
                                         onChange={handleChange}
-                                        required={!formData.isGuest}
+                                        placeholder="Buscar por nombre o apellido..."
                                         disabled={loading}
-                                    >
-                                        <option value="">Buscar en mis pacientes...</option>
-                                        {patients.map(patient => (
-                                            <option key={patient._id} value={patient._id}>
-                                                {patient.firstName} {patient.lastName}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    />
                                 </div>
                             ) : (
                                 <div className="guest-fields-container animate-fade-in">
