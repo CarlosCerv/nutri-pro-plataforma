@@ -53,19 +53,26 @@ if (process.env.FRONTEND_URL) {
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+        try {
+            // Allow requests with no origin (like mobile apps or curl requests)
+            if (!origin) return callback(null, true);
 
-        // Normalize origin and allowed origins (remove trailing slashes)
-        const normalizedOrigin = origin.replace(/\/$/, "");
-        const normalizedAllowed = allowedOrigins.map(o => o ? o.replace(/\/$/, "") : o);
+            // Normalize origin and allowed origins (remove trailing slashes)
+            const normalizedOrigin = origin.replace(/\/$/, "");
+            const normalizedAllowed = allowedOrigins.filter(o => typeof o === 'string').map(o => o.replace(/\/$/, ""));
 
-        if (normalizedAllowed.indexOf(normalizedOrigin) !== -1 || normalizedOrigin.startsWith('http://localhost:')) {
-            callback(null, true);
-        } else {
-            console.warn(`CORS blocked request from origin: ${origin}`);
-            // Don't throw a hard error to avoid 500, just reject
-            callback(null, false);
+            const isAllowed = normalizedAllowed.includes(normalizedOrigin) ||
+                normalizedOrigin.startsWith('http://localhost:');
+
+            if (isAllowed) {
+                callback(null, true);
+            } else {
+                console.warn(`[CORS] Blocked origin: ${origin}`);
+                callback(null, false);
+            }
+        } catch (corsError) {
+            console.error('[CORS] Middleware error:', corsError);
+            callback(null, false); // Fail safely
         }
     },
     credentials: true,
