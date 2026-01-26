@@ -13,7 +13,7 @@ import {
     arrayMove,
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { Save, Filter, Search, ArrowLeft } from 'lucide-react';
+import { Save, Filter, Search, ArrowLeft, BookTemplate } from 'lucide-react';
 
 import { foodsAPI, mealPlansAPI, dietTemplatesAPI } from '../services/api';
 import MealSlot from '../components/MealSlot';
@@ -123,9 +123,11 @@ const MenuBuilder = () => {
         }
     ];
 
-    const [activeSidebarTab, setActiveSidebarTab] = useState('search'); // 'search' | 'quick_meals'
+    const [activeSidebarTab, setActiveSidebarTab] = useState('search'); // 'search' | 'quick_meals' | 'templates'
     const [activeMobileView, setActiveMobileView] = useState('plan'); // 'search' | 'plan' | 'summary'
     const [quickAddFood, setQuickAddFood] = useState(null); // Track which food is being added via click
+    const [systemTemplates, setSystemTemplates] = useState([]); // List of base templates
+    const [templatesLoading, setTemplatesLoading] = useState(false);
 
     // Load template or plan if provided
     // Load template, plan, or draft
@@ -208,6 +210,23 @@ const MenuBuilder = () => {
             searchFoods();
         }
     }, [searchTerm, clinicalFilters]);
+
+    // Fetch system templates once
+    useEffect(() => {
+        const fetchSystemTemplates = async () => {
+            setTemplatesLoading(true);
+            try {
+                // Fetch both system and user templates for the sidebar
+                const response = await dietTemplatesAPI.getAll();
+                setSystemTemplates(response.data.data || []);
+            } catch (error) {
+                console.error('Error fetching templates for builder:', error);
+            } finally {
+                setTemplatesLoading(false);
+            }
+        };
+        fetchSystemTemplates();
+    }, []);
 
     const loadTemplate = async (id) => {
         try {
@@ -599,6 +618,14 @@ const MenuBuilder = () => {
         }));
     };
 
+    const handleApplyTemplate = (template) => {
+        if (window.confirm(`¿Estás seguro de que quieres aplicar la plantilla "${template.name}"? Esto reemplazará tu progreso actual.`)) {
+            mapDataToState(template.defaultMeals, template.clinicalProfile);
+            setActiveMobileView('plan');
+            setActiveSidebarTab('search');
+        }
+    };
+
     const handleSaveClick = () => {
         const totalFoods = Object.values(meals).reduce((acc, meal) => acc + meal.foods.length, 0);
         if (totalFoods === 0) {
@@ -739,6 +766,12 @@ const MenuBuilder = () => {
                                 >
                                     <div className="icon-meal">🍵</div> <span className="tab-label">Comidas</span>
                                 </button>
+                                <button
+                                    className={`panel-tab ${activeSidebarTab === 'templates' ? 'active' : ''}`}
+                                    onClick={() => setActiveSidebarTab('templates')}
+                                >
+                                    <BookTemplate size={16} /> <span className="tab-label">Plantillas</span>
+                                </button>
                             </div>
 
                             {activeSidebarTab === 'search' ? (
@@ -769,7 +802,7 @@ const MenuBuilder = () => {
                                         )}
                                     </div>
                                 </>
-                            ) : (
+                            ) : activeSidebarTab === 'quick_meals' ? (
                                 <div className="foods-list">
                                     {PREPARED_MEALS.map(meal => (
                                         <DraggableFoodItem
@@ -779,6 +812,32 @@ const MenuBuilder = () => {
                                             onQuickAdd={setQuickAddFood}
                                         />
                                     ))}
+                                </div>
+                            ) : (
+                                <div className="foods-list">
+                                    {templatesLoading ? (
+                                        <div className="p-4 text-center">Cargando plantillas...</div>
+                                    ) : systemTemplates.length === 0 ? (
+                                        <div className="p-4 text-center text-sm text-gray-500">No hay plantillas disponibles</div>
+                                    ) : (
+                                        systemTemplates.map(template => (
+                                            <div key={template._id} className="template-sidebar-item card shadow-sm mb-3">
+                                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                                    <h4 className="text-sm font-bold mb-0">{template.name}</h4>
+                                                    <span className="badge badge-success">{template.targetCalories} kcal</span>
+                                                </div>
+                                                <p className="text-xs text-secondary mb-3 line-clamp-2">
+                                                    {template.description || 'Sin descripción'}
+                                                </p>
+                                                <button
+                                                    className="btn btn-sm btn-outline w-100"
+                                                    onClick={() => handleApplyTemplate(template)}
+                                                >
+                                                    Aplicar al Plan
+                                                </button>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             )}
                         </div>
