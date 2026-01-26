@@ -41,7 +41,6 @@ const Dashboard = () => {
             const patients = patientsRes.data.data;
             const appointments = appointmentsRes.data.data;
 
-            // Stats calculation logic
             const activePatients = patients.filter(p => p.status === 'active').length;
             const today = new Date().toISOString().split('T')[0];
             const todayAppts = appointments.filter(a =>
@@ -131,71 +130,77 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="dashboard-container fade-in">
-            <DashboardHeader
-                userName={user?.name?.split(' ')[0]}
-                date={formattedDate}
-                onNewPatient={() => navigate('/patients/new')}
-                onNewAppointment={() => navigate('/appointments/new')}
-            />
+        <main className="dashboard-view-root fade-in">
+            <div className="dashboard-inner-container">
+                <DashboardHeader
+                    userName={user?.name?.split(' ')[0]}
+                    date={formattedDate}
+                    onNewPatient={() => navigate('/patients/new')}
+                    onNewAppointment={() => navigate('/appointments/new')}
+                />
 
-            <div className="stats-section-grid">
-                <StatCard
-                    label="Total Pacientes"
-                    value={statsData.totalPatients}
-                    trendValue={`${statsData.activePatients} Activos`}
-                    icon={Users}
-                    colorClass="blue-tint"
-                />
-                <StatCard
-                    label="Citas Hoy"
-                    value={statsData.todayAppointments}
-                    trendValue={`${statsData.upcomingAppointments} Próximas`}
-                    icon={Calendar}
-                    colorClass="purple-tint"
-                />
-                <StatCard
-                    label="Consultas Mes"
-                    value={statsData.thisMonthAppointments}
-                    trend={statsData.monthlyChange >= 0 ? 'positive' : 'negative'}
-                    trendValue={`${Math.abs(statsData.monthlyChange)}%`}
-                    icon={Activity}
-                    colorClass="green-tint"
-                />
-                <StatCard
-                    label="Tasa de Éxito"
-                    value={`${statsData.successRate}%`}
-                    trend={statsData.successRateChange >= 0 ? 'positive' : 'negative'}
-                    trendValue={`${Math.abs(statsData.successRateChange)}%`}
-                    icon={TrendingUp}
-                    colorClass="orange-tint"
-                />
-            </div>
-
-            <div className="dashboard-layout-main">
-                <section className="calendar-main card">
-                    <div className="card-header-flex">
-                        <h2>Calendario Semanal</h2>
-                        <button className="btn-text-link" onClick={() => navigate('/appointments')}>
-                            Ver Agenda <ChevronRight size={16} />
-                        </button>
-                    </div>
-                    <div className="calendar-wrapper-inner">
-                        <WeeklyCalendar />
-                    </div>
+                <section className="stats-overview-section">
+                    <StatCard
+                        label="Total Pacientes"
+                        value={statsData.totalPatients}
+                        trendValue={`${statsData.activePatients} Activos`}
+                        icon={Users}
+                        colorClass="blue-tint"
+                    />
+                    <StatCard
+                        label="Citas Hoy"
+                        value={statsData.todayAppointments}
+                        trendValue={`${statsData.upcomingAppointments} Próximas`}
+                        icon={Calendar}
+                        colorClass="purple-tint"
+                    />
+                    <StatCard
+                        label="Consultas Mes"
+                        value={statsData.thisMonthAppointments}
+                        trend={statsData.monthlyChange >= 0 ? 'positive' : 'negative'}
+                        trendValue={`${Math.abs(statsData.monthlyChange)}%`}
+                        icon={Activity}
+                        colorClass="green-tint"
+                    />
+                    <StatCard
+                        label="Tasa de Éxito"
+                        value={`${statsData.successRate}%`}
+                        trend={statsData.successRateChange >= 0 ? 'positive' : 'negative'}
+                        trendValue={`${Math.abs(statsData.successRateChange)}%`}
+                        icon={TrendingUp}
+                        colorClass="orange-tint"
+                    />
                 </section>
 
-                <ActivitySection
-                    activeTab={activityTab}
-                    setActiveTab={setActivityTab}
-                    upcomingAppointments={upcomingAppointments}
-                    recentPatients={recentPatients}
-                    onViewAll={() => navigate(activityTab === 'appointments' ? '/appointments' : '/patients')}
-                    onNavigateToPatient={(id) => navigate(`/patients/${id}`)}
-                    onNavigateToAppointments={() => navigate('/appointments')}
-                />
+                <div className="dashboard-content-splits">
+                    <section className="dashboard-main-column">
+                        <div className="card-outer calendar-container-card">
+                            <div className="card-header-v2">
+                                <h2>Calendario Semanal</h2>
+                                <button className="btn-v2-link" onClick={() => navigate('/appointments')}>
+                                    Ver Agenda <ChevronRight size={16} />
+                                </button>
+                            </div>
+                            <div className="calendar-view-box">
+                                <WeeklyCalendar />
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside className="dashboard-side-column">
+                        <ActivitySection
+                            activeTab={activityTab}
+                            setActiveTab={setActivityTab}
+                            upcomingAppointments={upcomingAppointments}
+                            recentPatients={recentPatients}
+                            onViewAll={() => navigate(activityTab === 'appointments' ? '/appointments' : '/patients')}
+                            onNavigateToPatient={(id) => navigate(`/patients/${id}`)}
+                            onNavigateToAppointments={() => navigate('/appointments')}
+                        />
+                    </aside>
+                </div>
             </div>
-        </div>
+        </main>
     );
 };
 
