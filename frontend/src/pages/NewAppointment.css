@@ -1,43 +1,293 @@
+/* NewAppointment Redesign - Spacious & Aligned */
 .new-appointment-page {
-    padding: var(--space-2xl);
-    max-width: 900px;
+    padding: var(--space-xl) var(--space-2xl);
+    max-width: 860px;
     margin: 0 auto;
 }
 
-.appointment-form {
-    padding: var(--space-2xl);
+.card-form {
+    padding: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
 }
 
-@media (max-width: 768px) {
-    .new-appointment-page {
-        padding: var(--space-lg);
-    }
-
-    .appointment-form {
-        padding: var(--space-lg);
-    }
+.form-layout-stack {
+    display: flex;
+    flex-direction: column;
 }
 
-.form-toggle-group {
-    background: var(--bg-secondary);
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-light);
-    margin-bottom: var(--space-lg);
+.form-card-section {
+    padding: var(--space-xl) var(--space-2xl);
+    border-bottom: 1px solid var(--gray-50);
 }
 
-.toggle-label {
+.form-card-section.bg-alt-faint {
+    background: #fafafa;
+}
+
+.form-card-section.no-border {
+    border-bottom: none;
+}
+
+.section-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+    gap: var(--space-lg);
+}
+
+.section-header-compact h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.section-title-simple {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: var(--space-xl);
+    color: var(--gray-800);
+}
+
+/* Fields Grid */
+.form-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+}
+
+.guest-fields-container {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    letter-spacing: 0.01em;
+}
+
+.req {
+    color: var(--primary-600);
+}
+
+.field-input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    background: white;
+}
+
+.field-input:focus {
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 4px var(--primary-50);
+    outline: none;
+}
+
+.field-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Modern Switch Toggle */
+.toggle-switch-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--text-primary);
-    user-select: none;
+    gap: 12px;
 }
 
-.toggle-label input[type="checkbox"] {
-    width: 18px;
+.toggle-label-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-600);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-200);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
     height: 18px;
-    accent-color: var(--primary-600);
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:checked+.slider {
+    background-color: var(--primary-500);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--primary-500);
+}
+
+input:checked+.slider:before {
+    transform: translateX(20px);
+}
+
+/* Banner Error */
+.error-banner {
+    background: #fff1f2;
+    color: #be123c;
+    padding: 1rem;
+    border-bottom: 2px solid #fda4af;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Actions Footer */
+.form-footer-actions {
+    padding: var(--space-xl) var(--space-2xl);
+    background: var(--gray-50);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-lg);
+}
+
+.btn-v2-primary,
+.btn-v2-secondary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-xl);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-v2-primary {
+    background: var(--primary-600);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2);
+}
+
+.btn-v2-primary:hover {
+    background: var(--primary-700);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(219, 39, 119, 0.3);
+}
+
+.btn-v2-secondary {
+    background: white;
+    color: var(--gray-600);
+    border: 1.5px solid var(--gray-200);
+}
+
+.btn-v2-secondary:hover {
+    border-color: var(--gray-400);
+    color: var(--gray-900);
+    background: var(--gray-50);
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Overhaul */
+@media (max-width: 768px) {
+    .new-appointment-page {
+        padding: var(--space-md);
+    }
+
+    .form-card-section {
+        padding: var(--space-lg);
+    }
+
+    .section-header-compact {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+
+    .form-fields-grid,
+    .guest-fields-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+
+    .form-footer-actions {
+        flex-direction: column;
+        padding: var(--space-lg);
+    }
+
+    .btn-v2-primary,
+    .btn-v2-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

@@ -91,206 +91,128 @@ const NewAppointment = () => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="appointment-form card">
+            <form onSubmit={handleSubmit} className="appointment-form card-form">
                 {error && (
-                    <div className="error-message">
+                    <div className="error-banner">
                         {error}
                     </div>
                 )}
 
-                <div className="form-section">
-                    <div className="form-grid">
-                        <div className="form-group form-toggle-group">
-                            <label className="toggle-label">
-                                <input
-                                    type="checkbox"
-                                    name="isGuest"
-                                    checked={formData.isGuest}
-                                    onChange={handleChange}
-                                />
-                                <span>Paciente Nuevo / Invitado (No registrado)</span>
-                            </label>
-                        </div>
-
-                        {!formData.isGuest ? (
-                            <div className="form-group">
-                                <label className="label" htmlFor="patient">
-                                    Paciente <span className="required">*</span>
+                <div className="form-layout-stack">
+                    {/* section 1: patient selection */}
+                    <div className="form-card-section">
+                        <div className="section-header-compact">
+                            <h3>Información del Paciente</h3>
+                            <div className="toggle-switch-wrapper">
+                                <span className="toggle-label-text">¿Paciente No Registrado?</span>
+                                <label className="switch">
+                                    <input
+                                        type="checkbox"
+                                        name="isGuest"
+                                        checked={formData.isGuest}
+                                        onChange={handleChange}
+                                    />
+                                    <span className="slider round"></span>
                                 </label>
-                                <select
-                                    id="patient"
-                                    name="patient"
-                                    className="input"
-                                    value={formData.patient}
-                                    onChange={handleChange}
-                                    required={!formData.isGuest}
-                                    disabled={loading}
-                                >
-                                    <option value="">Seleccionar paciente...</option>
-                                    {patients.map(patient => (
-                                        <option key={patient._id} value={patient._id}>
-                                            {patient.firstName} {patient.lastName}
-                                        </option>
-                                    ))}
-                                </select>
                             </div>
-                        ) : (
-                            <>
-                                <div className="form-group">
-                                    <label className="label" htmlFor="guestFirstName">
-                                        Nombre <span className="required">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="guestFirstName"
-                                        name="guestFirstName"
-                                        className="input"
-                                        value={formData.guestFirstName}
-                                        onChange={handleChange}
-                                        required={formData.isGuest}
-                                        disabled={loading}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="label" htmlFor="guestLastName">
-                                        Apellido <span className="required">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="guestLastName"
-                                        name="guestLastName"
-                                        className="input"
-                                        value={formData.guestLastName}
-                                        onChange={handleChange}
-                                        required={formData.isGuest}
-                                        disabled={loading}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="label" htmlFor="guestEmail">
-                                        Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="guestEmail"
-                                        name="guestEmail"
-                                        className="input"
-                                        value={formData.guestEmail}
-                                        onChange={handleChange}
-                                        disabled={loading}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="label" htmlFor="guestPhone">
-                                        Teléfono
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        id="guestPhone"
-                                        name="guestPhone"
-                                        className="input"
-                                        value={formData.guestPhone}
-                                        onChange={handleChange}
-                                        disabled={loading}
-                                    />
-                                </div>
-                            </>
-                        )}
-
-                        <div className="form-group">
-                            <label className="label" htmlFor="type">
-                                Tipo de Consulta <span className="required">*</span>
-                            </label>
-                            <select
-                                id="type"
-                                name="type"
-                                className="input"
-                                value={formData.type}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                            >
-                                <option value="initial">Inicial</option>
-                                <option value="follow_up">Seguimiento</option>
-                                <option value="check_in">Check-in</option>
-                                <option value="final">Final</option>
-                            </select>
                         </div>
 
-                        <div className="form-group">
-                            <label className="label" htmlFor="date">
-                                Fecha <span className="required">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                id="date"
-                                name="date"
-                                className="input"
-                                value={formData.date}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label" htmlFor="time">
-                                Hora <span className="required">*</span>
-                            </label>
-                            <input
-                                type="time"
-                                id="time"
-                                name="time"
-                                className="input"
-                                value={formData.time}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label" htmlFor="duration">
-                                Duración (minutos) <span className="required">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="duration"
-                                name="duration"
-                                className="input"
-                                value={formData.duration}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                                min="15"
-                                step="15"
-                            />
+                        <div className="form-fields-grid">
+                            {!formData.isGuest ? (
+                                <div className="form-field full-width">
+                                    <label className="field-label" htmlFor="patient">
+                                        Seleccionar Paciente <span className="req">*</span>
+                                    </label>
+                                    <select
+                                        id="patient"
+                                        name="patient"
+                                        className="field-input"
+                                        value={formData.patient}
+                                        onChange={handleChange}
+                                        required={!formData.isGuest}
+                                        disabled={loading}
+                                    >
+                                        <option value="">Buscar en mis pacientes...</option>
+                                        {patients.map(patient => (
+                                            <option key={patient._id} value={patient._id}>
+                                                {patient.firstName} {patient.lastName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ) : (
+                                <div className="guest-fields-container animate-fade-in">
+                                    <div className="form-field">
+                                        <label className="field-label" htmlFor="guestFirstName">Nombre <span className="req">*</span></label>
+                                        <input type="text" id="guestFirstName" name="guestFirstName" className="field-input" value={formData.guestFirstName} onChange={handleChange} required={formData.isGuest} disabled={loading} placeholder="Ej. Juan" />
+                                    </div>
+                                    <div className="form-field">
+                                        <label className="field-label" htmlFor="guestLastName">Apellido <span className="req">*</span></label>
+                                        <input type="text" id="guestLastName" name="guestLastName" className="field-input" value={formData.guestLastName} onChange={handleChange} required={formData.isGuest} disabled={loading} placeholder="Ej. Pérez" />
+                                    </div>
+                                    <div className="form-field">
+                                        <label className="field-label" htmlFor="guestEmail">Email</label>
+                                        <input type="email" id="guestEmail" name="guestEmail" className="field-input" value={formData.guestEmail} onChange={handleChange} disabled={loading} placeholder="juan@ejemplo.com" />
+                                    </div>
+                                    <div className="form-field">
+                                        <label className="field-label" htmlFor="guestPhone">Teléfono</label>
+                                        <input type="tel" id="guestPhone" name="guestPhone" className="field-input" value={formData.guestPhone} onChange={handleChange} disabled={loading} placeholder="+52 ..." />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
 
-                <div className="form-section">
-                    <div className="form-group">
-                        <label className="label" htmlFor="notes">
-                            Notas
-                        </label>
+                    {/* section 2: appointment details */}
+                    <div className="form-card-section bg-alt-faint">
+                        <h3 className="section-title-simple">Detalles de la Cita</h3>
+                        <div className="form-fields-grid">
+                            <div className="form-field">
+                                <label className="field-label" htmlFor="type">Tipo de Consulta <span className="req">*</span></label>
+                                <select id="type" name="type" className="field-input" value={formData.type} onChange={handleChange} required disabled={loading}>
+                                    <option value="initial">Primera Vez (Inicial)</option>
+                                    <option value="follow_up">Seguimiento</option>
+                                    <option value="check_in">Check-in rápido</option>
+                                    <option value="final">Consulta Final</option>
+                                </select>
+                            </div>
+
+                            <div className="form-field">
+                                <label className="field-label" htmlFor="date">Fecha <span className="req">*</span></label>
+                                <input type="date" id="date" name="date" className="field-input" value={formData.date} onChange={handleChange} required disabled={loading} />
+                            </div>
+
+                            <div className="form-field">
+                                <label className="field-label" htmlFor="time">Hora <span className="req">*</span></label>
+                                <input type="time" id="time" name="time" className="field-input" value={formData.time} onChange={handleChange} required disabled={loading} />
+                            </div>
+
+                            <div className="form-field">
+                                <label className="field-label" htmlFor="duration">Duración (min) <span className="req">*</span></label>
+                                <input type="number" id="duration" name="duration" className="field-input" value={formData.duration} onChange={handleChange} required disabled={loading} min="15" step="15" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="form-card-section no-border">
+                        <label className="field-label" htmlFor="notes">Notas adicionales</label>
                         <textarea
                             id="notes"
                             name="notes"
-                            className="input textarea"
-                            rows="4"
+                            className="field-input field-textarea"
+                            rows="3"
                             value={formData.notes}
                             onChange={handleChange}
                             disabled={loading}
-                            placeholder="Notas sobre la cita..."
+                            placeholder="Alergias, temas pendientes, recordatorios..."
                         />
                     </div>
                 </div>
 
-                <div className="form-actions">
+                <div className="form-footer-actions">
                     <button
                         type="button"
-                        className="btn btn-outline"
+                        className="btn-v2-secondary"
                         onClick={() => navigate('/appointments')}
                         disabled={loading}
                     >
@@ -298,18 +220,18 @@ const NewAppointment = () => {
                     </button>
                     <button
                         type="submit"
-                        className="btn btn-primary"
+                        className="btn-v2-primary"
                         disabled={loading}
                     >
                         {loading ? (
                             <>
                                 <Loader className="spinner" size={20} />
-                                Guardando...
+                                <span>Guardando...</span>
                             </>
                         ) : (
                             <>
                                 <Save size={20} />
-                                Guardar Cita
+                                <span>Guardar Cita</span>
                             </>
                         )}
                     </button>
