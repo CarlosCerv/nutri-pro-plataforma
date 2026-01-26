@@ -9,7 +9,7 @@ const DashboardHeader = ({ userName, date, onNewPatient, onNewAppointment }) => 
                 <h1>Buenos días, <span className="text-primary">{userName}</span> 👋</h1>
             </div>
             <div className="header-actions">
-                <button className="btn btn-outline-alt" onClick={onNewPatient}>
+                <button className="btn btn-action-secondary" onClick={onNewPatient}>
                     <Plus size={18} /> Nuevo Paciente
                 </button>
                 <button className="btn btn-primary" onClick={onNewAppointment}>
