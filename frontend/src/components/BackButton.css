@@ -26,3 +26,9 @@
 .back-button:hover svg {
     transform: translateX(-3px);
 }
+
+@media (max-width: 768px) {
+    .back-button {
+        display: none !important;
+    }
+}

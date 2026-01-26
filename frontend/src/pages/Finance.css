@@ -191,25 +191,108 @@
 }
 
 @media (max-width: 768px) {
+    .finance-page {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-header div {
+        width: 100%;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-header p {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
     .payments-header {
         display: none;
     }
 
     .payment-row {
         grid-template-columns: 1fr;
-        gap: 0.5rem;
-        padding: 1rem;
+        gap: 0.75rem;
+        padding: 1.25rem;
         position: relative;
+    }
+
+    .payment-cell-patient {
+        padding-right: 40px;
+    }
+
+    .patient-name {
+        font-size: 1.05rem;
     }
 
     .payment-cell-actions {
         position: absolute;
-        top: 1rem;
+        top: 1.25rem;
         right: 1rem;
     }
 
+    .payment-cell-date,
+    .payment-cell-method,
+    .payment-cell-status {
+        font-size: 0.85rem;
+    }
+
     .payment-cell-amount {
-        font-size: 1.25rem;
-        margin-top: 0.25rem;
+        font-size: 1.35rem;
+        margin-top: 0.5rem;
+        border-top: 1px dashed var(--border-light);
+        padding-top: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .payment-cell-amount::before {
+        content: 'Monto Total';
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+    }
+
+    /* Modal Mobile Adjustments */
+    .modal-content {
+        padding: 1.5rem;
+        width: 95%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 }
