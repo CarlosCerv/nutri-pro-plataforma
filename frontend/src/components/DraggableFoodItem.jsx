@@ -98,8 +98,12 @@ const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate, onQuickAdd })
             <div className="food-actions">
                 {onQuickAdd && (
                     <button
+                        type="button"
                         className="btn-icon-small btn-primary-mobile"
-                        onClick={() => onQuickAdd(food)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onQuickAdd(food);
+                        }}
                         title="Agregar al plan"
                     >
                         <Plus size={18} />
