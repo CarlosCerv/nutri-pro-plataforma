@@ -4,6 +4,7 @@ import { appointmentsAPI, patientsAPI } from '../services/api';
 import { ArrowLeft, Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import { useEffect } from 'react';
+import PremiumSelect from '../components/PremiumSelect';
 import SearchableSelect from '../components/SearchableSelect';
 import './NewAppointment.css';
 
@@ -160,13 +161,20 @@ const NewAppointment = () => {
                         <h3 className="section-title-simple">Detalles de la Cita</h3>
                         <div className="form-fields-grid">
                             <div className="form-field">
-                                <label className="field-label" htmlFor="type">Tipo de Consulta <span className="req">*</span></label>
-                                <select id="type" name="type" className="field-input" value={formData.type} onChange={handleChange} required disabled={loading}>
-                                    <option value="initial">Primera Vez (Inicial)</option>
-                                    <option value="follow_up">Seguimiento</option>
-                                    <option value="check_in">Check-in rápido</option>
-                                    <option value="final">Consulta Final</option>
-                                </select>
+                                <label className="field-label">Tipo de Consulta <span className="req">*</span></label>
+                                <PremiumSelect
+                                    name="type"
+                                    options={[
+                                        { value: 'initial', label: 'Primera Vez (Inicial)' },
+                                        { value: 'follow_up', label: 'Seguimiento' },
+                                        { value: 'check_in', label: 'Check-in rápido' },
+                                        { value: 'final', label: 'Consulta Final' }
+                                    ]}
+                                    value={formData.type}
+                                    onChange={handleChange}
+                                    placeholder="Seleccionar tipo..."
+                                    disabled={loading}
+                                />
                             </div>
 
                             <div className="form-field">
