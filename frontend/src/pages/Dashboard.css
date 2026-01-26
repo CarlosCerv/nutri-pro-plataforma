@@ -350,64 +350,77 @@
     }
 
     .dashboard-inner-container {
-        padding: 12px;
-        gap: 16px;
-        /* Reduced from 32px for better vertical density */
+        padding: 8px 12px;
+        /* Reduced top padding */
+        gap: 12px;
+        /* Tighter gap */
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
         box-sizing: border-box;
-        padding-bottom: 100px;
-        /* Safe area at the bottom */
+        padding-bottom: 120px;
+        /* Increased safe area */
     }
 
     .dashboard-header-container {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
-        padding-bottom: 8px;
+        gap: 8px;
+        padding-bottom: 4px;
+        margin-top: -4px;
+        /* Pull up slightly */
     }
 
     .header-actions {
         width: 100%;
         display: grid;
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 8px;
     }
 
     .header-actions .btn {
         width: 100%;
         box-sizing: border-box;
         justify-content: center;
-        padding: 0.875rem;
-        font-size: 0.95rem;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+        /* Tap target compliance without bulk */
     }
 
     .welcome-text {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
+        /* Slightly smaller for precision */
     }
 
     .stats-overview-section {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 8px;
         width: 100%;
     }
 
     .stat-card-modern {
-        padding: 14px 16px;
-        /* Compact padding */
+        padding: 12px 14px;
+        /* Even tighter */
         width: 100%;
+        min-width: 0;
+        /* CRITICAL: Prevent push-out */
         box-sizing: border-box;
-        gap: 12px;
+        gap: 10px;
     }
 
     .stat-icon-wrapper {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+    }
+
+    .stat-number-row h3 {
+        font-size: 1.5rem;
     }
 
     .dashboard-content-splits {
-        gap: 16px;
+        gap: 12px;
         width: 100%;
         grid-template-columns: 1fr;
     }
@@ -418,32 +431,33 @@
         box-sizing: border-box;
     }
 
+    .card-header-v2 {
+        padding: 12px 16px;
+    }
+
+    .card-header-v2 h2 {
+        font-size: 1rem;
+    }
+
     .calendar-view-box {
-        padding: 10px;
+        padding: 8px;
+        width: 100%;
         overflow-x: auto;
     }
 
-    /* Target nested components to ensure they don't break parent bounds */
-    .calendar-main,
-    .calendar-view-box>* {
+    .calendar-main {
         max-width: 100%;
+        min-width: 300px;
+        /* Ensure basic layout for very tiny screens */
     }
 }
 
 @media (max-width: 480px) {
     .dashboard-inner-container {
-        padding: 8px;
-    }
-
-    .card-header-v2 {
-        padding: 16px;
-    }
-
-    .card-header-v2 h2 {
-        font-size: 1.05rem;
+        padding: 4px 8px;
     }
 
     .stat-number-row h3 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
 }

@@ -43,5 +43,8 @@
   .content-area {
     padding: 0;
     /* Remove padding to let components control their own mobile margins */
+    overflow-x: hidden;
+    /* Strict lock at root level */
+    width: 100vw;
   }
 }
