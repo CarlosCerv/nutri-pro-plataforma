@@ -4,138 +4,156 @@
     align-items: center;
     justify-content: center;
     padding: var(--space-lg);
+    background-color: #f8fafc;
     position: relative;
-    overflow: hidden;
 }
 
-.login-background {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    z-index: 0;
-}
-
-.gradient-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.6;
-    animation: float 20s ease-in-out infinite;
-}
-
-.orb-1 {
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
-    top: -100px;
-    left: -100px;
-    animation-delay: 0s;
-}
-
-.orb-2 {
-    width: 500px;
-    height: 500px;
-    background: linear-gradient(135deg, var(--secondary-400), var(--secondary-600));
-    bottom: -150px;
-    right: -150px;
-    animation-delay: 7s;
-}
-
-.orb-3 {
-    width: 350px;
-    height: 350px;
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation-delay: 14s;
-}
-
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
+.login-content {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xl);
 }
 
 .login-card {
-    position: relative;
-    z-index: 1;
     width: 100%;
-    max-width: 420px;
-    padding: var(--space-2xl);
-    border-radius: var(--radius-2xl);
-    background: rgba(255, 255, 255, 0.85);
-    /* More opaque for better readability */
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: var(--space-2xl) var(--space-2xl);
+    background: white;
+    border-radius: var(--radius-xl);
     box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .login-header {
     text-align: center;
     margin-bottom: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .login-header h1 {
-    font-size: 1.75rem;
-    margin-top: var(--space-md);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-top: var(--space-lg);
     margin-bottom: var(--space-xs);
-    color: var(--text-primary);
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.025em;
 }
 
 .login-header p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
+    color: var(--gray-500);
+    font-size: 0.925rem;
 }
 
 .login-form {
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
 }
 
 .form-group {
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-md);
 }
 
 .label {
     display: block;
-    margin-bottom: 0.4rem;
-    font-size: 0.9rem;
-    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--gray-700);
 }
 
 .input {
     width: 100%;
-    padding: 0.875rem 1rem;
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--gray-200);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-300);
     background: white;
-    font-size: 1rem;
-    transition: all 0.2s;
+    font-size: 0.95rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--gray-900);
 }
 
 .input:focus {
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 4px var(--primary-100);
+    border-color: var(--primary-600);
+    box-shadow: 0 0 0 3px var(--primary-100);
     outline: none;
+}
+
+.input::placeholder {
+    color: var(--gray-400);
+}
+
+.form-options {
+    margin-bottom: var(--space-xl);
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-custom {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    gap: 0.75rem;
+    /* Space between checkbox and text */
+}
+
+.checkbox-custom input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid var(--gray-300);
+    cursor: pointer;
+    accent-color: var(--primary-600);
+    margin: 0;
+}
+
+.checkbox-text {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    font-weight: 400;
+}
+
+.btn-full {
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.login-footer {
+    text-align: center;
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--gray-100);
+}
+
+.login-footer p {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.link {
+    color: var(--primary-600);
+    font-weight: 600;
+}
+
+.login-copyright {
+    text-align: center;
+}
+
+.login-copyright p {
+    color: var(--gray-400);
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
 }
 
 .spinner {
     animation: spin 1s linear infinite;
+    margin-right: var(--space-sm);
 }
 
 @keyframes spin {
@@ -148,56 +166,14 @@
     }
 }
 
-.login-footer {
-    text-align: center;
-    padding-top: var(--space-lg);
-    border-top: 1px solid var(--border-light);
-}
+@media (max-width: 480px) {
+    .login-container {
+        padding: var(--space-md);
+        background: white;
+    }
 
-.login-footer p {
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-.link {
-    color: var(--primary-600);
-    font-weight: 600;
-    text-decoration: none;
-    transition: color var(--transition-base);
-}
-
-.link:hover {
-    color: var(--primary-700);
-    text-decoration: underline;
-}
-
-@media (max-width: 768px) {
     .login-card {
-        padding: var(--space-xl);
+        box-shadow: none;
+        padding: var(--space-lg) var(--space-sm);
     }
-
-    .gradient-orb {
-        filter: blur(60px);
-    }
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: #4a5568;
-    cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
 }
