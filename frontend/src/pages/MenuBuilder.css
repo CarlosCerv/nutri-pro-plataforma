@@ -54,18 +54,15 @@
     grid-template-columns: 320px 1fr 340px;
     gap: 0;
     overflow: hidden;
-    height: calc(100vh - 72px);
-    /* Fixed height for desktop */
 }
 
-/* Base Panel Visibility - Ensure always visible on desktop */
+/* Base Panel Visibility - Desktop First */
 .foods-panel,
 .meals-panel,
 .summary-panel {
-    display: flex !important;
+    display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
 }
 
 /* Left Panel - Food Search */
@@ -704,7 +701,7 @@
 }
 
 /* Mobile Responsive System - REBUILT STABLE VERSION */
-@media (max-width: 1024px) {
+@media (max-width: 992px) {
     .builder-layout {
         display: block !important;
         grid-template-columns: 1fr;
@@ -955,7 +952,7 @@
 }
 
 /* Ensure mobile nav is HIDDEN on large screens ALWAYS */
-@media (min-width: 1025px) {
+@media (min-width: 993px) {
     .mobile-builder-nav {
         display: none !important;
     }
