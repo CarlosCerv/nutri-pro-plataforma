@@ -37,4 +37,9 @@
   .main-content {
     margin-left: 0;
   }
+
+  .content-area {
+    padding: 0;
+    /* Remove padding to let components control their own mobile margins */
+  }
 }
