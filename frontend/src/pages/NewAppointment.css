@@ -104,7 +104,9 @@
 
 .field-textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 120px;
+    line-height: 1.5;
+    padding: 1rem;
 }
 
 /* Modern Switch Toggle */

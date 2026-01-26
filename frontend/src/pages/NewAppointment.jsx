@@ -195,17 +195,19 @@ const NewAppointment = () => {
                     </div>
 
                     <div className="form-card-section no-border">
-                        <label className="field-label" htmlFor="notes">Notas adicionales</label>
-                        <textarea
-                            id="notes"
-                            name="notes"
-                            className="field-input field-textarea"
-                            rows="3"
-                            value={formData.notes}
-                            onChange={handleChange}
-                            disabled={loading}
-                            placeholder="Alergias, temas pendientes, recordatorios..."
-                        />
+                        <div className="form-field full-width">
+                            <label className="field-label" htmlFor="notes">Notas adicionales</label>
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                className="field-input field-textarea"
+                                rows="3"
+                                value={formData.notes}
+                                onChange={handleChange}
+                                disabled={loading}
+                                placeholder="Escribe aquí cualquier observación importante sobre la cita..."
+                            />
+                        </div>
                     </div>
                 </div>
 
