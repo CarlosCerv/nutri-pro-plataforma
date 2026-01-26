@@ -700,8 +700,8 @@
     max-width: 320px;
 }
 
-/* Mobile Responsive System - REBUILT STABLE VERSION */
-@media (max-width: 992px) {
+/* Mobile Responsive System - DEFINITIVE FIX */
+@media (max-width: 768px) {
     .builder-layout {
         display: block !important;
         grid-template-columns: 1fr;
@@ -952,7 +952,7 @@
 }
 
 /* Ensure mobile nav is HIDDEN on large screens ALWAYS */
-@media (min-width: 993px) {
+@media (min-width: 769px) {
     .mobile-builder-nav {
         display: none !important;
     }
