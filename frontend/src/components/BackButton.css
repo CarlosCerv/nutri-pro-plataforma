@@ -28,7 +28,10 @@
 }
 
 @media (max-width: 768px) {
-    .back-button {
+
+    .back-button,
+    button.back-button,
+    div.page-header .back-button {
         display: none !important;
     }
 }

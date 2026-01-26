@@ -651,3 +651,13 @@ select:invalid:not(:placeholder-shown) {
     transform: rotate(360deg);
   }
 }
+
+/* Global Navigation Mobile Rules */
+@media (max-width: 768px) {
+
+  .back-button,
+  .back-button-container,
+  [class*="back-button"] {
+    display: none !important;
+  }
+}
