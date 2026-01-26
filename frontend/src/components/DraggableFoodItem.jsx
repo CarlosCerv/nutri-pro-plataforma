@@ -138,10 +138,15 @@ DraggableFoodItem.propTypes = {
         name: PropTypes.string.isRequired,
         quantity: PropTypes.string,
         calories: PropTypes.number,
+        img: PropTypes.string,
+        image: PropTypes.string,
+        servingSizes: PropTypes.array,
+        nutrition: PropTypes.object,
     }).isRequired,
     onRemove: PropTypes.func,
     onExchange: PropTypes.func,
     onUpdate: PropTypes.func,
+    onQuickAdd: PropTypes.func,
 };
 
 export default DraggableFoodItem;

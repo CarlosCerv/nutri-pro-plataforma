@@ -13,7 +13,7 @@ import {
     arrayMove,
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { Save, Filter, Search, ArrowLeft, BookTemplate } from 'lucide-react';
+import { Save, Filter, Search, BookTemplate } from 'lucide-react';
 
 import { foodsAPI, mealPlansAPI, dietTemplatesAPI } from '../services/api';
 import MealSlot from '../components/MealSlot';
