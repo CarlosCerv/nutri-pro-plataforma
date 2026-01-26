@@ -1,0 +1,181 @@
+.appointments-page {
+    padding: var(--space-2xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Tabs */
+.appointments-tabs {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    border-bottom: 2px solid var(--gray-100);
+    padding-bottom: 2px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-base);
+}
+
+.tab-btn:hover {
+    color: var(--primary-600);
+}
+
+.tab-btn.active {
+    color: var(--primary-600);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary-500);
+    border-radius: 3px 3px 0 0;
+}
+
+/* Grouped List */
+.appointments-list-grouped {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+}
+
+.date-group-header {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-xs);
+    border-left: 4px solid var(--primary-300);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.group-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* Appointment Card New */
+.appointment-card-new {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    /* Time | Info | Actions */
+    align-items: center;
+    padding: var(--space-lg);
+    gap: var(--space-lg);
+    background: white;
+    box-shadow: var(--shadow-sm);
+    /* Lighter shadow initial */
+    border: 1px solid transparent;
+}
+
+.appointment-card-new:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+}
+
+/* Time Column */
+.appt-time-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-right: var(--space-md);
+    border-right: 1px solid var(--gray-100);
+}
+
+.appt-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--gray-900);
+}
+
+.appt-duration {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* Info Column */
+.appt-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.appt-patient {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.patient-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.appt-type {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+/* Actions Column */
+.appt-actions-col {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: flex-end;
+}
+
+/* Button small variant override if needed */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .appointment-card-new {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        text-align: left;
+    }
+
+    .appt-time-col {
+        flex-direction: row;
+        border-right: none;
+        padding-right: 0;
+        justify-content: flex-start;
+        gap: var(--space-md);
+        border-bottom: 1px solid var(--gray-100);
+        padding-bottom: var(--space-md);
+    }
+
+    .appt-actions-col {
+        justify-content: stretch;
+    }
+
+    .appt-actions-col .btn {
+        flex: 1;
+    }
+}

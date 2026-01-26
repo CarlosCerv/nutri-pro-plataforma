@@ -1,0 +1,160 @@
+.mealplans-page {
+    padding: var(--space-2xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+    background: var(--bg-primary);
+    padding: var(--space-sm);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+}
+
+.filter-tab {
+    flex: 1;
+    padding: var(--space-md) var(--space-lg);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.filter-tab:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.filter-tab.active {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.mealplans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--space-xl);
+}
+
+.mealplan-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.mealplan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.mealplan-header h3 {
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.mealplan-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.mealplan-patient {
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.mealplan-patient strong {
+    color: var(--text-primary);
+}
+
+.nutrition-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: linear-gradient(135deg, var(--primary-50), var(--secondary-50));
+    border-radius: var(--radius-lg);
+}
+
+.nutrition-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.nutrition-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.nutrition-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--primary-700);
+}
+
+.mealplan-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.tag {
+    padding: 0.25rem 0.75rem;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.mealplan-footer {
+    display: flex;
+    gap: var(--space-sm);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-light);
+    margin-top: var(--space-md);
+}
+
+.mealplan-footer .btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .mealplans-page {
+        padding: var(--space-lg);
+    }
+
+    .mealplans-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nutrition-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mealplan-footer {
+        flex-direction: column;
+    }
+
+    .mealplan-footer .btn {
+        width: 100%;
+    }
+}

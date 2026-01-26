@@ -1,0 +1,187 @@
+.draggable-food-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.draggable-food-item:hover {
+    border-color: #22c55e;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+}
+
+.draggable-food-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.food-info {
+    flex: 1;
+}
+
+.food-name {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.food-details {
+    font-size: 0.85rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.food-details .separator {
+    color: #d1d5db;
+}
+
+.food-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon-small {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.375rem;
+    color: #6b7280;
+    transition: all 0.2s;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-small:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.btn-icon-small.btn-danger:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.meal-slot {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 2px dashed #e5e7eb;
+    transition: all 0.2s;
+    min-height: 200px;
+}
+
+.meal-slot.drag-over {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.meal-slot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.meal-slot-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1f2937;
+}
+
+.meal-time {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+}
+
+.time-input {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.meal-foods-list {
+    min-height: 100px;
+}
+
+.meal-foods-list.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+
+.empty-meal-message {
+    color: #9ca3af;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.meal-totals {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.total-label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.total-value {
+    font-weight: 700;
+    color: #22c55e;
+    font-size: 1.1rem;
+}
+
+.total-macros {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.total-macros span {
+    font-weight: 500;
+}

@@ -1,0 +1,314 @@
+/* PDF Meal Plan Styles - Optimized for Print */
+.pdf-meal-plan {
+    width: 210mm;
+    /* A4 width */
+    min-height: 297mm;
+    /* A4 height */
+    padding: 25mm 20mm;
+    /* More vertical padding */
+    background: white;
+    font-family: 'Arial', sans-serif;
+    color: #1a1a1a;
+    box-sizing: border-box;
+}
+
+/* Header */
+.pdf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 35px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #22c55e;
+    page-break-after: avoid;
+    /* Prevent page break after header */
+}
+
+.pdf-branding h1 {
+    margin: 0;
+    font-size: 32px;
+    color: #22c55e;
+    font-weight: 700;
+}
+
+.pdf-subtitle {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 400;
+}
+
+.pdf-nutritionist-header {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: #059669;
+    font-weight: 600;
+}
+
+.pdf-date p {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Sections */
+.pdf-section {
+    margin-bottom: 30px;
+    page-break-inside: avoid;
+    /* Try to avoid breaking sections */
+}
+
+.pdf-section h2 {
+    margin: 0 0 18px 0;
+    font-size: 20px;
+    color: #1e293b;
+    font-weight: 600;
+    page-break-after: avoid;
+    /* Keep title with content */
+}
+
+.pdf-section h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #334155;
+    font-weight: 600;
+    page-break-after: avoid;
+    /* Keep title with content */
+}
+
+/* Patient Info */
+.pdf-patient-info {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.pdf-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.pdf-info-item {
+    display: flex;
+    gap: 8px;
+}
+
+.pdf-label {
+    font-weight: 600;
+    color: #475569;
+}
+
+.pdf-value {
+    color: #1e293b;
+}
+
+/* Plan Info */
+.pdf-description {
+    color: #64748b;
+    margin: 8px 0 0 0;
+    line-height: 1.6;
+}
+
+/* Nutrition Summary */
+.pdf-nutrition-summary {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.pdf-nutrition-summary h3 {
+    color: white;
+    margin: 0 0 15px 0;
+}
+
+.pdf-nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.pdf-nutrition-box {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.pdf-nutrition-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.pdf-nutrition-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* Meals */
+.pdf-meals {
+    margin-top: 30px;
+}
+
+.pdf-meal {
+    margin-bottom: 25px;
+    page-break-inside: avoid;
+    /* Prevent page breaks inside meal sections */
+    break-inside: avoid;
+    /* Modern syntax */
+}
+
+.pdf-meal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 12px 15px;
+    border-radius: 6px 6px 0 0;
+    border-left: 4px solid #22c55e;
+    page-break-after: avoid;
+    /* Keep header with table */
+}
+
+.pdf-meal-header h4 {
+    margin: 0;
+    font-size: 15px;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.pdf-meal-time {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Meal Table */
+.pdf-meal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+    font-size: 12px;
+    page-break-inside: auto;
+    /* Allow breaks within table if needed */
+}
+
+.pdf-meal-table thead {
+    background: #e2e8f0;
+    page-break-after: avoid;
+    /* Keep header with first row */
+}
+
+.pdf-meal-table th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.pdf-meal-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+}
+
+.pdf-meal-table tbody tr {
+    page-break-inside: avoid;
+    /* Prevent row from splitting */
+    break-inside: avoid;
+}
+
+.pdf-meal-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.pdf-meal-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Column widths */
+.pdf-meal-table th:nth-child(1),
+.pdf-meal-table td:nth-child(1) {
+    width: 35%;
+}
+
+.pdf-meal-table th:nth-child(2),
+.pdf-meal-table td:nth-child(2) {
+    width: 20%;
+}
+
+.pdf-meal-table th:nth-child(3),
+.pdf-meal-table th:nth-child(4),
+.pdf-meal-table th:nth-child(5),
+.pdf-meal-table th:nth-child(6),
+.pdf-meal-table td:nth-child(3),
+.pdf-meal-table td:nth-child(4),
+.pdf-meal-table td:nth-child(5),
+.pdf-meal-table td:nth-child(6) {
+    width: 11.25%;
+    text-align: center;
+}
+
+.pdf-meal-notes {
+    margin: 10px 0 0 0;
+    padding: 10px;
+    background: #fef3c7;
+    border-left: 3px solid #f59e0b;
+    font-size: 12px;
+    font-style: italic;
+    color: #92400e;
+}
+
+/* Footer */
+.pdf-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+}
+
+.pdf-footer-line {
+    height: 2px;
+    background: #e2e8f0;
+    margin-bottom: 15px;
+}
+
+.pdf-footer-content {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 11px;
+    color: #475569;
+}
+
+.pdf-footer-content div {
+    margin-bottom: 4px;
+}
+
+.pdf-footer-content strong {
+    color: #1e293b;
+}
+
+.pdf-footer-disclaimer {
+    font-size: 10px;
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.4;
+    margin: 15px 0 0 0;
+}
+
+/* Print-specific styles */
+@media print {
+    .pdf-meal-plan {
+        width: 100%;
+        height: 100%;
+        padding: 15mm;
+    }
+
+    @page {
+        size: A4;
+        margin: 0;
+    }
+}

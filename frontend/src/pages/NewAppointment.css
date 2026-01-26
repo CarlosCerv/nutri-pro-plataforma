@@ -1,0 +1,43 @@
+.new-appointment-page {
+    padding: var(--space-2xl);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.appointment-form {
+    padding: var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+    .new-appointment-page {
+        padding: var(--space-lg);
+    }
+
+    .appointment-form {
+        padding: var(--space-lg);
+    }
+}
+
+.form-toggle-group {
+    background: var(--bg-secondary);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--space-lg);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-600);
+}

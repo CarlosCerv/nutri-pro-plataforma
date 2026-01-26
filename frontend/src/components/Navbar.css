@@ -1,0 +1,135 @@
+.navbar {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-xl);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    /* Lower than sidebar */
+    height: 64px;
+    /* Fixed height */
+}
+
+/* ... existing code ... */
+
+.navbar-brand h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+    background: none;
+    /* Removed gradient */
+    -webkit-text-fill-color: initial;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+/* Navbar Layout */
+.navbar-content-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* User Display Section */
+.user-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    /* Softer square */
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    box-shadow: 0 2px 10px rgba(236, 72, 153, 0.2);
+}
+
+.user-text-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.user-email {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Divider */
+.navbar-divider {
+    width: 1px;
+    height: 32px;
+    background-color: var(--border-light);
+}
+
+/* Action Buttons */
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.btn-logout-icon:hover {
+    background: #fef2f2;
+    color: var(--error);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 var(--space-md);
+    }
+
+    .user-text-info,
+    .navbar-divider {
+        display: none;
+    }
+
+    .navbar-content-right {
+        gap: 1rem;
+    }
+}

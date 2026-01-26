@@ -1,0 +1,418 @@
+/* Modern Patient Layout */
+.patient-detail-page {
+    padding: var(--space-2xl) var(--space-xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.simple-header {
+    margin-bottom: var(--space-lg);
+}
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+}
+
+/* Sidebar Profile */
+.profile-sidebar {
+    position: sticky;
+    top: 2rem;
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-header-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    width: 100%;
+}
+
+.patient-avatar-xl {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: var(--space-md);
+}
+
+.profile-header-center h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-xs);
+    color: var(--gray-900);
+}
+
+.profile-actions {
+    width: 100%;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.w-full {
+    width: 100%;
+    justify-content: center;
+}
+
+.profile-info-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    padding: var(--space-xs) 0;
+}
+
+.profile-danger-zone {
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-link-danger {
+    background: none;
+    border: none;
+    color: var(--error);
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.8;
+}
+
+.btn-link-danger:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+/* Main Content Tabs */
+.tabs-nav-modern {
+    display: flex;
+    gap: var(--space-md);
+    border-bottom: 2px solid var(--gray-100);
+    margin-bottom: var(--space-xl);
+}
+
+.tab-btn-modern {
+    background: none;
+    border: none;
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+.tab-btn-modern:hover {
+    color: var(--primary-600);
+}
+
+.tab-btn-modern.active {
+    color: var(--primary-600);
+    border-bottom-color: var(--primary-500);
+}
+
+/* Content Blocks */
+.section-block {
+    margin-bottom: var(--space-2xl);
+}
+
+.section-block h3 {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-lg);
+    color: var(--gray-800);
+}
+
+.stats-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-lg);
+}
+
+.stat-card-mini {
+    padding: var(--space-lg);
+    text-align: left;
+    background: white;
+    border: 1px solid var(--gray-100);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card-mini .stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.stat-card-mini .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.stat-card-mini small {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+}
+
+.padding-lg {
+    padding: var(--space-xl);
+}
+
+.goals-grid {
+    display: grid;
+    gap: var(--space-lg);
+}
+
+.goal-item {
+    display: flex;
+    gap: var(--space-md);
+    align-items: flex-start;
+}
+
+.goal-item label {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.goal-item p {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin: 2px 0 0 0;
+    font-weight: 500;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-sidebar {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        text-align: left;
+        align-items: flex-start;
+        gap: var(--space-lg);
+    }
+
+    .profile-header-center {
+        width: auto;
+        margin: 0;
+        align-items: flex-start;
+    }
+
+    .profile-header-center h2 {
+        font-size: 1.25rem;
+    }
+
+    .profile-info-list {
+        width: auto;
+        margin-left: auto;
+        margin-bottom: 0;
+    }
+
+    .profile-actions {
+        width: 100%;
+        margin-top: var(--space-lg);
+        order: 4;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-sidebar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-header-center {
+        align-items: center;
+    }
+
+    .profile-info-list {
+        width: 100%;
+        align-items: center;
+        margin-left: 0;
+    }
+
+    .tab-btn-modern {
+        padding: var(--space-sm);
+        font-size: 0.9rem;
+    }
+}
+
+/* Patient Meal Plans Tab */
+.patient-meal-plans-tab {
+    width: 100%;
+}
+
+.tab-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    gap: var(--space-md);
+    color: var(--text-secondary);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl) var(--space-2xl);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.empty-state svg {
+    color: var(--primary-200);
+    margin-bottom: var(--space-lg);
+}
+
+.empty-state h3 {
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--gray-700);
+}
+
+.empty-state p {
+    margin: 0;
+}
+
+.meal-plans-list {
+    display: grid;
+    gap: var(--space-lg);
+}
+
+.meal-plan-card {
+    padding: var(--space-lg);
+}
+
+.meal-plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.meal-plan-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--gray-900);
+}
+
+.meal-plan-description {
+    color: var(--text-secondary);
+    margin: var(--space-sm) 0 var(--space-md) 0;
+    line-height: 1.6;
+}
+
+.nutrition-quick-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
+}
+
+.nutrition-quick-stats .stat {
+    text-align: center;
+}
+
+.nutrition-quick-stats .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-600);
+    margin-bottom: 4px;
+}
+
+.nutrition-quick-stats .stat-label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.meal-plan-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.meal-plan-meta {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-light);
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .patient-detail-page {
+        padding: var(--space-lg);
+    }
+
+    .patient-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
