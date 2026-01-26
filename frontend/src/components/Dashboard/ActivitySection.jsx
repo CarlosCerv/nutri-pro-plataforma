@@ -32,7 +32,7 @@ const ActivitySection = ({
                     <div className="activity-list fade-in">
                         {upcomingAppointments.length === 0 ? (
                             <div className="empty-activity">
-                                <Calendar size={32} />
+                                <Calendar size={32} className="text-secondary-pink" />
                                 <p>No tienes citas próximas</p>
                             </div>
                         ) : (
@@ -51,7 +51,7 @@ const ActivitySection = ({
                                             {appt.type === 'initial' ? '1ª Vez' : 'Seguimiento'}
                                         </span>
                                     </div>
-                                    <ChevronRight size={16} className="text-gray-400" />
+                                    <ChevronRight size={16} className="text-secondary-pink" />
                                 </div>
                             ))
                         )}
@@ -60,7 +60,7 @@ const ActivitySection = ({
                     <div className="activity-list fade-in">
                         {recentPatients.length === 0 ? (
                             <div className="empty-activity">
-                                <Users size={32} />
+                                <Users size={32} className="text-secondary-pink" />
                                 <p>No hay pacientes recientes</p>
                             </div>
                         ) : (
@@ -73,7 +73,7 @@ const ActivitySection = ({
                                         <h4>{patient.firstName} {patient.lastName}</h4>
                                         <p className="text-sm text-gray-500">{patient.email}</p>
                                     </div>
-                                    <ChevronRight size={16} className="text-gray-400" />
+                                    <ChevronRight size={16} className="text-secondary-pink" />
                                 </div>
                             ))
                         )}
