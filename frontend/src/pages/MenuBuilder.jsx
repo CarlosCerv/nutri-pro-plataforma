@@ -13,7 +13,7 @@ import {
     arrayMove,
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { Save, Filter, Search, BookTemplate } from 'lucide-react';
+import { Save, Filter, Search, BookTemplate, X } from 'lucide-react';
 
 import { foodsAPI, mealPlansAPI, dietTemplatesAPI } from '../services/api';
 import MealSlot from '../components/MealSlot';
@@ -60,7 +60,11 @@ const MenuBuilder = () => {
 
     // DnD Sensors
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8, // Require 8px movement before drag starts, allows scrolling
+            },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })

@@ -18,6 +18,7 @@ import dietTemplatesRoutes from './src/routes/dietTemplates.routes.js';
 import foodExchangeRoutes from './src/routes/foodExchange.routes.js';
 import clinicalNotesRoutes from './src/routes/clinicalNotes.routes.js';
 import paymentRoutes from './src/routes/paymentRoutes.js';
+import dashboardRoutes from './src/routes/dashboard.routes.js';
 
 // Import reminder cron job
 import { startReminderCron } from './src/scripts/reminderCron.js';
@@ -95,6 +96,7 @@ app.use('/api/diet-templates', dietTemplatesRoutes);
 app.use('/api/food-exchange', foodExchangeRoutes);
 app.use('/api/clinical-notes', clinicalNotesRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

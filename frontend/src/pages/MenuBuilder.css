@@ -988,3 +988,42 @@
     border-color: var(--primary-500);
     box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
 }
+
+/* Mobile Quick Add Button - Missing Style Fix */
+.btn-primary-mobile {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(236, 72, 153, 0.2);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px; /* Added border radius */
+}
+
+.btn-primary-mobile:hover {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(236, 72, 153, 0.25);
+    color: white;
+}
+
+/* Ensure food actions are always visible on touching list item on mobile to avoid double tap issues */
+@media (max-width: 768px) {
+    .draggable-food-item {
+        padding-right: 0.5rem; /* Ensure space for buttons */
+    }
+    
+    .food-actions {
+        opacity: 1;
+        gap: 0.5rem;
+    }
+
+    .btn-icon-small {
+        width: 36px;
+        height: 36px; /* Larger touch target */
+    }
+}

@@ -114,4 +114,9 @@ export const paymentsAPI = {
     delete: (id) => api.delete(`/payments/${id}`),
 };
 
+// Dashboard API
+export const dashboardAPI = {
+    getStats: () => api.get('/dashboard/stats'),
+};
+
 export default api;

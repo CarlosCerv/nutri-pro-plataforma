@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { patientsAPI, appointmentsAPI } from '../services/api';
+import { dashboardAPI } from '../services/api';
 import { Users, Calendar, TrendingUp, Activity, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import WeeklyCalendar from '../components/WeeklyCalendar';
@@ -33,82 +33,11 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const [patientsRes, appointmentsRes] = await Promise.all([
-                patientsAPI.getAll(),
-                appointmentsAPI.getAll(),
-            ]);
+            const { data } = await dashboardAPI.getStats();
 
-            const patients = patientsRes.data.data;
-            const appointments = appointmentsRes.data.data;
-
-            const activePatients = patients.filter(p => p.status === 'active').length;
-            const today = new Date().toISOString().split('T')[0];
-            const todayAppts = appointments.filter(a =>
-                a.date.split('T')[0] === today && a.status === 'scheduled'
-            ).length;
-            const upcomingAppts = appointments.filter(a =>
-                new Date(a.date) >= new Date() && a.status === 'scheduled'
-            ).length;
-
-            const now = new Date();
-            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-
-            const thisMonthAppts = appointments.filter(a => {
-                const apptDate = new Date(a.date);
-                return apptDate >= firstDayOfMonth && apptDate <= lastDayOfMonth;
-            }).length;
-
-            const lastMonthAppts = appointments.filter(a => {
-                const apptDate = new Date(a.date);
-                return apptDate >= firstDayLastMonth && apptDate <= lastDayLastMonth;
-            }).length;
-
-            const monthlyChange = lastMonthAppts > 0
-                ? Math.round(((thisMonthAppts - lastMonthAppts) / lastMonthAppts) * 100)
-                : 0;
-
-            const completedAppts = appointments.filter(a => a.status === 'completed').length;
-            const totalAppts = appointments.length;
-            const successRate = totalAppts > 0 ? Math.round((completedAppts / totalAppts) * 100) : 0;
-
-            const thisMonthCompleted = appointments.filter(a => {
-                const apptDate = new Date(a.date);
-                return apptDate >= firstDayOfMonth && apptDate <= lastDayOfMonth && a.status === 'completed';
-            }).length;
-
-            const thisMonthTotal = appointments.filter(a => {
-                const apptDate = new Date(a.date);
-                return apptDate >= firstDayOfMonth && apptDate <= lastDayOfMonth;
-            }).length;
-
-            const lastMonthCompleted = appointments.filter(a => {
-                const apptDate = new Date(a.date);
-                return apptDate >= firstDayLastMonth && apptDate <= lastDayLastMonth && a.status === 'completed';
-            }).length;
-
-            const thisMonthRate = thisMonthTotal > 0 ? (thisMonthCompleted / thisMonthTotal) * 100 : 0;
-            const lastMonthRate = lastMonthAppts > 0 ? (lastMonthCompleted / lastMonthAppts) * 100 : 0;
-            const successRateChange = Math.round(thisMonthRate - lastMonthRate);
-
-            setStatsData({
-                totalPatients: patients.length,
-                activePatients,
-                upcomingAppointments: upcomingAppts,
-                todayAppointments: todayAppts,
-                successRate,
-                successRateChange,
-                thisMonthAppointments: thisMonthAppts,
-                monthlyChange
-            });
-
-            setRecentPatients(patients.slice(0, 5));
-            setUpcomingAppointments(appointments
-                .filter(a => new Date(a.date) >= new Date() && a.status === 'scheduled')
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-                .slice(0, 5));
+            setStatsData(data.data.stats);
+            setRecentPatients(data.data.recentPatients);
+            setUpcomingAppointments(data.data.upcomingAppointments);
 
             setLoading(false);
         } catch (error) {
