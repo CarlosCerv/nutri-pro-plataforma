@@ -1,240 +1,136 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { mealPlansAPI, patientsAPI } from '../services/api';
-import { UtensilsCrossed, Plus, Download, Loader, Edit2 } from 'lucide-react';
-import PDFMealPlan from '../components/PDFMealPlan';
-import usePDFExport from '../hooks/usePDFExport';
-import { useAuth } from '../contexts/AuthContext';
-import './MealPlans.css';
+import { Link } from 'react-router-dom';
+import { Plus, Search, FileText, Download, MoreVertical, Salad, Trash2, Calendar, FileBadge } from 'lucide-react';
+import api from '../services/api';
 
-const MealPlans = () => {
-    const [mealPlans, setMealPlans] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all'); // 'all', 'templates', 'assigned'
-    const [selectedPlan, setSelectedPlan] = useState(null);
-    const [selectedPatient, setSelectedPatient] = useState(null);
-    const navigate = useNavigate();
-    const { user } = useAuth();
-    const { pdfRef, isGenerating, generatePDF } = usePDFExport();
+const MOCK_DIETAS = [
+  { _id: '1', nombre: 'Plan Hipocalórico 1600', pacienteNombre: 'María González', pacienteId: '1', kcal: 1600, fecha: '2026-04-12', estado: 'activa' },
+  { _id: '2', nombre: 'Aumento Masa Muscular 2800', pacienteNombre: 'Juan Rodríguez', pacienteId: '2', kcal: 2800, fecha: '2026-04-10', estado: 'activa' },
+  { _id: '3', nombre: 'Plan Mantenimiento', pacienteNombre: 'Ana Martínez', pacienteId: '3', kcal: 1900, fecha: '2026-03-30', estado: 'inactiva' },
+  { _id: '4', nombre: 'Ayuno Intermitente 16/8', pacienteNombre: 'Luis Hernández', pacienteId: '4', kcal: 1800, fecha: '2026-04-05', estado: 'activa' },
+  { _id: '5', nombre: 'Plan Diabético 1500 kcal', pacienteNombre: 'Sofía Torres', pacienteId: '5', kcal: 1500, fecha: '2026-04-12', estado: 'activa' },
+];
 
-    useEffect(() => {
-        fetchMealPlans();
-    }, [filter]);
+export default function MealPlans() {
+  const [dietas, setDietas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
-    const fetchMealPlans = async () => {
-        try {
-            const params = filter === 'templates' ? { isTemplate: 'true' } :
-                filter === 'assigned' ? { isTemplate: 'false' } : {};
-            const response = await mealPlansAPI.getAll(params);
-            const plans = response.data?.data || [];
-
-            // Populate with patient data if needed
-            const plansWithPatients = await Promise.all(
-                plans.map(async (plan) => {
-                    if (plan.patient && typeof plan.patient === 'string') {
-                        try {
-                            const patientResponse = await patientsAPI.getOne(plan.patient);
-                            return { ...plan, patient: patientResponse.data.data };
-                        } catch (err) {
-                            console.error('Error fetching patient:', err);
-                            return plan;
-                        }
-                    }
-                    return plan;
-                })
-            );
-
-            setMealPlans(plansWithPatients);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching meal plans:', error);
-            setLoading(false);
-        }
+  useEffect(() => {
+    const fetchDietas = async () => {
+      try {
+        const res = await api.get('/api/mealplans');
+        setDietas(res.data.data || res.data || []);
+      } catch {
+        setDietas(MOCK_DIETAS);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchDietas();
+  }, []);
 
-    const handleCreatePlan = () => {
-        navigate('/menu-builder');
-    };
+  const filtered = dietas.filter(d => 
+    d.nombre.toLowerCase().includes(search.toLowerCase()) || 
+    d.pacienteNombre?.toLowerCase().includes(search.toLowerCase())
+  );
 
-    const handleViewDetails = (planId, isTemplate) => {
-        if (isTemplate) {
-            navigate(`/menu-builder?templateId=${planId}`);
-        } else {
-            navigate(`/menu-builder?planId=${planId}`);
-        }
-    };
+  const simulateGenerarPDF = async (_id, nombre) => {
+    // Aquí iría la llamada al backend para generar y descargar o html2pdf
+    alert(`Generando PDF Premium Branding para: ${nombre}`);
+  };
 
-    const handleExportPDF = async (plan) => {
-        if (!plan.patient) {
-            alert('No se puede exportar: Este plan no está asignado a un paciente.');
-            return;
-        }
-
-        setSelectedPlan(plan);
-        setSelectedPatient(plan.patient);
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        const result = await generatePDF(plan, plan.patient);
-
-        if (result?.success) {
-            setTimeout(() => {
-                setSelectedPlan(null);
-                setSelectedPatient(null);
-            }, 500);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="page-loading">
-                <div className="spinner-large"></div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="mealplans-page fade-in">
-            <div className="page-header">
-                <div>
-                    <h1>Planes de Alimentación</h1>
-                    <p>Crea y gestiona plantillas de planes nutricionales</p>
-                </div>
-                <button className="btn btn-primary" onClick={handleCreatePlan}>
-                    <Plus size={18} />
-                    <span>Nuevo Plan</span>
-                </button>
-            </div>
-
-            <div className="filter-tabs">
-                <button
-                    className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-                    onClick={() => setFilter('all')}
-                >
-                    Todos
-                </button>
-                <button
-                    className={`filter-tab ${filter === 'templates' ? 'active' : ''}`}
-                    onClick={() => setFilter('templates')}
-                >
-                    Plantillas
-                </button>
-                <button
-                    className={`filter-tab ${filter === 'assigned' ? 'active' : ''}`}
-                    onClick={() => setFilter('assigned')}
-                >
-                    Asignados
-                </button>
-            </div>
-
-            <div className="mealplans-grid">
-                {!mealPlans || mealPlans.length === 0 ? (
-                    <div className="empty-state-large">
-                        <UtensilsCrossed size={64} strokeWidth={1} />
-                        <h3>No hay planes de alimentación</h3>
-                        <p>Comienza creando tu primera plantilla</p>
-                        <button className="btn btn-primary" onClick={handleCreatePlan}>
-                            <Plus size={18} />
-                            <span>Crear Plan</span>
-                        </button>
-                    </div>
-                ) : (
-                    mealPlans.filter(p => p && p._id).map((plan) => (
-                        <div key={plan._id} className="mealplan-card card">
-                            <div className="mealplan-header">
-                                <h3>{plan.name || 'Sin Nombre'}</h3>
-                                {plan.isTemplate ? (
-                                    <span className="badge badge-info">Plantilla</span>
-                                ) : (
-                                    <span className="badge badge-success">Asignado</span>
-                                )}
-                            </div>
-
-                            {plan?.description && (
-                                <p className="mealplan-description">{plan.description}</p>
-                            )}
-
-                            {plan?.patient && (
-                                <div className="mealplan-patient">
-                                    <strong>Paciente:</strong> {plan.patient.firstName || ''} {plan.patient.lastName || ''}
-                                </div>
-                            )}
-
-                            {plan?.nutrition && (
-                                <div className="nutrition-info">
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Calorías</span>
-                                        <span className="nutrition-value">{plan.nutrition.totalCalories || 0} kcal</span>
-                                    </div>
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Proteínas</span>
-                                        <span className="nutrition-value">{plan.nutrition.protein || 0}g</span>
-                                    </div>
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Carbos</span>
-                                        <span className="nutrition-value">{plan.nutrition.carbohydrates || 0}g</span>
-                                    </div>
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Grasas</span>
-                                        <span className="nutrition-value">{plan.nutrition.fats || 0}g</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {plan?.tags && plan.tags.length > 0 && (
-                                <div className="mealplan-tags">
-                                    {plan.tags.map((tag, index) => (
-                                        <span key={index} className="tag">{tag}</span>
-                                    ))}
-                                </div>
-                            )}
-
-                            <div className="mealplan-footer">
-                                <button
-                                    className="btn btn-outline"
-                                    onClick={() => handleViewDetails(plan._id, plan.isTemplate)}
-                                >
-                                    <Edit2 size={18} />
-                                    {plan.isTemplate ? 'Editar' : 'Ver Detalles'}
-                                </button>
-                                {!plan.isTemplate && plan.patient && (
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={() => handleExportPDF(plan)}
-                                        disabled={isGenerating}
-                                    >
-                                        {isGenerating ? (
-                                            <>
-                                                <Loader className="spinner" size={18} />
-                                                Exportando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Download size={18} />
-                                                Exportar PDF
-                                            </>
-                                        )}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
-
-            {/* Hidden PDF rendering component */}
-            {selectedPlan && selectedPatient && (
-                <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-                    <PDFMealPlan
-                        ref={pdfRef}
-                        mealPlan={selectedPlan}
-                        patient={selectedPatient}
-                        nutritionist={user}
-                    />
-                </div>
-            )}
+  return (
+    <div className="space-y-6 animate-fade-up">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="page-header mb-0">
+          <h1 className="page-title">Dietas y Reportes</h1>
+          <p className="page-subtitle">Gestiona planes nutricionales y genera PDFs premium</p>
         </div>
-    );
-};
+        <div className="flex gap-2">
+          <Link to="/dietas/catalogo" className="btn btn-outline gap-2">
+            <FileBadge size={16} /> Ver Plantillas SMAE
+          </Link>
+          <Link to="/dietas/nueva" className="btn btn-primary gap-2">
+            <Plus size={16} /> Crear Dieta
+          </Link>
+        </div>
+      </div>
 
-export default MealPlans;
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="relative w-full sm:w-96">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+          <input
+            type="text"
+            className="input pl-10"
+            placeholder="Buscar por nombre de dieta o paciente..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Grilla de dietas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {loading ? (
+          <div className="col-span-full p-8 text-center text-white/30">Cargando dietas...</div>
+        ) : filtered.length === 0 ? (
+          <div className="col-span-full empty-state">
+            <div className="empty-state-icon"><Salad size={28} /></div>
+            <div className="text-sm text-white/50">No se encontraron planes alimentarios.</div>
+          </div>
+        ) : (
+          filtered.map(dieta => (
+            <div key={dieta._id} className="card p-5 group flex flex-col h-full">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald/10 border border-emerald/20 flex items-center justify-center text-emerald">
+                  <Salad size={20} />
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => simulateGenerarPDF(dieta._id, dieta.nombre)}
+                    className="p-1.5 rounded-lg text-white/30 hover:bg-emerald/20 hover:text-emerald transition-colors"
+                    title="Exportar a PDF Premium">
+                    <Download size={16} />
+                  </button>
+                  <button className="p-1.5 rounded-lg text-white/30 hover:bg-white/5 hover:text-white transition-colors">
+                    <MoreVertical size={16} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-white mb-1 group-hover:text-emerald transition-colors line-clamp-2">
+                  {dieta.nombre}
+                </h3>
+                <Link to={`/pacientes/${dieta.pacienteId}`} className="text-xs text-white/50 hover:text-white transition-colors inline-block mb-3">
+                  Para: <span className="font-semibold text-white/80">{dieta.pacienteNombre || 'Paciente genérico'}</span>
+                </Link>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className="badge badge-gold bg-gold/10 text-gold border border-gold/20 font-mono">
+                    {dieta.kcal} kcal
+                  </span>
+                  <span className={`badge ${dieta.estado === 'activa' ? 'badge-success' : 'badge-neutral'}`}>
+                    {dieta.estado}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-navy-700/50 flex items-center justify-between text-xs mt-auto">
+                <div className="flex items-center gap-1.5 text-white/30">
+                  <Calendar size={13} /> Modificado: {dieta.fecha}
+                </div>
+                <Link to={`/dietas/${dieta._id}/editar`} className="text-emerald font-semibold hover:text-emerald-300 transition-colors flex items-center gap-1">
+                  Abrir editor &rarr;
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}

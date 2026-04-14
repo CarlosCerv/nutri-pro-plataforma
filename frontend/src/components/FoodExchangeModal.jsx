@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { X, ArrowRight, Check } from 'lucide-react';
 import { foodExchangeAPI } from '../services/api';
@@ -9,11 +9,7 @@ const FoodExchangeModal = ({ food, patientFilters, onExchange, onClose }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchEquivalents();
-    }, [food]);
-
-    const fetchEquivalents = async () => {
+    const fetchEquivalents = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -28,7 +24,11 @@ const FoodExchangeModal = ({ food, patientFilters, onExchange, onClose }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [food, patientFilters]);
+
+    useEffect(() => {
+        fetchEquivalents();
+    }, [fetchEquivalents]);
 
     const handleExchange = (equivalent) => {
         onExchange(food, equivalent);

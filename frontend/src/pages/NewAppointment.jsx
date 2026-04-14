@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI, patientsAPI } from '../services/api';
-import { ArrowLeft, Save, Loader } from 'lucide-react';
+import { Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
-import { useEffect } from 'react';
 import PremiumSelect from '../components/PremiumSelect';
 import SearchableSelect from '../components/SearchableSelect';
 import './NewAppointment.css';
@@ -27,18 +26,19 @@ const NewAppointment = () => {
         guestPhone: ''
     });
 
-    useEffect(() => {
-        fetchPatients();
-    }, []);
-
-    const fetchPatients = async () => {
+    const fetchPatients = useCallback(async () => {
         try {
             const response = await patientsAPI.getAll();
             setPatients(response.data.data.filter(p => p.status === 'active'));
         } catch (err) {
             console.error('Error fetching patients:', err);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchPatients();
+    }, [fetchPatients]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -75,7 +75,7 @@ const NewAppointment = () => {
             }
 
             await appointmentsAPI.create(appointmentData);
-            navigate('/appointments');
+            navigate('/agenda');
         } catch (err) {
             console.error('Error creating appointment:', err);
             setError(err.response?.data?.message || 'Error al crear la cita');
@@ -86,7 +86,7 @@ const NewAppointment = () => {
     return (
         <div className="new-appointment-page fade-in">
             <div className="page-header">
-                <BackButton to="/appointments" />
+                <BackButton to="/agenda" />
                 <div>
                     <h1>Nueva Cita</h1>
                     <p>Programa una consulta con tu paciente</p>
@@ -215,7 +215,7 @@ const NewAppointment = () => {
                     <button
                         type="button"
                         className="btn-v2-secondary"
-                        onClick={() => navigate('/appointments')}
+                        onClick={() => navigate('/agenda')}
                         disabled={loading}
                     >
                         Cancelar

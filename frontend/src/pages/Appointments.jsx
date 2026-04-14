@@ -1,8 +1,7 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI } from '../services/api';
-import { Calendar as CalendarIcon, Plus, Clock, User, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Clock, User } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import './Appointments.css';
 
@@ -12,11 +11,7 @@ const Appointments = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' | 'history'
 
-    useEffect(() => {
-        fetchAppointments();
-    }, []);
-
-    const fetchAppointments = async () => {
+    const fetchAppointments = useCallback(async () => {
         try {
             const response = await appointmentsAPI.getAll();
             setAppointments(response.data.data);
@@ -25,7 +20,12 @@ const Appointments = () => {
             console.error('Error fetching appointments:', error);
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchAppointments();
+    }, [fetchAppointments]);
 
     const getGroupTitle = (dateString) => {
         const date = new Date(dateString);
@@ -109,7 +109,7 @@ const Appointments = () => {
                     <h1>Citas</h1>
                     <p>Gestiona tu agenda de consultas</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => navigate('/appointments/new')}>
+                <button className="btn btn-primary" onClick={() => navigate('/agenda/nueva')}>
                     <Plus size={20} />
                     Nueva Cita
                 </button>
@@ -136,7 +136,7 @@ const Appointments = () => {
                         <CalendarIcon size={64} strokeWidth={1} />
                         <h3>No hay citas {activeTab === 'upcoming' ? 'próximas' : 'en el historial'}</h3>
                         {activeTab === 'upcoming' && (
-                            <button className="btn btn-primary mt-4" onClick={() => navigate('/appointments/new')}>
+                            <button className="btn btn-primary mt-4" onClick={() => navigate('/agenda/nueva')}>
                                 <Plus size={20} />
                                 Agendar Cita
                             </button>
@@ -171,7 +171,7 @@ const Appointments = () => {
                                                         {appointment.type === 'initial' ? 'Primera Vez' :
                                                             appointment.type === 'follow_up' ? 'Seguimiento' : appointment.type}
                                                     </span>
-                                                    {appointment.status === 'cancelled' && <span className="badge badge-error">Cancelada</span>}
+                                                    {appointment.status === 'cancelled' && <span className="badge badge-danger">Cancelada</span>}
                                                     {appointment.status === 'completed' && <span className="badge badge-success">Completada</span>}
                                                 </div>
                                             </div>
@@ -180,7 +180,7 @@ const Appointments = () => {
                                                 {/* Future: Add 'Complete' button here */}
                                                 <button
                                                     className="btn btn-sm btn-outline"
-                                                    onClick={() => navigate(`/patients/${appointment.patient?._id}`)}
+                                                    onClick={() => navigate(`/pacientes/${appointment.patient?._id}`)}
                                                 >
                                                     Ver Expediente
                                                 </button>

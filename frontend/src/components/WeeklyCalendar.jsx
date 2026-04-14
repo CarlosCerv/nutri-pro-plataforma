@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { appointmentsAPI } from '../services/api';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import './WeeklyCalendar.css';
@@ -32,15 +32,10 @@ const WeeklyCalendar = () => {
 
     const days = getWeekDays(currentDate);
 
-    useEffect(() => {
-        fetchWeekAppointments();
-    }, [currentDate]);
-
-    const fetchWeekAppointments = async () => {
+    const fetchWeekAppointments = useCallback(async () => {
         setLoading(true);
         try {
             const startDate = days[0].toISOString().split('T')[0];
-            const endDate = days[6].toISOString().split('T')[0];
 
             // Adjust endDate to include the full last day
             const endDateTime = new Date(days[6]);
@@ -57,7 +52,12 @@ const WeeklyCalendar = () => {
             console.error('Error fetching week appointments:', error);
             setLoading(false);
         }
-    };
+    }, [days]);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchWeekAppointments();
+    }, [fetchWeekAppointments]);
 
     const nextWeek = () => {
         const next = new Date(currentDate);

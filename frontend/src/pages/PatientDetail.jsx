@@ -1,301 +1,232 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { patientsAPI } from '../services/api';
-import { ArrowLeft, Edit, Trash2, User, Mail, Phone, Calendar, Activity } from 'lucide-react';
-import './PatientDetail.css';
+import { Suspense, lazy, useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import {
+  ArrowLeft, Edit3, Download, Salad,
+  User, Activity, FlaskConical, Heart, Apple, Dumbbell,
+} from 'lucide-react';
+import api from '../services/api';
 
-import ClinicalNotesTab from '../components/ClinicalNotesTab';
-import PatientMealPlansTab from '../components/PatientMealPlansTab';
-import BackButton from '../components/BackButton';
+const GeneralDataTab = lazy(() => import('./patient-tabs/GeneralDataTab'));
+const MeasurementsTab = lazy(() => import('./patient-tabs/MeasurementsTab'));
+const FoodHabitsTab = lazy(() => import('./patient-tabs/FoodHabitsTab'));
+const ClinicalTab = lazy(() => import('./patient-tabs/ClinicalTab'));
+const LaboratoryTab = lazy(() => import('./patient-tabs/LaboratoryTab'));
+const PhysicalActivityTab = lazy(() => import('./patient-tabs/PhysicalActivityTab'));
 
-const PatientDetail = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [patient, setPatient] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [activeTab, setActiveTab] = useState('general');
+const TABS = [
+  { id: 'general',   label: 'General',          icon: User          },
+  { id: 'mediciones',label: 'Mediciones',        icon: Activity      },
+  { id: 'habitos',   label: 'Hábitos',           icon: Apple         },
+  { id: 'clinica',   label: 'Clínica',           icon: Heart         },
+  { id: 'laboratorio',label: 'Laboratorio',      icon: FlaskConical  },
+  { id: 'actividad', label: 'Act. Física',       icon: Dumbbell      },
+];
 
-    useEffect(() => {
-        fetchPatient();
-    }, [id]);
-
-    const fetchPatient = async () => {
-        try {
-            const response = await patientsAPI.getOne(id);
-            setPatient(response.data.data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Error fetching patient:', err);
-            setError('Error al cargar el paciente');
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (window.confirm('¿Estás seguro de eliminar este paciente?')) {
-            try {
-                await patientsAPI.delete(id);
-                navigate('/patients');
-            } catch (err) {
-                console.error('Error deleting patient:', err);
-                alert('Error al eliminar el paciente');
-            }
-        }
-    };
-
-    const handleToggleStatus = async () => {
-        try {
-            const newStatus = !patient.isActive;
-            // Optimistic update
-            setPatient(prev => ({ ...prev, isActive: newStatus, status: newStatus ? 'active' : 'inactive' }));
-
-            await patientsAPI.update(id, { isActive: newStatus });
-        } catch (err) {
-            console.error('Error updating status:', err);
-            // Revert on error
-            fetchPatient();
-            alert('Error al actualizar estado');
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="page-loading">
-                <div className="spinner-large"></div>
-            </div>
-        );
-    }
-
-    if (error || !patient) {
-        return (
-            <div className="patient-detail-page">
-                <div className="error-state">
-                    <h2>Error</h2>
-                    <p>{error || 'Paciente no encontrado'}</p>
-                    <button className="btn btn-primary" onClick={() => navigate('/patients')}>
-                        Volver a Pacientes
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-
-        <div className="patient-detail-page fade-in">
-            <div className="page-header simple-header">
-                <BackButton to="/patients" />
-            </div>
-
-            <div className="detail-layout">
-                {/* Sidebar Profile */}
-                <div className="profile-sidebar card">
-                    <div className="profile-header-center">
-                        <div className="patient-avatar-xl">
-                            {patient.firstName[0]}{patient.lastName[0]}
-                        </div>
-                        <h2>{patient.firstName} {patient.lastName}</h2>
-                        <div className="status-badge-container" onClick={handleToggleStatus} style={{ cursor: 'pointer' }}>
-                            <span className={`badge badge-${patient.isActive ? 'success' : 'secondary'}`}>
-                                {patient.isActive ? 'Activo' : 'Inactivo'}
-                            </span>
-                            <small className="text-xs text-muted block mt-1">(Click para cambiar)</small>
-                        </div>
-                    </div>
-
-                    <div className="profile-actions">
-                        <button className="btn btn-outline btn-sm w-full" onClick={() => navigate(`/patients/${id}/edit`)}>
-                            <Edit size={16} /> Editar Perfil
-                        </button>
-                    </div>
-
-                    <div className="profile-info-list">
-                        <div className="info-row">
-                            <Mail size={16} className="text-secondary" />
-                            <span>{patient.email || 'Sin email'}</span>
-                        </div>
-                        <div className="info-row">
-                            <Phone size={16} className="text-secondary" />
-                            <span>{patient.phone || 'Sin teléfono'}</span>
-                        </div>
-                        <div className="info-row">
-                            <User size={16} className="text-secondary" />
-                            <span>{patient.gender || 'N/A'}, {patient.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} años` : ''}</span>
-                        </div>
-                    </div>
-
-                    <div className="profile-danger-zone">
-                        <button className="btn-link-danger" onClick={handleDelete}>
-                            <Trash2 size={16} /> Eliminar Paciente
-                        </button>
-                    </div>
-                </div>
-
-                {/* Main Content Area */}
-                <div className="detail-main-content">
-                    {/* Tabs Navigation */}
-                    <div className="tabs-nav-modern">
-                        <button
-                            className={`tab-btn-modern ${activeTab === 'general' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('general')}
-                        >
-                            General
-                        </button>
-                        <button
-                            className={`tab-btn-modern ${activeTab === 'notes' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('notes')}
-                        >
-                            Notas Clínicas
-                        </button>
-                        <button
-                            className={`tab-btn-modern ${activeTab === 'mealplans' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('mealplans')}
-                        >
-                            Planes Nutricionales
-                        </button>
-                        <button
-                            className={`tab-btn-modern ${activeTab === 'gallery' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('gallery')}
-                        >
-                            Galería
-                        </button>
-                    </div>
-
-                    <div className="tab-content-area">
-                        {activeTab === 'general' ? (
-                            <div className="fade-in">
-                                {/* Anthropometry Cards */}
-                                {patient.anthropometry && (
-                                    <div className="section-block">
-                                        <h3>Antropometría Actual</h3>
-                                        <div className="stats-grid-modern">
-                                            <div className="stat-card-mini card">
-                                                <span className="stat-label">Peso Current</span>
-                                                <span className="stat-number">{patient.anthropometry.weight || '-'} <small>kg</small></span>
-                                            </div>
-                                            <div className="stat-card-mini card">
-                                                <span className="stat-label">Altura</span>
-                                                <span className="stat-number">{patient.anthropometry.height || '-'} <small>cm</small></span>
-                                            </div>
-                                            <div className="stat-card-mini card">
-                                                <span className="stat-label">IMC</span>
-                                                <span className="stat-number">{patient.anthropometry.bmi || '-'}</span>
-                                            </div>
-                                            <div className="stat-card-mini card">
-                                                <span className="stat-label">% Grasa</span>
-                                                <span className="stat-number">{patient.anthropometry.bodyFatPercentage || '-'} <small>%</small></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Goals */}
-                                {patient.nutritionalGoals && (
-                                    <div className="section-block mt-6">
-                                        <h3>Objetivos</h3>
-                                        <div className="card padding-lg">
-                                            <div className="goals-grid">
-                                                <div className="goal-item">
-                                                    <Activity size={20} className="text-primary" />
-                                                    <div>
-                                                        <label>Meta Principal</label>
-                                                        <p>{patient.nutritionalGoals.primaryGoal || 'No definido'}</p>
-                                                    </div>
-                                                </div>
-                                                {patient.nutritionalGoals.targetWeight && (
-                                                    <div className="goal-item">
-                                                        <Activity size={20} className="text-primary" />
-                                                        <div>
-                                                            <label>Peso Objetivo</label>
-                                                            <p>{patient.nutritionalGoals.targetWeight} kg</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : activeTab === 'notes' ? (
-                            <div className="fade-in">
-                                <ClinicalNotesTab patientId={id} />
-                            </div>
-                        ) : activeTab === 'mealplans' ? (
-                            <div className="fade-in">
-                                <PatientMealPlansTab patientId={id} patient={patient} />
-                            </div>
-                        ) : activeTab === 'mealplans' ? (
-                            <div className="fade-in">
-                                <PatientMealPlansTab patientId={id} patient={patient} />
-                            </div>
-                        ) : activeTab === 'gallery' ? (
-                            <div className="fade-in">
-                                <div className="gallery-section section-block">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3>Galería de Progreso</h3>
-                                        <label className="btn btn-primary btn-sm cursor-pointer">
-                                            Subir Foto
-                                            <input
-                                                type="file"
-                                                hidden
-                                                accept="image/*"
-                                                onChange={async (e) => {
-                                                    const file = e.target.files[0];
-                                                    if (!file) return;
-
-                                                    const formData = new FormData();
-                                                    formData.append('file', file);
-                                                    formData.append('type', 'other'); // Default type for now
-
-                                                    try {
-                                                        const token = localStorage.getItem('token');
-                                                        // Direct fetch or use api helper if modified to support FormData
-                                                        // Using fetch for quick FormData support
-                                                        const res = await fetch(`http://localhost:5000/api/patients/${id}/upload`, {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Authorization': `Bearer ${token}`
-                                                            },
-                                                            body: formData
-                                                        });
-
-                                                        if (res.ok) {
-                                                            fetchPatient(); // Refresh
-                                                        } else {
-                                                            alert('Error al subir imagen');
-                                                        }
-                                                    } catch (err) {
-                                                        console.error(err);
-                                                        alert('Error de conexión');
-                                                    }
-                                                }}
-                                            />
-                                        </label>
-                                    </div>
-
-                                    {patient.images && patient.images.length > 0 ? (
-                                        <div className="gallery-grid">
-                                            {patient.images.map((img, idx) => (
-                                                <div key={idx} className="gallery-item card">
-                                                    <img src={img.url} alt={img.type} className="gallery-img" />
-                                                    <div className="gallery-caption capitalize">{img.type} - {new Date(img.date).toLocaleDateString()}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="empty-state card p-8 text-center text-muted">
-                                            <p>No hay imágenes cargadas.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ) : null}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+const calcIMC = (peso, talla) => {
+  if (!peso || !talla) return null;
+  return (peso / ((talla / 100) ** 2)).toFixed(1);
 };
 
-export default PatientDetail;
+const clasificarIMC = (imc) => {
+  if (!imc) return { cat: '—', color: '#fff' };
+  const v = parseFloat(imc);
+  if (v < 18.5) return { cat: 'Bajo peso',   color: '#3B82F6' };
+  if (v < 25)   return { cat: 'Normal',       color: '#2ECC8E' };
+  if (v < 30)   return { cat: 'Sobrepeso',    color: '#F59E0B' };
+  if (v < 35)   return { cat: 'Obesidad I',   color: '#EF4444' };
+  if (v < 40)   return { cat: 'Obesidad II',  color: '#DC2626' };
+  return             { cat: 'Obesidad III', color: '#991B1B' };
+};
+
+const calcEdad = (dob) => {
+  if (!dob) return null;
+  const diff = Date.now() - new Date(dob);
+  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+};
+
+export default function PatientDetail({ tab: tabProp }) {
+  const { id }          = useParams();
+  const navigate        = useNavigate();
+  const [patient, setPatient]     = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [activeTab, setActiveTab] = useState(tabProp || 'general');
+
+  const fetchPatient = useCallback(async () => {
+    try {
+      const res = await api.get(`/api/patients/${id}`);
+      setPatient(res.data.data || res.data);
+    } catch {
+      // Mock
+      setPatient({
+        _id: id,
+        firstName: 'María', lastName: 'González',
+        email: 'maria@email.com', phone: '3310001111',
+        dob: '1990-06-15', sex: 'F',
+        lastWeight: 72.4, height: 165,
+        objective: 'Bajar de peso',
+        active: true,
+        createdAt: '2025-01-10',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => { fetchPatient(); }, [fetchPatient]);
+  useEffect(() => { if (tabProp) setActiveTab(tabProp); }, [tabProp]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fade-up">
+        <div className="skeleton h-8 w-48 rounded-xl" />
+        <div className="card space-y-4">
+          <div className="flex gap-4">
+            <div className="skeleton w-20 h-20 rounded-2xl" />
+            <div className="space-y-2 flex-1">
+              <div className="skeleton h-6 w-48 rounded-lg" />
+              <div className="skeleton h-4 w-32 rounded" />
+              <div className="skeleton h-4 w-64 rounded" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!patient) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon"><User size={28} /></div>
+        <div className="text-sm text-white/50">Paciente no encontrado</div>
+        <Link to="/pacientes" className="btn btn-outline btn-sm">← Volver</Link>
+      </div>
+    );
+  }
+
+  const imc     = calcIMC(patient.lastWeight, patient.height);
+  const imcInfo = clasificarIMC(imc);
+  const edad    = calcEdad(patient.dob);
+  const nombre  = `${patient.firstName} ${patient.lastName}`;
+  const initials = nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  const COLORS = ['#2ECC8E', '#E8C96A', '#3B82F6', '#A855F7'];
+  const avatarColor = COLORS[(patient.firstName?.charCodeAt(0) || 0) % COLORS.length];
+
+  const TAB_COMPONENTS = {
+    general: GeneralDataTab,
+    mediciones: MeasurementsTab,
+    habitos: FoodHabitsTab,
+    clinica: ClinicalTab,
+    laboratorio: LaboratoryTab,
+    actividad: PhysicalActivityTab,
+  };
+  const ActiveTabComponent = TAB_COMPONENTS[activeTab] || GeneralDataTab;
+
+  return (
+    <div className="space-y-5 animate-fade-up">
+      {/* Breadcrumb + Back */}
+      <div className="flex items-center gap-2 text-xs text-white/30">
+        <button onClick={() => navigate('/pacientes')} className="hover:text-white transition-colors flex items-center gap-1">
+          <ArrowLeft size={13} /> Pacientes
+        </button>
+        <span>/</span>
+        <span className="text-white/60">{nombre}</span>
+      </div>
+
+      {/* Header Card del Paciente */}
+      <div className="card">
+        <div className="flex flex-col sm:flex-row gap-5">
+          {/* Avatar */}
+          <div className="flex-shrink-0">
+            <div className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-2xl font-bold font-display text-navy-950"
+              style={{ background: avatarColor }}>
+              {patient.photoUrl
+                ? <img src={patient.photoUrl} alt={nombre} className="w-full h-full object-cover rounded-2xl" />
+                : initials
+              }
+            </div>
+          </div>
+
+          {/* Info principal */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-start gap-3 mb-2">
+              <h1 className="font-display text-2xl text-white">{nombre}</h1>
+              <span className={`badge ${patient.active !== false ? 'badge-success' : 'badge-neutral'} self-center`}>
+                {patient.active !== false ? 'Activo' : 'Inactivo'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-sm text-white/40">
+              {edad && <span>{edad} años</span>}
+              <span>{patient.sex === 'M' ? 'Masculino' : 'Femenino'}</span>
+              {patient.email && <span>{patient.email}</span>}
+              {patient.phone && <span>{patient.phone}</span>}
+            </div>
+            {patient.objective && (
+              <div className="mt-2">
+                <span className="badge badge-gold">{patient.objective}</span>
+              </div>
+            )}
+          </div>
+
+          {/* KPIs rápidos */}
+          <div className="flex gap-4 flex-wrap sm:flex-nowrap">
+            {[
+              { label: 'Peso',   value: patient.lastWeight ? `${patient.lastWeight} kg` : '—', color: '#2ECC8E' },
+              { label: 'Talla',  value: patient.height     ? `${patient.height} cm`     : '—', color: '#E8C96A' },
+              { label: 'IMC',    value: imc || '—',  sub: imcInfo.cat,                  color: imcInfo.color },
+            ].map(k => (
+              <div key={k.label} className="text-center px-4 py-2 rounded-xl bg-navy-800/60 border border-navy-700/50 min-w-[70px]">
+                <div className="font-mono text-lg font-medium" style={{ color: k.color }}>{k.value}</div>
+                <div className="text-2xs text-white/30 mt-0.5">{k.label}</div>
+                {k.sub && <div className="text-2xs mt-0.5 font-semibold" style={{ color: k.color }}>{k.sub}</div>}
+              </div>
+            ))}
+          </div>
+
+          {/* Acciones */}
+          <div className="flex flex-wrap gap-2 sm:flex-col sm:justify-start">
+            <Link to={`/pacientes/${id}/editar`} className="btn btn-ghost btn-sm gap-1.5">
+              <Edit3 size={13} /> Editar
+            </Link>
+            <Link to={`/dietas/nueva?paciente=${id}`} className="btn btn-outline btn-sm gap-1.5">
+              <Salad size={13} /> Nueva dieta
+            </Link>
+            <button className="btn btn-secondary btn-sm gap-1.5">
+              <Download size={13} /> PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs navigation */}
+      <div className="overflow-x-auto no-scrollbar">
+        <div className="tabs-nav min-w-max">
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`tab-btn flex items-center gap-2 ${activeTab === t.id ? 'active' : ''}`}
+            >
+              <t.icon size={14} />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div key={activeTab} className="animate-fade-up">
+        <Suspense
+          fallback={
+            <div className="card space-y-3">
+              <div className="skeleton h-6 w-40 rounded-lg" />
+              <div className="skeleton h-24 w-full rounded-2xl" />
+              <div className="skeleton h-24 w-full rounded-2xl" />
+            </div>
+          }
+        >
+          <ActiveTabComponent patient={patient} onUpdate={setPatient} />
+        </Suspense>
+      </div>
+    </div>
+  );
+}

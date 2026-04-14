@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { mealPlansAPI } from '../services/api';
 import { UtensilsCrossed, Download, Loader, Eye } from 'lucide-react';
@@ -13,20 +13,20 @@ const PatientMealPlansTab = ({ patientId, patient }) => {
     const { user } = useAuth();
     const { pdfRef, isGenerating, generatePDF } = usePDFExport();
 
-    useEffect(() => {
-        fetchMealPlans();
-    }, [patientId]);
-
-    const fetchMealPlans = async () => {
+    const fetchMealPlans = useCallback(async () => {
         try {
             const response = await mealPlansAPI.getAll({ patientId, isTemplate: 'false' });
             setMealPlans(response.data?.data || []);
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching patient meal plans:', error);
+        } finally {
             setLoading(false);
         }
-    };
+    }, [patientId]);
+
+    useEffect(() => {
+        fetchMealPlans();
+    }, [fetchMealPlans]);
 
     const handleExportPDF = async (plan) => {
         // Set the selected plan for PDF rendering

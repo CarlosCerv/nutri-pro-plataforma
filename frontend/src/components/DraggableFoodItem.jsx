@@ -5,12 +5,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, X, Repeat, Plus } from 'lucide-react';
 
 const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate, onQuickAdd }) => {
-    // Defensive checks
-    if (!food || !food.id || !food.name) {
-        console.warn('DraggableFoodItem: Invalid food item', food);
-        return null;
-    }
-
     const {
         attributes,
         listeners,
@@ -18,7 +12,7 @@ const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate, onQuickAdd })
         transform,
         transition,
         isDragging,
-    } = useSortable({ id: food.id });
+    } = useSortable({ id: food?.id || 'invalid-food-item' });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -30,8 +24,16 @@ const DraggableFoodItem = ({ food, onRemove, onExchange, onUpdate, onQuickAdd })
 
     // Reset error state if food changes (e.g. reused component)
     useEffect(() => {
-        setImageError(false);
-    }, [food.id, food.img, food.image]);
+        if (food?.id) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setImageError(false);
+        }
+    }, [food?.id, food?.img, food?.image]);
+
+    if (!food || !food.id || !food.name) {
+        console.warn('DraggableFoodItem: Invalid food item', food);
+        return null;
+    }
 
     return (
         <div

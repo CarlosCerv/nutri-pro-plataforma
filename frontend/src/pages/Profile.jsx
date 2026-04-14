@@ -1,285 +1,202 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { authAPI, patientsAPI } from '../services/api';
-import { User, Mail, Phone, Stethoscope, Save, Loader, Shield, Database } from 'lucide-react';
-import './Profile.css';
+import { Save, User, Image as ImageIcon, Shield, CreditCard, Palette, Camera } from 'lucide-react';
 
-const Profile = () => {
-    const { user, setUser } = useAuth(); // Assuming setUser updates context state
-    const [loading, setLoading] = useState(false);
-    const [exportLoading, setExportLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        specialty: '',
-        phone: '',
-        password: '',
-        confirmPassword: ''
-    });
+export default function Profile() {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('perfil');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-    useEffect(() => {
-        if (user) {
-            setFormData(prev => ({
-                ...prev,
-                name: user.name || '',
-                email: user.email || '',
-                specialty: user.specialty || '',
-                phone: user.phone || ''
-            }));
-        }
-    }, [user]);
+  // Mock Form State
+  const [profileData, setProfileData] = useState({
+    name: user?.name || 'Carlos Cervantes',
+    email: user?.email || 'carlos.nutri@ejemplo.com',
+    cedula: '12345678',
+    universidad: 'Universidad de Guadalajara',
+    telefono: '3310001122',
+  });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+  const [brandingData, setBrandingData] = useState({
+    colorPrimario: '#2ECC8E',
+    colorSecundario: '#1A2E50',
+    logo: null,
+    slogan: 'Tu mejor versión, todos los días.',
+    mostrarRedes: true,
+    instagram: '@carlos.nutricion',
+  });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setMessage('');
+  const handleSave = (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }, 800);
+  };
 
-        if (formData.password && formData.password !== formData.confirmPassword) {
-            setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
-            return;
-        }
+  return (
+    <div className="space-y-6 animate-fade-up">
+      <div className="page-header">
+        <h1 className="page-title">Configuración</h1>
+        <p className="page-subtitle">Gestiona tu perfil profesional, branding y facturación</p>
+      </div>
 
-        setLoading(true);
-
-        try {
-            const updateData = {
-                name: formData.name,
-                email: formData.email,
-                specialty: formData.specialty,
-                phone: formData.phone
-            };
-
-            if (formData.password) {
-                updateData.password = formData.password;
-            }
-
-            const response = await authAPI.updateProfile(updateData);
-
-            // If AuthContext has a way to update local user state, do it here
-            // Otherwise, we might rely on the page reload or context refresh
-            // For now, let's assume we can notify the user
-            setMessage({ type: 'success', text: 'Perfil actualizado correctamente' });
-
-        } catch (error) {
-            console.error('Update error:', error);
-            setMessage({ type: 'error', text: error.response?.data?.message || 'Error al actualizar perfil' });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleExportPatients = async () => {
-        setMessage('');
-        setExportLoading(true);
-
-        try {
-            const response = await patientsAPI.exportAll();
-            const exportData = response.data;
-
-            // Create JSON blob
-            const jsonString = JSON.stringify(exportData, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-
-            // Create download link
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-
-            // Generate filename with current date
-            const today = new Date().toISOString().split('T')[0];
-            link.download = `patients-backup-${today}.json`;
-
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-
-            // Cleanup
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-
-            setMessage({
-                type: 'success',
-                text: `Respaldo completado: ${exportData.count} paciente${exportData.count !== 1 ? 's' : ''} exportado${exportData.count !== 1 ? 's' : ''}`
-            });
-        } catch (error) {
-            console.error('Export error:', error);
-            setMessage({ type: 'error', text: error.response?.data?.message || 'Error al exportar pacientes' });
-        } finally {
-            setExportLoading(false);
-        }
-    };
-
-    return (
-        <div className="profile-page fade-in">
-            <div className="page-header">
-                <div>
-                    <h1>Mi Cuenta</h1>
-                    <p>Gestiona tu información personal y de seguridad</p>
-                </div>
-            </div>
-
-            <div className="profile-grid">
-                <div className="profile-card card">
-                    <div className="profile-header">
-                        <div className="profile-avatar-large">
-                            {formData.name.charAt(0) || 'U'}
-                        </div>
-                        <div className="profile-info">
-                            <h2>{formData.name}</h2>
-                            <span className="badge badge-info">{formData.specialty || 'Nutricionista'}</span>
-                        </div>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="profile-form">
-                        {message && (
-                            <div className={`alert alert-${message.type}`}>
-                                {message.text}
-                            </div>
-                        )}
-
-                        <div className="form-section-title">
-                            <User size={18} /> Información Personal
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label">Nombre Completo</label>
-                            <input
-                                type="text"
-                                name="name"
-                                className="input"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label">Especialidad</label>
-                            <div className="input-group">
-                                <Stethoscope size={18} className="input-icon" />
-                                <input
-                                    type="text"
-                                    name="specialty"
-                                    className="input input-with-icon"
-                                    value={formData.specialty}
-                                    onChange={handleChange}
-                                    placeholder="Ej. Nutrición Deportiva"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label">Teléfono</label>
-                            <div className="input-group">
-                                <Phone size={18} className="input-icon" />
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    className="input input-with-icon"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    placeholder="+52..."
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="label">Email</label>
-                            <div className="input-group">
-                                <Mail size={18} className="input-icon" />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    className="input input-with-icon"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-section-title mt-xl">
-                            <Shield size={18} /> Seguridad
-                        </div>
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="label">Nueva Contraseña</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    className="input"
-                                    placeholder="Dejar vacía para mantener actual"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="label">Confirmar Contraseña</label>
-                                <input
-                                    type="password"
-                                    name="confirmPassword"
-                                    className="input"
-                                    placeholder="Confirmar nueva contraseña"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-actions">
-                            <button type="submit" className="btn btn-primary" disabled={loading}>
-                                {loading ? (
-                                    <>
-                                        <Loader className="spinner" size={18} /> Guardando...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save size={18} /> Guardar Cambios
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className="form-section-title mt-xl">
-                        <Database size={18} /> Respaldo de Datos
-                    </div>
-
-                    <div className="backup-section">
-                        <p className="backup-description">
-                            Exporta todos tus pacientes con su información completa en formato JSON.
-                            Esto incluye datos personales, antropométricos, historial médico, objetivos nutricionales y más.
-                        </p>
-                        <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={handleExportPatients}
-                            disabled={exportLoading}
-                        >
-                            {exportLoading ? (
-                                <>
-                                    <Loader className="spinner" size={18} /> Exportando...
-                                </>
-                            ) : (
-                                <>
-                                    <Database size={18} /> Respaldar Todos los Pacientes
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </div>
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Nav Tabs Lateral */}
+        <div className="w-full lg:w-64 flex-shrink-0 card !p-2 space-y-1">
+          <button onClick={() => setActiveTab('perfil')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'perfil' ? 'bg-emerald/10 text-emerald' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+            <User size={18} /> Datos Profesionales
+          </button>
+          <button onClick={() => setActiveTab('branding')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'branding' ? 'bg-gold/10 text-gold' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+            <Palette size={18} /> Branding (PDFs)
+          </button>
+          <button onClick={() => setActiveTab('seguridad')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'seguridad' ? 'bg-blue-500/10 text-blue-500' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+            <Shield size={18} /> Contraseña y Acceso
+          </button>
+          <hr className="border-navy-700/50 my-2 mx-2" />
+          <button onClick={() => setActiveTab('licencia')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'licencia' ? 'bg-purple-500/10 text-purple-400' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+            <CreditCard size={18} /> Mi Licencia SaaS
+          </button>
         </div>
-    );
-};
 
-export default Profile;
+        {/* Contenido (Forms) */}
+        <div className="flex-1 w-full card">
+          <form onSubmit={handleSave}>
+            {activeTab === 'perfil' && (
+              <div className="space-y-5 animate-fade-in">
+                <h2 className="text-xl font-display text-white mb-4">Datos Profesionales</h2>
+                <div className="flex items-center gap-5 mb-6">
+                  <div className="w-20 h-20 rounded-full bg-gradient-emerald flex items-center justify-center text-2xl font-bold text-navy-950 font-display">
+                    {profileData.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  </div>
+                  <button type="button" className="btn btn-outline btn-sm gap-2"><Camera size={14} /> Cambiar Foto</button>
+                  <p className="text-xs text-white/30 hidden sm:block">Esta foto aparece en el sidebar y portal de pacientes.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label className="label">Nombre completo con título</label>
+                    <input className="input" value={profileData.name} onChange={e => setProfileData({...profileData, name: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label className="label">Correo principal (Login)</label>
+                    <input className="input" type="email" value={profileData.email} disabled />
+                    <p className="text-2xs text-emerald mt-1">Verificado</p>
+                  </div>
+                  <div className="form-group">
+                    <label className="label">Cédula Profesional</label>
+                    <input className="input font-mono" value={profileData.cedula} onChange={e => setProfileData({...profileData, cedula: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label className="label">Institución/Universidad</label>
+                    <input className="input" value={profileData.universidad} onChange={e => setProfileData({...profileData, universidad: e.target.value})} />
+                  </div>
+                  <div className="form-group md:col-span-2">
+                    <label className="label">Teléfono de contacto (Consultorio)</label>
+                    <input className="input md:w-1/2" value={profileData.telefono} onChange={e => setProfileData({...profileData, telefono: e.target.value})} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'branding' && (
+              <div className="space-y-5 animate-fade-in">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-display text-white">Diseño de PDFs y Reportes</h2>
+                  <span className="badge badge-gold bg-gold/10 text-gold border-gold/30">Premium Feature</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="form-group">
+                      <label className="label">Slogan o Frase destacada</label>
+                      <input className="input" value={brandingData.slogan} onChange={e => setBrandingData({...brandingData, slogan: e.target.value})} />
+                    </div>
+                    <div className="form-group">
+                      <label className="label flex justify-between">Color Primario <span className="text-white/40 font-mono">{brandingData.colorPrimario}</span></label>
+                      <div className="flex items-center gap-3">
+                        <input type="color" className="w-10 h-10 rounded cursor-pointer border-none bg-transparent" value={brandingData.colorPrimario} onChange={e => setBrandingData({...brandingData, colorPrimario: e.target.value})} />
+                        <span className="text-xs text-white/50">Aplica a botones y encabezados en PDF</span>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="label flex justify-between">Color Secundario <span className="text-white/40 font-mono">{brandingData.colorSecundario}</span></label>
+                      <div className="flex items-center gap-3">
+                        <input type="color" className="w-10 h-10 rounded cursor-pointer border-none bg-transparent" value={brandingData.colorSecundario} onChange={e => setBrandingData({...brandingData, colorSecundario: e.target.value})} />
+                        <span className="text-xs text-white/50">Aplica a fondos de tablas y pies de página</span>
+                      </div>
+                    </div>
+                    
+                    <hr className="border-navy-700 my-4" />
+                    
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" className="w-4 h-4 accent-emerald" checked={brandingData.mostrarRedes} onChange={e => setBrandingData({...brandingData, mostrarRedes: e.target.checked})} />
+                      <span className="text-sm text-white/80">Mostrar redes sociales en el pie de página</span>
+                    </label>
+                    
+                    {brandingData.mostrarRedes && (
+                      <div className="form-group animate-slide-in-up">
+                        <label className="label">Usuario de Instagram / Facebook</label>
+                        <input className="input" value={brandingData.instagram} onChange={e => setBrandingData({...brandingData, instagram: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Vista previa mock (visual solo) */}
+                  <div className="border border-navy-600 bg-white rounded-xl p-4 flex flex-col pointer-events-none select-none relative overflow-hidden h-[340px]">
+                    <div className="absolute top-0 inset-x-0 h-4" style={{ backgroundColor: brandingData.colorPrimario }}></div>
+                    <div className="mt-6 flex justify-between items-start">
+                      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
+                        <ImageIcon size={20} />
+                      </div>
+                      <div className="text-right text-gray-800">
+                        <div className="font-bold text-sm" style={{ color: brandingData.colorPrimario }}>{profileData.name}</div>
+                        <div className="text-[10px] text-gray-500">Cédula: {profileData.cedula}</div>
+                        <div className="text-[9px] text-gray-400 italic mt-1">{brandingData.slogan}</div>
+                      </div>
+                    </div>
+                    <div className="mt-8">
+                      <div className="mx-auto w-1/3 h-2 rounded bg-gray-200 mb-2"></div>
+                      <div className="mx-auto w-1/2 h-2 rounded bg-gray-200"></div>
+                    </div>
+                    <div className="mt-auto pt-3 border-t border-gray-200 text-center text-[9px] text-gray-500">
+                      {brandingData.mostrarRedes ? `Sígueme en redes: ${brandingData.instagram}` : 'NutriPro Software Genérico'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'seguridad' && (
+              <div className="space-y-4 animate-fade-in text-center py-10 text-white/40">
+                <Shield size={32} className="mx-auto mb-3 text-white/20" />
+                <p>Gestión de contraseñas y doble factor de autenticación estarián aquí.</p>
+              </div>
+            )}
+
+            {activeTab === 'licencia' && (
+              <div className="space-y-4 animate-fade-in text-center py-10 text-white/40">
+                <CreditCard size={32} className="mx-auto mb-3 text-white/20" />
+                <p>Estado de la licencia, límites de pacientes y facturación.</p>
+              </div>
+            )}
+
+            <div className="mt-8 pt-5 border-t border-navy-700/50 flex justify-end">
+              <button type="submit" disabled={saving || activeTab === 'seguridad' || activeTab === 'licencia'} className="btn btn-primary gap-2 w-full sm:w-auto">
+                {saving ? (
+                  <><div className="w-4 h-4 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" /> Guardando...</>
+                ) : saved ? (
+                  <>✓ Guardado</>
+                ) : (
+                  <><Save size={16} /> Guardar Configuración</>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

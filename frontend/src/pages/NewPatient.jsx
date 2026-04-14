@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { patientsAPI } from '../services/api';
 import { Save, Loader } from 'lucide-react';
@@ -24,9 +24,7 @@ const NewPatient = () => {
         diameters_humerus: '', diameters_femur: '', diameters_wrist: ''
     });
 
-    useEffect(() => { if (isEditMode) fetchPatientData(); }, [id]);
-
-    const fetchPatientData = async () => {
+    const fetchPatientData = useCallback(async () => {
         try {
             const response = await patientsAPI.getOne(id);
             const p = response.data.data;
@@ -61,8 +59,18 @@ const NewPatient = () => {
                 diameters_wrist: p.anthropometry?.diameters?.wrist || '',
             });
             setInitialLoading(false);
-        } catch (err) { setError('Error al cargar datos'); setInitialLoading(false); }
-    };
+        } catch {
+            setError('Error al cargar datos');
+            setInitialLoading(false);
+        }
+    }, [id]);
+
+    useEffect(() => {
+        if (isEditMode) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            fetchPatientData();
+        }
+    }, [fetchPatientData, isEditMode]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -122,7 +130,7 @@ const NewPatient = () => {
             };
             if (isEditMode) await patientsAPI.update(id, patientData);
             else await patientsAPI.create(patientData);
-            navigate('/patients');
+            navigate('/pacientes');
         } catch (err) { setError(err.response?.data?.message || 'Error al guardar'); setLoading(false); }
     };
 

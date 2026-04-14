@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import clinicalNotesService from '../services/clinicalNotesService';
 import { Plus, Save, X, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 
@@ -14,21 +14,21 @@ const ClinicalNotesTab = ({ patientId }) => {
         plan: ''
     });
 
-    useEffect(() => {
-        fetchNotes();
-    }, [patientId]);
-
-    const fetchNotes = async () => {
+    const fetchNotes = useCallback(async () => {
         try {
             setLoading(true);
             const response = await clinicalNotesService.getPatientNotes(patientId);
             setNotes(response.data);
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching notes:', error);
+        } finally {
             setLoading(false);
         }
-    };
+    }, [patientId]);
+
+    useEffect(() => {
+        fetchNotes();
+    }, [fetchNotes]);
 
     const handleCreateNote = async (e) => {
         e.preventDefault();
@@ -36,7 +36,7 @@ const ClinicalNotesTab = ({ patientId }) => {
             await clinicalNotesService.createNote(patientId, newNote);
             setNewNote({ subjective: '', objective: '', analysis: '', plan: '' });
             setIsAdding(false);
-            fetchNotes(); // Refresh list
+            fetchNotes();
         } catch (error) {
             console.error('Error creating note:', error);
             alert('Error al guardar la nota');

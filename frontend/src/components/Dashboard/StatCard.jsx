@@ -1,14 +1,14 @@
-import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-const StatCard = ({ label, value, trend, trendValue, icon: Icon, colorClass }) => {
+const StatCard = ({ label, value, trend, trendValue, icon, colorClass }) => {
     const isPositive = trend === 'positive';
     const isNegative = trend === 'negative';
+    const IconComponent = icon;
 
     return (
         <div className="stat-card-modern">
             <div className={`stat-icon-wrapper ${colorClass}`}>
-                <Icon size={22} />
+                <IconComponent size={22} />
             </div>
             <div className="stat-info">
                 <p className="stat-label">{label}</p>

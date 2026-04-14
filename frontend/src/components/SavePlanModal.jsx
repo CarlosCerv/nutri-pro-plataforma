@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { X, Save, User, FileText } from 'lucide-react';
 import { patientsAPI } from '../services/api';
@@ -10,8 +10,6 @@ const SavePlanModal = ({ onClose, onSave }) => {
     const [category, setCategory] = useState('');
     const [selectedPatient, setSelectedPatient] = useState('');
     const [patients, setPatients] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     // Hardcoded categories that match the MealPlan schema
@@ -28,27 +26,21 @@ const SavePlanModal = ({ onClose, onSave }) => {
         'custom'
     ];
 
-    useEffect(() => {
-        fetchInitialData();
-    }, []);
-
-    const fetchInitialData = async () => {
+    const fetchInitialData = useCallback(async () => {
         try {
-            // Set hardcoded categories immediately
-            setCategories(MEAL_PLAN_CATEGORIES);
-
-            // Fetch patients
             const patientsRes = await patientsAPI.getAll();
             setPatients(patientsRes.data?.data || []);
         } catch (err) {
             console.error('Error loading patients:', err);
-            // Set categories anyway so the modal is functional
-            setCategories(MEAL_PLAN_CATEGORIES);
             setPatients([]);
-            // Don't show error to prevent crashes, just log it
             console.warn('Could not load patients, but categories are available');
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchInitialData();
+    }, [fetchInitialData]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -149,7 +141,7 @@ const SavePlanModal = ({ onClose, onSave }) => {
                                 className={`input ${!selectedPatient && 'input-error'}`}
                             >
                                 <option value="">Selecciona un paciente</option>
-                                {patients.map(p => (
+                                {patients.map((p) => (
                                     <option key={p._id} value={p._id}>
                                         {p.firstName} {p.lastName}
                                     </option>
@@ -165,7 +157,7 @@ const SavePlanModal = ({ onClose, onSave }) => {
                         <button
                             type="submit"
                             className="btn btn-primary"
-                            disabled={loading || !name || (saveType === 'template' ? !category : !selectedPatient)}
+                            disabled={!name || (saveType === 'template' ? !category : !selectedPatient)}
                             title={(!name || (saveType === 'template' ? !category : !selectedPatient)) ? "Completa los campos obligatorios" : ""}
                         >
                             <Save size={18} />

@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -12,21 +13,11 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Check if user is logged in - check both storages
-        // Prefer localStorage if available (persistent session)
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-
-        if (token && savedUser) {
-            setUser(JSON.parse(savedUser));
-        }
-
-        setLoading(false);
-    }, []);
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+    const [loading] = useState(false);
 
     const login = async (email, password, rememberMe = false) => {
         try {
