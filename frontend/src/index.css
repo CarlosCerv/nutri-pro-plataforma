@@ -407,3 +407,209 @@
     mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
   }
 }
+
+/* ── Light Theme ────────────────────────────────────────────── */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background:
+    radial-gradient(circle at top left, rgba(46, 204, 142, 0.10), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(232, 201, 106, 0.16), transparent 28%),
+    #f4f7fb;
+  color: #10213d;
+}
+
+html.light ::selection {
+  background: rgba(46, 204, 142, 0.18);
+  color: #0d5a40;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: #e7eef5;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #b8c8d8;
+}
+
+html.light :focus-visible {
+  box-shadow: 0 0 0 2px #2ecc8e, 0 0 0 4px #f4f7fb;
+}
+
+html.light .app-layout,
+html.light .main-content,
+html.light .content-area {
+  background: transparent;
+}
+
+html.light .card,
+html.light .card-kpi,
+html.light .modal-content,
+html.light .table-wrapper,
+html.light .tabs-nav {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: #d9e3ee !important;
+  box-shadow: 0 10px 30px rgba(16, 33, 61, 0.08);
+}
+
+html.light .card:hover {
+  border-color: rgba(46, 204, 142, 0.36) !important;
+  box-shadow: 0 16px 32px rgba(16, 33, 61, 0.12);
+}
+
+html.light .input,
+html.light .select {
+  background: #f8fbff !important;
+  border-color: #ccd8e5 !important;
+  color: #10213d !important;
+}
+
+html.light .input::placeholder {
+  color: rgba(16, 33, 61, 0.35);
+}
+
+html.light .label,
+html.light .helper-text,
+html.light .page-subtitle {
+  color: rgba(16, 33, 61, 0.62) !important;
+}
+
+html.light .page-title,
+html.light .section-title,
+html.light .table td,
+html.light .table th,
+html.light .modal-header,
+html.light .kpi-value {
+  color: #10213d !important;
+}
+
+html.light .table thead tr,
+html.light .table td,
+html.light .modal-header,
+html.light .divider {
+  border-color: #dde6ef !important;
+}
+
+html.light .table tbody tr:hover {
+  background: rgba(16, 33, 61, 0.035) !important;
+}
+
+html.light .btn-ghost {
+  color: rgba(16, 33, 61, 0.68) !important;
+}
+
+html.light .btn-ghost:hover {
+  background: rgba(16, 33, 61, 0.05) !important;
+  color: #10213d !important;
+}
+
+html.light .badge-neutral {
+  background: rgba(16, 33, 61, 0.06) !important;
+  border-color: rgba(16, 33, 61, 0.08) !important;
+  color: rgba(16, 33, 61, 0.72) !important;
+}
+
+html.light .empty-state-icon,
+html.light .avatar {
+  background: #e6eef7 !important;
+  color: rgba(16, 33, 61, 0.35) !important;
+}
+
+html.light .skeleton {
+  background: linear-gradient(90deg, #edf3f8 0%, #dce7f2 40%, #edf3f8 80%);
+  background-size: 200% 100%;
+}
+
+html.light .bg-navy-950 {
+  background-color: #f4f7fb !important;
+}
+
+html.light .bg-navy-900,
+html.light .bg-navy-900\/95 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+html.light .bg-navy-800,
+html.light .bg-navy-800\/70,
+html.light .bg-navy-800\/60,
+html.light .bg-navy-800\/50,
+html.light .bg-navy-800\/40,
+html.light .bg-navy-800\/30 {
+  background-color: #f6f9fc !important;
+}
+
+html.light .bg-navy-700,
+html.light .bg-navy-700\/50,
+html.light .bg-navy-700\/40,
+html.light .bg-navy-700\/60 {
+  background-color: #dce6f1 !important;
+}
+
+html.light .border-navy-700,
+html.light .border-navy-700\/50,
+html.light .border-navy-700\/40,
+html.light .border-navy-700\/60,
+html.light .border-navy-600,
+html.light .border-navy-600\/50 {
+  border-color: #d6e1ec !important;
+}
+
+html.light .text-white {
+  color: #10213d !important;
+}
+
+html.light .text-white\/90 {
+  color: rgba(16, 33, 61, 0.90) !important;
+}
+
+html.light .text-white\/80 {
+  color: rgba(16, 33, 61, 0.80) !important;
+}
+
+html.light .text-white\/70 {
+  color: rgba(16, 33, 61, 0.70) !important;
+}
+
+html.light .text-white\/60 {
+  color: rgba(16, 33, 61, 0.60) !important;
+}
+
+html.light .text-white\/50 {
+  color: rgba(16, 33, 61, 0.50) !important;
+}
+
+html.light .text-white\/40 {
+  color: rgba(16, 33, 61, 0.40) !important;
+}
+
+html.light .text-white\/30 {
+  color: rgba(16, 33, 61, 0.32) !important;
+}
+
+html.light .text-white\/25,
+html.light .text-white\/20 {
+  color: rgba(16, 33, 61, 0.24) !important;
+}
+
+html.light .bg-white\/10 {
+  background-color: rgba(16, 33, 61, 0.06) !important;
+}
+
+html.light .bg-white\/5 {
+  background-color: rgba(16, 33, 61, 0.04) !important;
+}
+
+html.light .border-white\/10 {
+  border-color: rgba(16, 33, 61, 0.08) !important;
+}
+
+html.light .hover\:bg-white\/5:hover {
+  background-color: rgba(16, 33, 61, 0.05) !important;
+}
+
+html.light .hover\:text-white:hover,
+html.light .group:hover .group-hover\:text-white {
+  color: #10213d !important;
+}

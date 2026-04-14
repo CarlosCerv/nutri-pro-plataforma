@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   DndContext, closestCenter, useSensor, useSensors, PointerSensor,
@@ -9,7 +9,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import {
   Plus, Search, Trash2, GripVertical, Download, Save, Zap,
-  ChevronDown, ChevronUp, Clock, Eye,
+  ChevronDown, ChevronUp, Clock, Eye, Sparkles,
 } from 'lucide-react';
 import { calcularTodosTMB, calcularGET, calcularVET, calcularMacros, ACTIVITY_FACTORS, MACRO_PRESETS, GOAL_ADJUSTMENTS } from '../lib/calculations/tmb';
 import api from '../services/api';
@@ -79,23 +79,20 @@ function SortableAliment({ item, onRemove, onQtyChange }) {
 }
 
 // ── Slot de tiempo de comida ─────────────────────────────────────
-function MealSlot({ slot, index, alimentos, onAddAlimento, onRemoveAlimento, onQtyChange, onUpdateSlot, onRemoveSlot }) {
+function MealSlot({ slot, index, isActive, onSelect, onRemoveAlimento, onQtyChange, onUpdateSlot, onRemoveSlot }) {
   const [open, setOpen] = useState(true);
-  const [searchLocal, setSearchLocal] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-  const ref = useRef();
 
   const totalKcal = slot.items.reduce((acc, i) =>
     acc + Math.round((i.alimento.cal * i.cantidad) / i.alimento.porcion), 0);
 
-  const filteredFoods = alimentos.filter(a =>
-    a.nombre.toLowerCase().includes(searchLocal.toLowerCase()) && searchLocal.length > 0
-  ).slice(0, 8);
-
   return (
-    <div className="card !p-0 overflow-hidden">
+    <div className={`card !p-0 overflow-hidden transition-all duration-200 ${isActive ? 'border-emerald/40 shadow-emerald-sm' : ''}`}>
       {/* Slot header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-navy-800/50 border-b border-navy-700/50">
+      <button
+        type="button"
+        onClick={() => onSelect(slot.id)}
+        className={`w-full flex items-center gap-3 px-4 py-3 border-b border-navy-700/50 text-left transition-colors ${isActive ? 'bg-emerald/10' : 'bg-navy-800/50 hover:bg-white/[0.02]'}`}
+      >
         <div className="w-7 h-7 rounded-lg bg-emerald/15 flex items-center justify-center text-xs font-bold text-emerald flex-shrink-0">
           {index + 1}
         </div>
@@ -106,6 +103,7 @@ function MealSlot({ slot, index, alimentos, onAddAlimento, onRemoveAlimento, onQ
           placeholder="Nombre del tiempo..."
         />
         <div className="flex items-center gap-2 flex-shrink-0">
+          {isActive && <span className="badge badge-success">Activo</span>}
           <Clock size={12} className="text-white/30" />
           <input type="time" className="input !w-auto !py-0.5 !px-2 text-xs font-mono bg-navy-900/50"
             value={slot.hora}
@@ -118,7 +116,7 @@ function MealSlot({ slot, index, alimentos, onAddAlimento, onRemoveAlimento, onQ
             <Trash2 size={13} />
           </button>
         </div>
-      </div>
+      </button>
 
       {open && (
         <div className="p-3 space-y-2">
@@ -136,46 +134,148 @@ function MealSlot({ slot, index, alimentos, onAddAlimento, onRemoveAlimento, onQ
               ))
             )}
           </SortableContext>
-
-          {/* Search para agregar alimento */}
-          <div className="relative mt-2" ref={ref}>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" />
-                <input
-                  type="text"
-                  placeholder="Buscar alimento..."
-                  className="input !py-1.5 pl-8 text-xs"
-                  value={searchLocal}
-                  onChange={e => setSearchLocal(e.target.value)}
-                  onFocus={() => setShowSearch(true)}
-                />
-              </div>
-            </div>
-            {showSearch && filteredFoods.length > 0 && (
-              <div className="absolute top-9 left-0 right-0 z-30 bg-navy-800 border border-navy-600 rounded-xl shadow-navy-lg overflow-hidden">
-                {filteredFoods.map(a => (
-                  <button key={a._id} type="button"
-                    onClick={() => { onAddAlimento(slot.id, a); setSearchLocal(''); setShowSearch(false); }}
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-white/5 transition-colors text-left">
-                    <div>
-                      <div className="text-xs text-white/80 font-medium">{a.nombre}</div>
-                      <div className="text-2xs text-white/30">{a.grupo} · {a.porcion}g</div>
-                    </div>
-                    <div className="text-2xs font-mono text-emerald">{a.cal} kcal/100g</div>
-                  </button>
-                ))}
-              </div>
-            )}
-            {showSearch && searchLocal && filteredFoods.length === 0 && (
-              <div className="absolute top-9 left-0 right-0 z-30 bg-navy-800 border border-navy-600 rounded-xl px-4 py-3 text-xs text-white/30 shadow-navy-lg">
-                Sin resultados para "{searchLocal}"
-              </div>
-            )}
+          <div className={`rounded-xl border px-3 py-2 text-xs ${isActive ? 'border-emerald/30 bg-emerald/10 text-emerald' : 'border-navy-700/50 bg-navy-800/30 text-white/30'}`}>
+            {isActive ? 'Usa la biblioteca lateral para agregar alimentos a este tiempo.' : 'Selecciona este tiempo para agregar alimentos desde la biblioteca lateral.'}
           </div>
-          {showSearch && <div className="fixed inset-0 z-20" onClick={() => setShowSearch(false)} />}
         </div>
       )}
+    </div>
+  );
+}
+
+function FoodLibraryPanel({ alimentos, selectedSlot, search, onSearchChange, grupoFiltro, onGrupoFiltroChange, onAddAlimento }) {
+  const filteredFoods = useMemo(() => (
+    alimentos.filter((alimento) => {
+      const matchSearch = alimento.nombre.toLowerCase().includes(search.toLowerCase());
+      const matchGrupo = grupoFiltro === 'Todos'
+        || alimento.grupo === grupoFiltro
+        || (grupoFiltro === 'Aceites' && alimento.grupo === 'Aceites/Grasas');
+      return matchSearch && matchGrupo;
+    })
+  ), [alimentos, grupoFiltro, search]);
+  const suggestedFoods = useMemo(() => alimentos.slice(0, 6), [alimentos]);
+
+  const quickPortions = [0.5, 1, 1.5];
+
+  return (
+    <div className="space-y-4 sticky top-4">
+      <div className="card !p-4">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <div className="text-xs font-bold text-white/40 uppercase tracking-wide">Biblioteca de alimentos</div>
+            <div className="text-sm text-white/60 mt-1">
+              {selectedSlot ? `Agregando en: ${selectedSlot.nombre}` : 'Selecciona un tiempo de comida'}
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-2xl bg-emerald/10 border border-emerald/20 flex items-center justify-center">
+            <Sparkles size={16} className="text-emerald" />
+          </div>
+        </div>
+
+        <div className="relative mb-3">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => onSearchChange(e.target.value)}
+            className="input pl-9"
+            placeholder="Busca por nombre..."
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {GRUPOS_ALIMENTO.map((grupo) => (
+            <button
+              key={grupo}
+              type="button"
+              onClick={() => onGrupoFiltroChange(grupo)}
+              className={`px-2.5 py-1 rounded-lg text-2xs font-semibold transition-all ${grupoFiltro === grupo ? 'bg-emerald text-navy-950' : 'bg-navy-800 text-white/45 hover:text-white hover:bg-navy-700'}`}
+            >
+              {grupo}
+            </button>
+          ))}
+        </div>
+
+        <div className="mb-4">
+          <div className="text-2xs font-bold text-white/30 uppercase tracking-wide mb-2">Sugeridos</div>
+          <div className="flex flex-wrap gap-2">
+            {suggestedFoods.map((alimento) => (
+              <button
+                key={alimento._id}
+                type="button"
+                disabled={!selectedSlot}
+                onClick={() => onAddAlimento(selectedSlot?.id, alimento, alimento.porcion)}
+                className="px-3 py-1.5 rounded-xl bg-navy-800 border border-navy-700 text-xs text-white/70 hover:text-white hover:border-emerald/30 hover:bg-emerald/10 transition-all disabled:opacity-40"
+              >
+                {alimento.nombre}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+          {filteredFoods.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-navy-700 px-4 py-6 text-center text-sm text-white/30">
+              No hay alimentos con ese filtro.
+            </div>
+          ) : (
+            filteredFoods.slice(0, 14).map((alimento) => (
+              <div key={alimento._id} className="rounded-2xl border border-navy-700/50 bg-navy-800/40 p-3 hover:border-navy-600 transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-white truncate">{alimento.nombre}</div>
+                    <div className="text-2xs text-white/35 mt-1">{alimento.grupo} · porción base {alimento.porcion} g</div>
+                  </div>
+                  <span className="font-mono text-xs text-emerald whitespace-nowrap">{alimento.cal} kcal</span>
+                </div>
+                <div className="grid grid-cols-4 gap-2 mt-3 text-center">
+                  {[
+                    ['P', alimento.prot],
+                    ['C', alimento.carbs],
+                    ['G', alimento.fat],
+                    ['Fibra', alimento.fibra || 0],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl bg-navy-900/60 px-2 py-1.5">
+                      <div className="text-2xs text-white/25">{label}</div>
+                      <div className="font-mono text-xs text-white/75">{value}g</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-3">
+                  {quickPortions.map((multiplier) => {
+                    const cantidad = Math.round(alimento.porcion * multiplier);
+                    return (
+                      <button
+                        key={multiplier}
+                        type="button"
+                        disabled={!selectedSlot}
+                        onClick={() => onAddAlimento(selectedSlot.id, alimento, cantidad)}
+                        className={`px-2 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 ${
+                          multiplier === 1
+                            ? 'bg-emerald text-navy-950'
+                            : 'bg-navy-900/70 text-white/70 hover:text-white hover:bg-navy-700'
+                        }`}
+                      >
+                        {multiplier === 0.5 ? '1/2' : multiplier === 1 ? 'Base' : '1.5x'}
+                        <div className="font-mono text-2xs mt-0.5">{cantidad} g</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  disabled={!selectedSlot}
+                  onClick={() => onAddAlimento(selectedSlot.id, alimento, alimento.porcion)}
+                  className="btn btn-primary btn-sm w-full mt-2 disabled:opacity-40"
+                >
+                  <Plus size={14} />
+                  {selectedSlot ? `Agregar a ${selectedSlot.nombre}` : 'Selecciona un tiempo'}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -298,6 +398,9 @@ export default function MenuBuilder() {
   ]);
 
   const [alimentos] = useState(ALIMENTOS_MOCK);
+  const [selectedSlotId, setSelectedSlotId] = useState('slot-1');
+  const [searchGlobal, setSearchGlobal] = useState('');
+  const [grupoFiltro, setGrupoFiltro] = useState('Todos');
 
   // Calculadora de requerimientos
   const [pacData, setPacData] = useState({ peso: 70, talla: 165, edad: 30, sexo: 'F' });
@@ -344,10 +447,10 @@ export default function MenuBuilder() {
 
   const updateSlot = (id, k, v) => setSlots(prev => prev.map(s => s.id === id ? { ...s, [k]: v } : s));
 
-  const addAlimento = (slotId, alimento) => {
+  const addAlimento = (slotId, alimento, cantidad = alimento.porcion) => {
     setSlots(prev => prev.map(s => s.id !== slotId ? s : {
       ...s,
-      items: [...s.items, { uid: `item-${Date.now()}`, alimento, cantidad: alimento.porcion }],
+      items: [...s.items, { uid: `item-${Date.now()}`, alimento, cantidad }],
     }));
   };
 
@@ -371,6 +474,8 @@ export default function MenuBuilder() {
       setSaved(true); setTimeout(() => setSaved(false), 2500);
     } finally { setSaving(false); }
   };
+
+  const selectedSlot = slots.find((slot) => slot.id === selectedSlotId) || null;
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter}
@@ -398,7 +503,7 @@ export default function MenuBuilder() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px_280px] gap-5">
           {/* ── Columna izquierda: Calculadora + Slots ── */}
           <div className="space-y-5">
             {/* Calculadora de requerimientos */}
@@ -527,8 +632,8 @@ export default function MenuBuilder() {
               {slots.map((slot, i) => (
                 <MealSlot
                   key={slot.id} slot={slot} index={i}
-                  alimentos={alimentos}
-                  onAddAlimento={addAlimento}
+                  isActive={slot.id === selectedSlotId}
+                  onSelect={setSelectedSlotId}
                   onRemoveAlimento={removeAlimento}
                   onQtyChange={updateQty}
                   onUpdateSlot={updateSlot}
@@ -544,7 +649,16 @@ export default function MenuBuilder() {
             </div>
           </div>
 
-          {/* ── Columna derecha: Cómputo nutricional ── */}
+          <FoodLibraryPanel
+            alimentos={alimentos}
+            selectedSlot={selectedSlot}
+            search={searchGlobal}
+            onSearchChange={setSearchGlobal}
+            grupoFiltro={grupoFiltro}
+            onGrupoFiltroChange={setGrupoFiltro}
+            onAddAlimento={addAlimento}
+          />
+
           <NutritionPanel slots={slots} vet={vet} macrosObjetivo={macrosObj} sexo={pacData.sexo} />
         </div>
       </div>

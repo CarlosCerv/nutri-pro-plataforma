@@ -29,6 +29,23 @@ const AdminLicenses = lazy(() => import('./pages/AdminLicenses'));
 
 import './index.css';
 
+const THEME_KEY = 'nutripro-theme';
+const THEME_META_SELECTOR = 'meta[name="theme-color"]';
+
+const readInitialTheme = () => {
+  if (typeof window === 'undefined') return 'dark';
+  return localStorage.getItem(THEME_KEY) || 'dark';
+};
+
+const applyTheme = (theme) => {
+  const root = document.documentElement;
+  root.classList.remove('dark', 'light');
+  root.classList.add(theme);
+  root.style.colorScheme = theme;
+  localStorage.setItem(THEME_KEY, theme);
+  document.querySelector(THEME_META_SELECTOR)?.setAttribute('content', theme === 'light' ? '#F4F7FB' : '#090E1A');
+};
+
 // ── Protected Route ───────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -59,18 +76,15 @@ const PageFallback = ({ fullScreen = false }) => (
 // ── Main App Layout ───────────────────────────────────────────────
 const AppLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode]     = useState(true);
+  const [theme, setTheme] = useState(readInitialTheme);
+  const darkMode = theme === 'dark';
 
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const toggleDark = () => {
-    setDarkMode(prev => {
-      const next = !prev;
-      document.documentElement.classList.toggle('dark', next);
-      return next;
-    });
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
   return (

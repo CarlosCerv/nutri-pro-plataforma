@@ -113,7 +113,8 @@ export default function Topbar({ onMenuToggle, darkMode, onToggleDark }) {
         <button
           onClick={onToggleDark}
           className="btn-icon btn text-white/50 hover:text-white hover:bg-white/5"
-          aria-label="Modo oscuro"
+          aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
         >
           {darkMode ? <Sun size={17} /> : <Moon size={17} />}
         </button>

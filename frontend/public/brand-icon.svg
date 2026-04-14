@@ -1,3 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="#ec4899"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="npBg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10213D"/>
+      <stop offset="1" stop-color="#07192E"/>
+    </linearGradient>
+    <linearGradient id="npAccent" x1="18" y1="16" x2="46" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2ECC8E"/>
+      <stop offset="1" stop-color="#1FAF76"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="18" fill="url(#npBg)"/>
+  <path d="M18 46V18h7.5l13 17.5V18H46v28h-7L25.5 28V46H18Z" fill="url(#npAccent)"/>
+  <path d="M43.5 17.5c3.25 0 5.5 2.35 5.5 5.5 0 3.35-2.75 5.7-6.1 5.7-1.2 0-2.05-.15-3.3-.7 1.4-1.35 2.25-3.2 2.25-5.55 0-1.85-.35-3.35-1.05-4.7.7-.15 1.55-.25 2.7-.25Z" fill="#E8C96A"/>
 </svg>
