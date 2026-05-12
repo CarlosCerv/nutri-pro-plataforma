@@ -29,21 +29,16 @@ const AdminLicenses = lazy(() => import('./pages/AdminLicenses'));
 
 import './index.css';
 
-const THEME_KEY = 'nutripro-theme';
+const THEME_KEY = 'nutripro-theme-v3';
 const THEME_META_SELECTOR = 'meta[name="theme-color"]';
 
-const readInitialTheme = () => {
-  if (typeof window === 'undefined') return 'dark';
-  return localStorage.getItem(THEME_KEY) || 'dark';
-};
-
-const applyTheme = (theme) => {
+const applyTheme = () => {
   const root = document.documentElement;
   root.classList.remove('dark', 'light');
-  root.classList.add(theme);
-  root.style.colorScheme = theme;
-  localStorage.setItem(THEME_KEY, theme);
-  document.querySelector(THEME_META_SELECTOR)?.setAttribute('content', theme === 'light' ? '#F4F7FB' : '#090E1A');
+  root.classList.add('light');
+  root.style.colorScheme = 'light';
+  localStorage.setItem(THEME_KEY, 'light');
+  document.querySelector(THEME_META_SELECTOR)?.setAttribute('content', '#F5F5F7');
 };
 
 // ── Protected Route ───────────────────────────────────────────────
@@ -54,8 +49,8 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div className="min-h-screen bg-navy-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-navy-700 border-t-emerald rounded-full animate-spin" />
-          <span className="text-sm text-white/30 font-sans">Cargando NutriPro...</span>
+          <div className="w-10 h-10 border-2 border-navy-700 border-t-info rounded-full animate-spin" />
+          <span className="text-sm text-white/50 font-sans">Cargando NutriPro...</span>
         </div>
       </div>
     );
@@ -67,8 +62,8 @@ const ProtectedRoute = ({ children }) => {
 const PageFallback = ({ fullScreen = false }) => (
   <div className={`${fullScreen ? 'min-h-screen' : 'min-h-[40vh]'} bg-navy-950 flex items-center justify-center`}>
     <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-2 border-navy-700 border-t-emerald rounded-full animate-spin" />
-      <span className="text-sm text-white/30 font-sans">Cargando vista...</span>
+      <div className="w-10 h-10 border-2 border-navy-700 border-t-info rounded-full animate-spin" />
+      <span className="text-sm text-white/50 font-sans">Cargando vista...</span>
     </div>
   </div>
 );
@@ -76,16 +71,10 @@ const PageFallback = ({ fullScreen = false }) => (
 // ── Main App Layout ───────────────────────────────────────────────
 const AppLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [theme, setTheme] = useState(readInitialTheme);
-  const darkMode = theme === 'dark';
 
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
-
-  const toggleDark = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
+    applyTheme();
+  }, []);
 
   return (
     <div className="app-layout">
@@ -93,8 +82,6 @@ const AppLayout = ({ children }) => {
       <div className="main-content">
         <Topbar
           onMenuToggle={setMobileOpen}
-          darkMode={darkMode}
-          onToggleDark={toggleDark}
         />
         <main className="content-area" id="main-content">
           {children}

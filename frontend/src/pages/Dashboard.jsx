@@ -78,8 +78,8 @@ export default function Dashboard() {
   }, []);
 
   const horaActual = new Date().getHours();
-  const saludo = horaActual < 12 ? 'Buenos días' : horaActual < 19 ? 'Buenas tardes' : 'Buenas noches';
-  const nombreCorto = user?.name?.split(' ')[0] || 'Nutriólogo';
+  const saludo = horaActual < 12 ? 'Buenos dias' : horaActual < 19 ? 'Buenas tardes' : 'Buenas noches';
+  const nombreCorto = user?.name?.split(' ')[0] || 'Nutriologo';
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -87,7 +87,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="page-title font-display text-2xl md:text-3xl">
-            {saludo}, {nombreCorto} 👋
+            {saludo}, {nombreCorto}
           </h1>
           <p className="text-sm text-white/30 mt-0.5">
             {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -107,16 +107,16 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <KPICard label="Pacientes activos" value={stats?.pacientesActivos}
           delta={stats?.pacientesDelta} deltaLabel="vs. mes anterior"
-          icon={Users} color="#2ECC8E" loading={loading} />
+          icon={Users} color="#007AFF" loading={loading} />
         <KPICard label="Consultas este mes" value={stats?.consultasMes}
           delta={stats?.consultasDelta} deltaLabel="vs. mes anterior"
-          icon={CalendarCheck} color="#E8C96A" loading={loading} />
+          icon={CalendarCheck} color="#34C759" loading={loading} />
         <KPICard label="Dietas generadas" value={stats?.dietasTotal}
           delta={stats?.dietasDelta} deltaLabel="total acumulado"
-          icon={Salad} color="#3B82F6" loading={loading} />
+          icon={Salad} color="#FF9F0A" loading={loading} />
         <KPICard label="Apego promedio" value={stats?.apegoProm ? `${stats.apegoProm}%` : null}
           delta={stats?.apegoDelta} deltaLabel="promedio de pacientes"
-          icon={Activity} color="#A855F7" loading={loading} />
+          icon={Activity} color="#5856D6" loading={loading} />
       </div>
 
       <Suspense

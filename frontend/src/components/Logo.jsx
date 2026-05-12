@@ -1,26 +1,26 @@
-import { Heart } from 'lucide-react';
+import { Salad } from 'lucide-react';
 
-const Logo = ({ size = 40, showText = true, color = 'white' }) => {
+const Logo = ({ size = 40, showText = true, color = 'var(--text-primary)' }) => {
     return (
-        <div className="flex items-center gap-sm justify-center">
+        <div className="flex items-center justify-center" style={{ gap: '0.75rem' }}>
             <div
                 style={{
-                    width: size * 1.5,
-                    height: size * 1.5,
-                    background: 'linear-gradient(135deg, var(--primary-500), var(--primary-600))',
-                    borderRadius: '50%',
+                    width: size * 1.35,
+                    height: size * 1.35,
+                    background: '#EAF8EF',
+                    border: '1px solid rgba(52, 199, 89, 0.22)',
+                    borderRadius: 8,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)'
                 }}
             >
-                <Heart size={size} color="white" fill="white" strokeWidth={1.5} />
+                <Salad size={size * 0.72} color="#248A3D" strokeWidth={1.8} />
             </div>
             {showText && (
-                <div style={{ textAlign: 'left', marginLeft: '12px' }}>
-                    <h2 style={{ fontSize: size * 0.8, margin: 0, lineHeight: 1, color: color === 'white' ? 'white' : 'var(--text-primary)' }}>NutriPlan</h2>
-                    <p style={{ fontSize: size * 0.35, margin: 0, opacity: 0.8, color: color === 'white' ? 'rgba(255,255,255,0.8)' : 'var(--text-secondary)' }}>PLATFORM</p>
+                <div style={{ textAlign: 'left' }}>
+                    <h2 style={{ fontSize: size * 0.62, margin: 0, lineHeight: 1, color }}>NutriPro</h2>
+                    <p style={{ fontSize: size * 0.28, margin: '4px 0 0', color: 'var(--text-secondary)' }}>PLATFORM</p>
                 </div>
             )}
         </div>

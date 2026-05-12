@@ -9,657 +9,826 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import {
   Plus, Search, Trash2, GripVertical, Download, Save, Zap,
-  ChevronDown, ChevronUp, Clock, Eye, Sparkles,
+  ChevronDown, ChevronUp, Clock, Eye, Sparkles, Target,
+  SlidersHorizontal, Apple, Utensils, Check, AlertCircle,
 } from 'lucide-react';
-import { calcularTodosTMB, calcularGET, calcularVET, calcularMacros, ACTIVITY_FACTORS, MACRO_PRESETS, GOAL_ADJUSTMENTS } from '../lib/calculations/tmb';
+import {
+  calcularTodosTMB,
+  calcularGET,
+  calcularVET,
+  calcularMacros,
+  ACTIVITY_FACTORS,
+  MACRO_PRESETS,
+  GOAL_ADJUSTMENTS,
+} from '../lib/calculations/tmb';
 import api from '../services/api';
+import './MenuBuilder.css';
 
-// ── Alimentos mock (base inicial) ────────────────────────────────
 const ALIMENTOS_MOCK = [
   { _id: '1', nombre: 'Huevo entero', grupo: 'AOA', cal: 155, prot: 13, carbs: 1.1, fat: 11, fibra: 0, porcion: 100 },
   { _id: '2', nombre: 'Pechuga de pollo', grupo: 'AOA', cal: 165, prot: 31, carbs: 0, fat: 3.6, fibra: 0, porcion: 100 },
   { _id: '3', nombre: 'Arroz blanco cocido', grupo: 'Cereales', cal: 130, prot: 2.7, carbs: 28, fat: 0.3, fibra: 0.4, porcion: 100 },
   { _id: '4', nombre: 'Pan integral', grupo: 'Cereales', cal: 265, prot: 9, carbs: 49, fat: 3.5, fibra: 7, porcion: 100 },
   { _id: '5', nombre: 'Frijoles negros cocidos', grupo: 'Leguminosas', cal: 132, prot: 8.9, carbs: 24, fat: 0.5, fibra: 8.7, porcion: 100 },
-  { _id: '6', nombre: 'Brócoli cocido', grupo: 'Verduras', cal: 35, prot: 2.4, carbs: 7.2, fat: 0.4, fibra: 3.3, porcion: 100 },
+  { _id: '6', nombre: 'Brocoli cocido', grupo: 'Verduras', cal: 35, prot: 2.4, carbs: 7.2, fat: 0.4, fibra: 3.3, porcion: 100 },
   { _id: '7', nombre: 'Manzana', grupo: 'Frutas', cal: 52, prot: 0.3, carbs: 14, fat: 0.2, fibra: 2.4, porcion: 100 },
-  { _id: '8', nombre: 'Leche descremada', grupo: 'Lácteos', cal: 35, prot: 3.4, carbs: 5, fat: 0.1, fibra: 0, porcion: 100 },
+  { _id: '8', nombre: 'Leche descremada', grupo: 'Lacteos', cal: 35, prot: 3.4, carbs: 5, fat: 0.1, fibra: 0, porcion: 100 },
   { _id: '9', nombre: 'Aceite de oliva', grupo: 'Aceites', cal: 884, prot: 0, carbs: 0, fat: 100, fibra: 0, porcion: 15 },
-  { _id: '10', nombre: 'Avena (seca)', grupo: 'Cereales', cal: 389, prot: 17, carbs: 66, fat: 7, fibra: 11, porcion: 40 },
-  { _id: '11', nombre: 'Plátano', grupo: 'Frutas', cal: 89, prot: 1.1, carbs: 23, fat: 0.3, fibra: 2.6, porcion: 120 },
-  { _id: '12', nombre: 'Yogurt griego natural', grupo: 'Lácteos', cal: 59, prot: 10, carbs: 3.6, fat: 0.4, fibra: 0, porcion: 100 },
-  { _id: '13', nombre: 'Salmón al horno', grupo: 'AOA', cal: 208, prot: 20, carbs: 0, fat: 13, fibra: 0, porcion: 100 },
-  { _id: '14', nombre: 'Almendras', grupo: 'Aceites/Grasas', cal: 579, prot: 21, carbs: 22, fat: 50, fibra: 12.5, porcion: 30 },
-  { _id: '15', nombre: 'Tortilla de maíz', grupo: 'Cereales', cal: 218, prot: 5.7, carbs: 46, fat: 2.5, fibra: 3.3, porcion: 30 },
+  { _id: '10', nombre: 'Avena seca', grupo: 'Cereales', cal: 389, prot: 17, carbs: 66, fat: 7, fibra: 11, porcion: 40 },
+  { _id: '11', nombre: 'Platano', grupo: 'Frutas', cal: 89, prot: 1.1, carbs: 23, fat: 0.3, fibra: 2.6, porcion: 120 },
+  { _id: '12', nombre: 'Yogurt griego natural', grupo: 'Lacteos', cal: 59, prot: 10, carbs: 3.6, fat: 0.4, fibra: 0, porcion: 100 },
+  { _id: '13', nombre: 'Salmon al horno', grupo: 'AOA', cal: 208, prot: 20, carbs: 0, fat: 13, fibra: 0, porcion: 100 },
+  { _id: '14', nombre: 'Almendras', grupo: 'Aceites', cal: 579, prot: 21, carbs: 22, fat: 50, fibra: 12.5, porcion: 30 },
+  { _id: '15', nombre: 'Tortilla de maiz', grupo: 'Cereales', cal: 218, prot: 5.7, carbs: 46, fat: 2.5, fibra: 3.3, porcion: 30 },
   { _id: '16', nombre: 'Nopal cocido', grupo: 'Verduras', cal: 22, prot: 1.6, carbs: 4.6, fat: 0.1, fibra: 3.7, porcion: 100 },
-  { _id: '17', nombre: 'Atún en agua', grupo: 'AOA', cal: 116, prot: 26, carbs: 0, fat: 1, fibra: 0, porcion: 100 },
-  { _id: '18', nombre: 'Queso panela', grupo: 'Lácteos', cal: 290, prot: 20, carbs: 3, fat: 22, fibra: 0, porcion: 30 },
+  { _id: '17', nombre: 'Atun en agua', grupo: 'AOA', cal: 116, prot: 26, carbs: 0, fat: 1, fibra: 0, porcion: 100 },
+  { _id: '18', nombre: 'Queso panela', grupo: 'Lacteos', cal: 290, prot: 20, carbs: 3, fat: 22, fibra: 0, porcion: 30 },
 ];
 
-const GRUPOS_ALIMENTO = ['Todos', 'AOA', 'Cereales', 'Leguminosas', 'Verduras', 'Frutas', 'Lácteos', 'Aceites'];
+const GRUPOS_ALIMENTO = ['Todos', 'AOA', 'Cereales', 'Leguminosas', 'Verduras', 'Frutas', 'Lacteos', 'Aceites'];
 
-// ── Componente de alimento en el slot (sortable) ─────────────────
-function SortableAliment({ item, onRemove, onQtyChange }) {
+const FORMULA_LABELS = {
+  mifflinStJeor: 'Mifflin',
+  harrisBenedict: 'Harris',
+  faoOms: 'FAO/OMS',
+  owen: 'Owen',
+};
+
+const GOAL_LABELS = {
+  bajar_peso: 'Bajar peso',
+  bajar_rapido: 'Deficit alto',
+  mantener: 'Mantener',
+  ganar_musculo: 'Ganar musculo',
+  volumen: 'Volumen',
+};
+
+const MACRO_LABELS = {
+  estandar: 'Estandar',
+  alto_proteina: 'Alto proteina',
+  bajo_carbo: 'Bajo carbo',
+  deportista: 'Deportista',
+  diabetes: 'Diabetes',
+  renal: 'Renal',
+};
+
+const toMacroState = (preset) => ({
+  prot: preset.proteinas,
+  carbs: preset.carbohidratos,
+  fat: preset.lipidos,
+});
+
+const numberOrZero = (value) => Number(value) || 0;
+
+const formatKcal = (value) => Math.round(numberOrZero(value)).toLocaleString('es-MX');
+
+const foodMacros = (item) => {
+  const factor = item.cantidad / item.alimento.porcion;
+  return {
+    cal: item.alimento.cal * factor,
+    prot: item.alimento.prot * factor,
+    carbs: item.alimento.carbs * factor,
+    fat: item.alimento.fat * factor,
+    fibra: (item.alimento.fibra || 0) * factor,
+  };
+};
+
+const slotTotals = (slot) => slot.items.reduce((acc, item) => {
+  const macros = foodMacros(item);
+  return {
+    cal: acc.cal + macros.cal,
+    prot: acc.prot + macros.prot,
+    carbs: acc.carbs + macros.carbs,
+    fat: acc.fat + macros.fat,
+    fibra: acc.fibra + macros.fibra,
+  };
+}, { cal: 0, prot: 0, carbs: 0, fat: 0, fibra: 0 });
+
+const planTotals = (slots) => slots.reduce((acc, slot) => {
+  const totals = slotTotals(slot);
+  return {
+    cal: acc.cal + totals.cal,
+    prot: acc.prot + totals.prot,
+    carbs: acc.carbs + totals.carbs,
+    fat: acc.fat + totals.fat,
+    fibra: acc.fibra + totals.fibra,
+  };
+}, { cal: 0, prot: 0, carbs: 0, fat: 0, fibra: 0 });
+
+const targetPercent = (value, target) => {
+  if (!target) return 0;
+  return Math.min((value / target) * 100, 140);
+};
+
+function SortableFood({ item, onRemove, onQtyChange }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.uid });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 };
-
-  const kcal = Math.round((item.alimento.cal * item.cantidad) / item.alimento.porcion);
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.45 : 1 };
+  const macros = foodMacros(item);
 
   return (
-    <div ref={setNodeRef} style={style}
-      className="flex items-center gap-2 p-2 rounded-xl bg-navy-800/60 border border-navy-700/40 group hover:border-navy-600 transition-all">
-      <button {...attributes} {...listeners} type="button"
-        className="text-white/20 hover:text-white/50 cursor-grab active:cursor-grabbing flex-shrink-0">
-        <GripVertical size={14} />
+    <div ref={setNodeRef} style={style} className="menu-food-row group">
+      <button
+        {...attributes}
+        {...listeners}
+        type="button"
+        className="menu-drag-handle"
+        aria-label="Ordenar alimento"
+      >
+        <GripVertical size={15} />
       </button>
-      <div className="flex-1 min-w-0">
-        <div className="text-xs font-semibold text-white/80 truncate">{item.alimento.nombre}</div>
-        <div className="text-2xs text-white/30 mt-0.5">
-          P: {Math.round(item.alimento.prot * item.cantidad / item.alimento.porcion)}g ·
-          C: {Math.round(item.alimento.carbs * item.cantidad / item.alimento.porcion)}g ·
-          G: {Math.round(item.alimento.fat * item.cantidad / item.alimento.porcion)}g
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-white truncate">{item.alimento.nombre}</span>
+          <span className="badge badge-neutral hidden sm:inline-flex">{item.alimento.grupo}</span>
+        </div>
+        <div className="mt-1 flex flex-wrap gap-2 text-2xs text-white/45">
+          <span>P {Math.round(macros.prot)}g</span>
+          <span>C {Math.round(macros.carbs)}g</span>
+          <span>G {Math.round(macros.fat)}g</span>
+          <span>{formatKcal(macros.cal)} kcal</span>
         </div>
       </div>
-      <div className="flex items-center gap-1.5 flex-shrink-0">
-        <input
-          type="number" min="1" max="1000" step="1"
-          className="input !w-16 !py-1 text-center font-mono text-xs"
-          value={item.cantidad}
-          onChange={e => onQtyChange(item.uid, Number(e.target.value))}
-        />
-        <span className="text-2xs text-white/30">g</span>
-        <span className="font-mono text-xs text-emerald w-14 text-right">{kcal} kcal</span>
-        <button type="button" onClick={() => onRemove(item.uid)}
-          className="text-white/20 hover:text-danger transition-colors ml-1">
-          <Trash2 size={12} />
+      <div className="flex items-center gap-2">
+        <div className="relative">
+          <input
+            type="number"
+            min="1"
+            max="1000"
+            step="1"
+            className="input !h-9 !min-h-9 !w-20 !py-1 pr-7 text-center font-mono text-xs"
+            value={item.cantidad}
+            onChange={e => onQtyChange(item.uid, Math.max(1, Number(e.target.value) || 1))}
+            aria-label={`Cantidad de ${item.alimento.nombre}`}
+          />
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-2xs text-white/35">g</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => onRemove(item.uid)}
+          className="menu-icon-button danger"
+          aria-label={`Eliminar ${item.alimento.nombre}`}
+        >
+          <Trash2 size={15} />
         </button>
       </div>
     </div>
   );
 }
 
-// ── Slot de tiempo de comida ─────────────────────────────────────
-function MealSlot({ slot, index, isActive, onSelect, onRemoveAlimento, onQtyChange, onUpdateSlot, onRemoveSlot }) {
+function MealCard({ slot, index, isActive, onSelect, onRemoveFood, onQtyChange, onUpdateSlot, onRemoveSlot }) {
   const [open, setOpen] = useState(true);
-
-  const totalKcal = slot.items.reduce((acc, i) =>
-    acc + Math.round((i.alimento.cal * i.cantidad) / i.alimento.porcion), 0);
+  const totals = useMemo(() => slotTotals(slot), [slot]);
 
   return (
-    <div className={`card !p-0 overflow-hidden transition-all duration-200 ${isActive ? 'border-emerald/40 shadow-emerald-sm' : ''}`}>
-      {/* Slot header */}
-      <button
-        type="button"
-        onClick={() => onSelect(slot.id)}
-        className={`w-full flex items-center gap-3 px-4 py-3 border-b border-navy-700/50 text-left transition-colors ${isActive ? 'bg-emerald/10' : 'bg-navy-800/50 hover:bg-white/[0.02]'}`}
-      >
-        <div className="w-7 h-7 rounded-lg bg-emerald/15 flex items-center justify-center text-xs font-bold text-emerald flex-shrink-0">
-          {index + 1}
-        </div>
-        <input
-          className="flex-1 bg-transparent text-sm font-semibold text-white border-none outline-none placeholder:text-white/30"
-          value={slot.nombre}
-          onChange={e => onUpdateSlot(slot.id, 'nombre', e.target.value)}
-          placeholder="Nombre del tiempo..."
-        />
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {isActive && <span className="badge badge-success">Activo</span>}
-          <Clock size={12} className="text-white/30" />
-          <input type="time" className="input !w-auto !py-0.5 !px-2 text-xs font-mono bg-navy-900/50"
-            value={slot.hora}
-            onChange={e => onUpdateSlot(slot.id, 'hora', e.target.value)} />
-          <span className="font-mono text-xs text-emerald">{totalKcal} kcal</span>
-          <button type="button" onClick={() => setOpen(v => !v)} className="text-white/30 hover:text-white/60 transition-colors">
-            {open ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+    <section className={`meal-builder-card ${isActive ? 'is-active' : ''}`}>
+      <div className="meal-builder-card-header">
+        <button
+          type="button"
+          onClick={() => onSelect(slot.id)}
+          className="meal-builder-selector"
+          aria-label={`Seleccionar ${slot.nombre}`}
+        >
+          <span className="meal-builder-number">{index + 1}</span>
+          <span className="min-w-0">
+            <span className="block text-xs text-white/45">Tiempo de comida</span>
+            <input
+              className="meal-title-input"
+              value={slot.nombre}
+              onClick={(event) => event.stopPropagation()}
+              onChange={e => onUpdateSlot(slot.id, 'nombre', e.target.value)}
+              placeholder="Nombre"
+            />
+          </span>
+        </button>
+
+        <div className="meal-builder-actions">
+          {isActive && <span className="badge badge-info">Activo</span>}
+          <label className="meal-time-input">
+            <Clock size={14} />
+            <input
+              type="time"
+              value={slot.hora}
+              onChange={e => onUpdateSlot(slot.id, 'hora', e.target.value)}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setOpen(value => !value)}
+            className="menu-icon-button"
+            aria-label={open ? 'Contraer tiempo' : 'Expandir tiempo'}
+          >
+            {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
-          <button type="button" onClick={() => onRemoveSlot(slot.id)} className="text-white/20 hover:text-danger transition-colors">
-            <Trash2 size={13} />
+          <button
+            type="button"
+            onClick={() => onRemoveSlot(slot.id)}
+            className="menu-icon-button danger"
+            aria-label={`Eliminar ${slot.nombre}`}
+          >
+            <Trash2 size={15} />
           </button>
         </div>
-      </button>
+      </div>
+
+      <div className="meal-builder-totals">
+        <span><strong>{formatKcal(totals.cal)}</strong> kcal</span>
+        <span>P {Math.round(totals.prot)}g</span>
+        <span>C {Math.round(totals.carbs)}g</span>
+        <span>G {Math.round(totals.fat)}g</span>
+      </div>
 
       {open && (
-        <div className="p-3 space-y-2">
-          {/* Alimentos del slot */}
+        <div className="meal-builder-body">
           <SortableContext items={slot.items.map(i => i.uid)} strategy={verticalListSortingStrategy}>
             {slot.items.length === 0 ? (
-              <div className="text-center py-4 text-xs text-white/20 border border-dashed border-navy-700 rounded-xl">
-                Arrastra o busca alimentos para agregar
-              </div>
+              <button type="button" onClick={() => onSelect(slot.id)} className="meal-empty-state">
+                <Utensils size={18} />
+                <span>{isActive ? 'Agrega alimentos desde la biblioteca' : 'Selecciona este tiempo para agregar alimentos'}</span>
+              </button>
             ) : (
-              slot.items.map(item => (
-                <SortableAliment key={item.uid} item={item}
-                  onRemove={uid => onRemoveAlimento(slot.id, uid)}
-                  onQtyChange={(uid, qty) => onQtyChange(slot.id, uid, qty)} />
-              ))
+              <div className="space-y-2">
+                {slot.items.map(item => (
+                  <SortableFood
+                    key={item.uid}
+                    item={item}
+                    onRemove={uid => onRemoveFood(slot.id, uid)}
+                    onQtyChange={(uid, qty) => onQtyChange(slot.id, uid, qty)}
+                  />
+                ))}
+              </div>
             )}
           </SortableContext>
-          <div className={`rounded-xl border px-3 py-2 text-xs ${isActive ? 'border-emerald/30 bg-emerald/10 text-emerald' : 'border-navy-700/50 bg-navy-800/30 text-white/30'}`}>
-            {isActive ? 'Usa la biblioteca lateral para agregar alimentos a este tiempo.' : 'Selecciona este tiempo para agregar alimentos desde la biblioteca lateral.'}
-          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
-function FoodLibraryPanel({ alimentos, selectedSlot, search, onSearchChange, grupoFiltro, onGrupoFiltroChange, onAddAlimento }) {
-  const filteredFoods = useMemo(() => (
-    alimentos.filter((alimento) => {
-      const matchSearch = alimento.nombre.toLowerCase().includes(search.toLowerCase());
-      const matchGrupo = grupoFiltro === 'Todos'
-        || alimento.grupo === grupoFiltro
-        || (grupoFiltro === 'Aceites' && alimento.grupo === 'Aceites/Grasas');
-      return matchSearch && matchGrupo;
-    })
-  ), [alimentos, grupoFiltro, search]);
-  const suggestedFoods = useMemo(() => alimentos.slice(0, 6), [alimentos]);
-
-  const quickPortions = [0.5, 1, 1.5];
-
+function RequirementsPanel({
+  patientData,
+  onPatientDataChange,
+  formula,
+  onFormulaChange,
+  activityFactor,
+  onActivityFactorChange,
+  goal,
+  onGoalChange,
+  macroPreset,
+  onMacroPresetChange,
+  customMacros,
+  onCustomMacrosChange,
+  tmbs,
+  tmb,
+  get,
+  vet,
+  macrosObj,
+}) {
   return (
-    <div className="space-y-4 sticky top-4">
-      <div className="card !p-4">
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div>
-            <div className="text-xs font-bold text-white/40 uppercase tracking-wide">Biblioteca de alimentos</div>
-            <div className="text-sm text-white/60 mt-1">
-              {selectedSlot ? `Agregando en: ${selectedSlot.nombre}` : 'Selecciona un tiempo de comida'}
+    <section className="menu-card requirements-panel">
+      <div className="menu-section-heading">
+        <div>
+          <p className="menu-eyebrow">Objetivo nutricional</p>
+          <h2>Requerimientos</h2>
+        </div>
+        <div className="menu-kcal-chip">
+          <span>{formatKcal(vet)}</span>
+          <small>kcal objetivo</small>
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-4">
+        {[
+          { key: 'peso', label: 'Peso', unit: 'kg' },
+          { key: 'talla', label: 'Talla', unit: 'cm' },
+          { key: 'edad', label: 'Edad', unit: 'anos' },
+        ].map(field => (
+          <label key={field.key} className="form-group">
+            <span className="label">{field.label}</span>
+            <div className="relative">
+              <input
+                type="number"
+                className="input pr-12 text-center font-mono"
+                value={patientData[field.key]}
+                onChange={e => onPatientDataChange({ ...patientData, [field.key]: e.target.value })}
+              />
+              <span className="menu-input-unit">{field.unit}</span>
             </div>
+          </label>
+        ))}
+        <label className="form-group">
+          <span className="label">Sexo biologico</span>
+          <select className="select" value={patientData.sexo} onChange={e => onPatientDataChange({ ...patientData, sexo: e.target.value })}>
+            <option value="F">Femenino</option>
+            <option value="M">Masculino</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="menu-segment-grid">
+        {Object.entries(FORMULA_LABELS).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onFormulaChange(key)}
+            className={`menu-segment-card ${formula === key ? 'is-selected' : ''}`}
+          >
+            <span className="font-mono text-lg">{formatKcal(tmbs[key] || 0)}</span>
+            <small>{label}</small>
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-[1fr_1fr_190px]">
+        <label className="form-group">
+          <span className="label">Actividad</span>
+          <select className="select" value={activityFactor} onChange={e => onActivityFactorChange(e.target.value)}>
+            {Object.entries(ACTIVITY_FACTORS).map(([key, value]) => (
+              <option key={key} value={key}>{value.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="form-group">
+          <span className="label">Meta</span>
+          <select className="select" value={goal} onChange={e => onGoalChange(e.target.value)}>
+            {Object.entries(GOAL_ADJUSTMENTS).map(([key, value]) => (
+              <option key={key} value={key}>{GOAL_LABELS[key]} ({value > 0 ? '+' : ''}{value} kcal)</option>
+            ))}
+          </select>
+        </label>
+        <div className="menu-mini-summary">
+          <span>TMB {formatKcal(tmb)}</span>
+          <strong>GET {formatKcal(get)}</strong>
+        </div>
+      </div>
+
+      <div className="menu-macro-editor">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="menu-eyebrow">Distribucion</p>
+            <h3>Macronutrimentos</h3>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-emerald/10 border border-emerald/20 flex items-center justify-center">
-            <Sparkles size={16} className="text-emerald" />
-          </div>
-        </div>
-
-        <div className="relative mb-3">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-          <input
-            type="text"
-            value={search}
-            onChange={e => onSearchChange(e.target.value)}
-            className="input pl-9"
-            placeholder="Busca por nombre..."
-          />
-        </div>
-
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {GRUPOS_ALIMENTO.map((grupo) => (
-            <button
-              key={grupo}
-              type="button"
-              onClick={() => onGrupoFiltroChange(grupo)}
-              className={`px-2.5 py-1 rounded-lg text-2xs font-semibold transition-all ${grupoFiltro === grupo ? 'bg-emerald text-navy-950' : 'bg-navy-800 text-white/45 hover:text-white hover:bg-navy-700'}`}
-            >
-              {grupo}
-            </button>
-          ))}
-        </div>
-
-        <div className="mb-4">
-          <div className="text-2xs font-bold text-white/30 uppercase tracking-wide mb-2">Sugeridos</div>
-          <div className="flex flex-wrap gap-2">
-            {suggestedFoods.map((alimento) => (
+          <div className="menu-preset-row">
+            {Object.entries(MACRO_PRESETS).map(([key, preset]) => (
               <button
-                key={alimento._id}
+                key={key}
                 type="button"
-                disabled={!selectedSlot}
-                onClick={() => onAddAlimento(selectedSlot?.id, alimento, alimento.porcion)}
-                className="px-3 py-1.5 rounded-xl bg-navy-800 border border-navy-700 text-xs text-white/70 hover:text-white hover:border-emerald/30 hover:bg-emerald/10 transition-all disabled:opacity-40"
+                onClick={() => {
+                  onMacroPresetChange(key);
+                  onCustomMacrosChange(toMacroState(preset));
+                }}
+                className={`menu-preset-button ${macroPreset === key ? 'is-selected' : ''}`}
               >
-                {alimento.nombre}
+                {MACRO_LABELS[key]}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
-          {filteredFoods.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-navy-700 px-4 py-6 text-center text-sm text-white/30">
-              No hay alimentos con ese filtro.
-            </div>
-          ) : (
-            filteredFoods.slice(0, 14).map((alimento) => (
-              <div key={alimento._id} className="rounded-2xl border border-navy-700/50 bg-navy-800/40 p-3 hover:border-navy-600 transition-colors">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold text-white truncate">{alimento.nombre}</div>
-                    <div className="text-2xs text-white/35 mt-1">{alimento.grupo} · porción base {alimento.porcion} g</div>
-                  </div>
-                  <span className="font-mono text-xs text-emerald whitespace-nowrap">{alimento.cal} kcal</span>
-                </div>
-                <div className="grid grid-cols-4 gap-2 mt-3 text-center">
-                  {[
-                    ['P', alimento.prot],
-                    ['C', alimento.carbs],
-                    ['G', alimento.fat],
-                    ['Fibra', alimento.fibra || 0],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl bg-navy-900/60 px-2 py-1.5">
-                      <div className="text-2xs text-white/25">{label}</div>
-                      <div className="font-mono text-xs text-white/75">{value}g</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-3">
-                  {quickPortions.map((multiplier) => {
-                    const cantidad = Math.round(alimento.porcion * multiplier);
-                    return (
-                      <button
-                        key={multiplier}
-                        type="button"
-                        disabled={!selectedSlot}
-                        onClick={() => onAddAlimento(selectedSlot.id, alimento, cantidad)}
-                        className={`px-2 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 ${
-                          multiplier === 1
-                            ? 'bg-emerald text-navy-950'
-                            : 'bg-navy-900/70 text-white/70 hover:text-white hover:bg-navy-700'
-                        }`}
-                      >
-                        {multiplier === 0.5 ? '1/2' : multiplier === 1 ? 'Base' : '1.5x'}
-                        <div className="font-mono text-2xs mt-0.5">{cantidad} g</div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  type="button"
-                  disabled={!selectedSlot}
-                  onClick={() => onAddAlimento(selectedSlot.id, alimento, alimento.porcion)}
-                  className="btn btn-primary btn-sm w-full mt-2 disabled:opacity-40"
-                >
-                  <Plus size={14} />
-                  {selectedSlot ? `Agregar a ${selectedSlot.nombre}` : 'Selecciona un tiempo'}
-                </button>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { key: 'prot', label: 'Proteinas', grams: macrosObj.proteinas_g },
+            { key: 'carbs', label: 'Carbos', grams: macrosObj.carbos_g },
+            { key: 'fat', label: 'Lipidos', grams: macrosObj.lipidos_g },
+          ].map(macro => (
+            <label key={macro.key} className="menu-macro-input">
+              <span>{macro.label}</span>
+              <div>
+                <input
+                  type="number"
+                  min="5"
+                  max="75"
+                  value={Math.round(customMacros[macro.key] * 100)}
+                  onChange={e => {
+                    const nextValue = Math.max(0, Number(e.target.value) || 0) / 100;
+                    onCustomMacrosChange({ ...customMacros, [macro.key]: nextValue });
+                    onMacroPresetChange('personalizado');
+                  }}
+                />
+                <small>%</small>
               </div>
-            ))
-          )}
+              <strong>{macro.grams} g</strong>
+            </label>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-// ── Panel de cómputo nutricional ─────────────────────────────────
-function NutritionPanel({ slots, vet, macrosObjetivo, sexo = 'F' }) {
-  const totales = slots.reduce((acc, slot) => {
-    slot.items.forEach(item => {
-      const factor = item.cantidad / item.alimento.porcion;
-      acc.cal   += item.alimento.cal   * factor;
-      acc.prot  += item.alimento.prot  * factor;
-      acc.carbs += item.alimento.carbs * factor;
-      acc.fat   += item.alimento.fat   * factor;
-      acc.fibra += (item.alimento.fibra || 0) * factor;
-    });
-    return acc;
-  }, { cal: 0, prot: 0, carbs: 0, fat: 0, fibra: 0 });
+function FoodLibrary({ alimentos, selectedSlot, search, onSearchChange, groupFilter, onGroupFilterChange, onAddFood }) {
+  const filteredFoods = useMemo(() => alimentos.filter((food) => {
+    const byName = food.nombre.toLowerCase().includes(search.toLowerCase());
+    const byGroup = groupFilter === 'Todos' || food.grupo === groupFilter;
+    return byName && byGroup;
+  }), [alimentos, groupFilter, search]);
 
-  const pctVET = vet > 0 ? Math.min((totales.cal / vet) * 100, 200) : 0;
-  const vetColor = pctVET < 85 ? '#3B82F6' : pctVET < 115 ? '#2ECC8E' : '#EF4444';
+  return (
+    <aside className="menu-card food-library-panel">
+      <div className="menu-section-heading">
+        <div>
+          <p className="menu-eyebrow">Biblioteca</p>
+          <h2>Alimentos</h2>
+        </div>
+        <span className="menu-soft-icon"><Apple size={18} /></span>
+      </div>
+
+      <div className="selected-meal-banner">
+        <Target size={16} />
+        <div className="min-w-0">
+          <span>Agregando a</span>
+          <strong>{selectedSlot?.nombre || 'Selecciona un tiempo'}</strong>
+        </div>
+      </div>
+
+      <div className="relative">
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/35" />
+        <input
+          className="input pl-10"
+          value={search}
+          onChange={e => onSearchChange(e.target.value)}
+          placeholder="Buscar alimento"
+        />
+      </div>
+
+      <div className="menu-filter-row">
+        {GRUPOS_ALIMENTO.map(group => (
+          <button
+            key={group}
+            type="button"
+            onClick={() => onGroupFilterChange(group)}
+            className={groupFilter === group ? 'is-selected' : ''}
+          >
+            {group}
+          </button>
+        ))}
+      </div>
+
+      <div className="food-library-list">
+        {filteredFoods.length === 0 ? (
+          <div className="menu-empty-compact">
+            <AlertCircle size={18} />
+            <span>No hay alimentos con ese filtro.</span>
+          </div>
+        ) : (
+          filteredFoods.map(food => (
+            <article key={food._id} className="food-library-item">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3>{food.nombre}</h3>
+                  <p>{food.grupo} | base {food.porcion} g</p>
+                </div>
+                <span>{formatKcal(food.cal)} kcal</span>
+              </div>
+              <div className="food-macro-grid">
+                <span>P {food.prot}g</span>
+                <span>C {food.carbs}g</span>
+                <span>G {food.fat}g</span>
+              </div>
+              <div className="food-portion-row">
+                {[
+                  { label: '1/2', amount: Math.round(food.porcion * 0.5) },
+                  { label: 'Base', amount: food.porcion },
+                  { label: '1.5x', amount: Math.round(food.porcion * 1.5) },
+                ].map(option => (
+                  <button
+                    key={option.label}
+                    type="button"
+                    disabled={!selectedSlot}
+                    onClick={() => onAddFood(selectedSlot.id, food, option.amount)}
+                  >
+                    <strong>{option.label}</strong>
+                    <small>{option.amount} g</small>
+                  </button>
+                ))}
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </aside>
+  );
+}
+
+function SummaryPanel({ slots, vet, macrosObj, sex }) {
+  const totals = useMemo(() => planTotals(slots), [slots]);
+  const kcalPct = targetPercent(totals.cal, vet);
+  const fiberTarget = sex === 'M' ? 38 : 25;
+  const totalItems = slots.reduce((acc, slot) => acc + slot.items.length, 0);
 
   const macros = [
-    { label: 'Proteínas',     val: totales.prot,  obj: macrosObjetivo?.proteinas_g,  unit: 'g', color: '#2ECC8E' },
-    { label: 'Carbohidratos', val: totales.carbs, obj: macrosObjetivo?.carbos_g,     unit: 'g', color: '#3B82F6' },
-    { label: 'Lípidos',       val: totales.fat,   obj: macrosObjetivo?.lipidos_g,    unit: 'g', color: '#E8C96A' },
-    { label: 'Fibra',         val: totales.fibra, obj: sexo === 'M' ? 38 : 25,       unit: 'g', color: '#A855F7' },
+    { label: 'Proteinas', value: totals.prot, target: macrosObj.proteinas_g, color: '#34C759' },
+    { label: 'Carbos', value: totals.carbs, target: macrosObj.carbos_g, color: '#007AFF' },
+    { label: 'Lipidos', value: totals.fat, target: macrosObj.lipidos_g, color: '#FF9F0A' },
+    { label: 'Fibra', value: totals.fibra, target: fiberTarget, color: '#5856D6' },
   ];
 
   return (
-    <div className="space-y-5 sticky top-4">
-      {/* Calorías vs VET */}
-      <div className="card !p-4">
-        <div className="text-xs font-bold text-white/40 uppercase tracking-wide mb-3">Cómputo Calórico</div>
-        <div className="flex items-end justify-between mb-3">
+    <aside className="space-y-4">
+      <section className="menu-card summary-panel-card">
+        <div className="menu-section-heading">
           <div>
-            <div className="font-mono text-3xl font-medium" style={{ color: vetColor }}>
-              {Math.round(totales.cal)}
-            </div>
-            <div className="text-xs text-white/30">kcal del plan</div>
+            <p className="menu-eyebrow">Resumen</p>
+            <h2>Plan actual</h2>
           </div>
-          {vet > 0 && (
-            <div className="text-right">
-              <div className="font-mono text-sm text-white/50">{vet}</div>
-              <div className="text-xs text-white/25">VET objetivo</div>
-            </div>
-          )}
+          <span className="badge badge-neutral">{totalItems} alimentos</span>
         </div>
-        {vet > 0 && (
-          <>
-            <div className="h-2 bg-navy-700 rounded-full overflow-hidden mb-1.5">
-              <div className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(pctVET, 100)}%`, background: vetColor }} />
-            </div>
-            <div className="flex justify-between text-2xs">
-              <span className="text-white/25">0%</span>
-              <span style={{ color: vetColor }} className="font-semibold">{Math.round(pctVET)}% del VET</span>
-              <span className="text-white/25">100%</span>
-            </div>
-          </>
-        )}
-      </div>
 
-      {/* Macros */}
-      <div className="card !p-4 space-y-3">
-        <div className="text-xs font-bold text-white/40 uppercase tracking-wide mb-1">Macronutrimentos</div>
-        {macros.map(m => {
-          const pct = m.obj > 0 ? Math.min((m.val / m.obj) * 100, 200) : 0;
-          return (
-            <div key={m.label}>
-              <div className="flex justify-between mb-1">
-                <span className="text-xs text-white/60">{m.label}</span>
-                <span className="font-mono text-xs" style={{ color: m.color }}>
-                  {Math.round(m.val)}{m.unit} {m.obj > 0 && <span className="text-white/25">/ {m.obj}{m.unit}</span>}
-                </span>
-              </div>
-              <div className="h-1.5 bg-navy-700 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(pct, 100)}%`, background: m.color }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        <div className="kcal-progress-card">
+          <div>
+            <span>{formatKcal(totals.cal)}</span>
+            <small>de {formatKcal(vet)} kcal</small>
+          </div>
+          <div className="menu-progress-track">
+            <i style={{ width: `${Math.min(kcalPct, 100)}%` }} />
+          </div>
+          <p>{Math.round(kcalPct)}% del objetivo energetico</p>
+        </div>
 
-      {/* Resumen por tiempos */}
-      <div className="card !p-4">
-        <div className="text-xs font-bold text-white/40 uppercase tracking-wide mb-3">Distribución por Tiempos</div>
-        <div className="space-y-1.5">
-          {slots.map(slot => {
-            const kcal = slot.items.reduce((acc, i) =>
-              acc + Math.round((i.alimento.cal * i.cantidad) / i.alimento.porcion), 0);
-            const pct  = totales.cal > 0 ? (kcal / totales.cal) * 100 : 0;
+        <div className="space-y-3">
+          {macros.map(macro => {
+            const pct = targetPercent(macro.value, macro.target);
             return (
-              <div key={slot.id} className="flex items-center gap-2">
-                <div className="text-xs text-white/50 w-24 truncate">{slot.nombre}</div>
-                <div className="flex-1 h-1.5 bg-navy-700 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald/60 rounded-full" style={{ width: `${pct}%` }} />
+              <div key={macro.label} className="macro-progress-row">
+                <div>
+                  <span>{macro.label}</span>
+                  <strong>{Math.round(macro.value)}g / {macro.target}g</strong>
                 </div>
-                <span className="font-mono text-2xs text-white/40 w-14 text-right">{kcal} kcal</span>
+                <div className="menu-progress-track">
+                  <i style={{ width: `${Math.min(pct, 100)}%`, background: macro.color }} />
+                </div>
               </div>
             );
           })}
         </div>
-      </div>
-    </div>
+      </section>
+
+      <section className="menu-card summary-panel-card">
+        <div className="menu-section-heading">
+          <div>
+            <p className="menu-eyebrow">Distribucion</p>
+            <h2>Por tiempos</h2>
+          </div>
+        </div>
+        <div className="space-y-2">
+          {slots.map(slot => {
+            const totalsBySlot = slotTotals(slot);
+            const pct = totals.cal ? (totalsBySlot.cal / totals.cal) * 100 : 0;
+            return (
+              <div key={slot.id} className="meal-distribution-row">
+                <div>
+                  <span>{slot.nombre}</span>
+                  <strong>{formatKcal(totalsBySlot.cal)} kcal</strong>
+                </div>
+                <div className="menu-progress-track">
+                  <i style={{ width: `${pct}%`, background: '#34C759' }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </aside>
   );
 }
 
-// ── Page principal: Diet Builder ──────────────────────────────────
 export default function MenuBuilder() {
   const [searchParams] = useSearchParams();
   const pacienteId = searchParams.get('paciente');
 
   const [slots, setSlots] = useState([
-    { id: 'slot-1', nombre: 'Desayuno',    hora: '08:00', items: [] },
-    { id: 'slot-2', nombre: 'Colación AM', hora: '10:30', items: [] },
-    { id: 'slot-3', nombre: 'Comida',      hora: '14:00', items: [] },
-    { id: 'slot-4', nombre: 'Merienda',    hora: '17:30', items: [] },
-    { id: 'slot-5', nombre: 'Cena',        hora: '20:00', items: [] },
+    { id: 'slot-1', nombre: 'Desayuno', hora: '08:00', items: [] },
+    { id: 'slot-2', nombre: 'Colacion AM', hora: '10:30', items: [] },
+    { id: 'slot-3', nombre: 'Comida', hora: '14:00', items: [] },
+    { id: 'slot-4', nombre: 'Merienda', hora: '17:30', items: [] },
+    { id: 'slot-5', nombre: 'Cena', hora: '20:00', items: [] },
   ]);
 
-  const [alimentos] = useState(ALIMENTOS_MOCK);
   const [selectedSlotId, setSelectedSlotId] = useState('slot-1');
   const [searchGlobal, setSearchGlobal] = useState('');
-  const [grupoFiltro, setGrupoFiltro] = useState('Todos');
-
-  // Calculadora de requerimientos
-  const [pacData, setPacData] = useState({ peso: 70, talla: 165, edad: 30, sexo: 'F' });
+  const [groupFilter, setGroupFilter] = useState('Todos');
+  const [patientData, setPatientData] = useState({ peso: 70, talla: 165, edad: 30, sexo: 'F' });
   const [formula, setFormula] = useState('mifflinStJeor');
-  const [actFactor, setActFactor] = useState('moderado');
-  const [objetivo, setObjetivo]   = useState('bajar_peso');
+  const [activityFactor, setActivityFactor] = useState('moderado');
+  const [goal, setGoal] = useState('bajar_peso');
   const [macroPreset, setMacroPreset] = useState('estandar');
-  const [customMacros, setCustomMacros] = useState({ prot: 0.20, carbs: 0.50, fat: 0.30 });
-  const [showCalc, setShowCalc] = useState(true);
-
-  const [planNombre, setPlanNombre] = useState('Plan alimentario');
+  const [customMacros, setCustomMacros] = useState(toMacroState(MACRO_PRESETS.estandar));
+  const [planName, setPlanName] = useState('Plan alimentario');
   const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showRequirements, setShowRequirements] = useState(true);
 
-  // Calcular TMB y VET
-  const tmbs = calcularTodosTMB({ weight: pacData.peso, height: pacData.talla, age: pacData.edad, sex: pacData.sexo });
-  const tmb  = tmbs[formula] || tmbs.mifflinStJeor;
-  const get  = calcularGET(tmb, actFactor);
-  const vet  = calcularVET(get, objetivo);
-  const macrosObj = calcularMacros(vet, customMacros.prot, customMacros.carbs, customMacros.fat);
-
-  // Sensores DnD
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const selectedSlot = slots.find(slot => slot.id === selectedSlotId) || slots[0] || null;
+
+  const numericPatient = {
+    weight: numberOrZero(patientData.peso),
+    height: numberOrZero(patientData.talla),
+    age: numberOrZero(patientData.edad),
+    sex: patientData.sexo,
+  };
+
+  const tmbs = calcularTodosTMB(numericPatient);
+  const tmb = tmbs[formula] || tmbs.mifflinStJeor;
+  const get = Math.round(calcularGET(tmb, activityFactor));
+  const vet = Math.round(calcularVET(get, goal));
+  const macrosObj = calcularMacros(vet, customMacros.prot, customMacros.carbs, customMacros.fat);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+
     setSlots(prev => prev.map(slot => {
-      const ids = slot.items.map(i => i.uid);
+      const ids = slot.items.map(item => item.uid);
       if (ids.includes(active.id) && ids.includes(over.id)) {
-        const oldIdx = ids.indexOf(active.id);
-        const newIdx = ids.indexOf(over.id);
-        return { ...slot, items: arrayMove(slot.items, oldIdx, newIdx) };
+        return {
+          ...slot,
+          items: arrayMove(slot.items, ids.indexOf(active.id), ids.indexOf(over.id)),
+        };
       }
       return slot;
     }));
   };
 
-  const addSlot = () => setSlots(prev => [...prev, {
-    id: `slot-${Date.now()}`, nombre: `Tiempo ${prev.length + 1}`, hora: '12:00', items: [],
-  }]);
-
-  const removeSlot = (id) => setSlots(prev => prev.filter(s => s.id !== id));
-
-  const updateSlot = (id, k, v) => setSlots(prev => prev.map(s => s.id === id ? { ...s, [k]: v } : s));
-
-  const addAlimento = (slotId, alimento, cantidad = alimento.porcion) => {
-    setSlots(prev => prev.map(s => s.id !== slotId ? s : {
-      ...s,
-      items: [...s.items, { uid: `item-${Date.now()}`, alimento, cantidad }],
-    }));
+  const addSlot = () => {
+    const newSlot = {
+      id: `slot-${Date.now()}`,
+      nombre: `Tiempo ${slots.length + 1}`,
+      hora: '12:00',
+      items: [],
+    };
+    setSlots(prev => [...prev, newSlot]);
+    setSelectedSlotId(newSlot.id);
   };
 
-  const removeAlimento = (slotId, uid) =>
-    setSlots(prev => prev.map(s => s.id !== slotId ? s : {
-      ...s, items: s.items.filter(i => i.uid !== uid),
-    }));
+  const removeSlot = (id) => {
+    setSlots(prev => {
+      const next = prev.filter(slot => slot.id !== id);
+      if (selectedSlotId === id && next[0]) setSelectedSlotId(next[0].id);
+      return next;
+    });
+  };
 
-  const updateQty = (slotId, uid, qty) =>
-    setSlots(prev => prev.map(s => s.id !== slotId ? s : {
-      ...s, items: s.items.map(i => i.uid === uid ? { ...i, cantidad: qty } : i),
-    }));
+  const updateSlot = (id, key, value) => {
+    setSlots(prev => prev.map(slot => (slot.id === id ? { ...slot, [key]: value } : slot)));
+  };
+
+  const addFood = (slotId, alimento, cantidad = alimento.porcion) => {
+    if (!slotId) return;
+    setSlots(prev => prev.map(slot => (slot.id !== slotId ? slot : {
+      ...slot,
+      items: [
+        ...slot.items,
+        {
+          uid: `item-${alimento._id}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          alimento,
+          cantidad,
+        },
+      ],
+    })));
+  };
+
+  const removeFood = (slotId, uid) => {
+    setSlots(prev => prev.map(slot => (slot.id !== slotId ? slot : {
+      ...slot,
+      items: slot.items.filter(item => item.uid !== uid),
+    })));
+  };
+
+  const updateQty = (slotId, uid, qty) => {
+    setSlots(prev => prev.map(slot => (slot.id !== slotId ? slot : {
+      ...slot,
+      items: slot.items.map(item => (item.uid === uid ? { ...item, cantidad: qty } : item)),
+    })));
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { nombre: planNombre, pacienteId, slots, vet, macrosObjetivo: macrosObj };
-      await api.post('/api/mealplans', payload);
-      setSaved(true); setTimeout(() => setSaved(false), 2500);
+      const payload = { nombre: planName, pacienteId, slots, vet, macrosObjetivo: macrosObj };
+      await api.post('/mealplans', payload);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
     } catch {
-      setSaved(true); setTimeout(() => setSaved(false), 2500);
-    } finally { setSaving(false); }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const selectedSlot = slots.find((slot) => slot.id === selectedSlotId) || null;
-
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}>
-      <div className="space-y-5 animate-fade-up">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <div className="menu-builder-workspace animate-fade-up">
+        <header className="menu-builder-hero">
+          <div className="min-w-0">
+            <p className="menu-eyebrow">Generador de menus</p>
             <input
-              className="bg-transparent text-2xl font-display font-bold text-white border-none outline-none w-full sm:w-auto"
-              value={planNombre}
-              onChange={e => setPlanNombre(e.target.value)}
-              placeholder="Nombre del plan..."
+              className="menu-plan-title"
+              value={planName}
+              onChange={e => setPlanName(e.target.value)}
+              aria-label="Nombre del plan"
             />
-            <p className="text-sm text-white/30 mt-0.5">Constructor de Dietas</p>
+            <p className="page-subtitle mt-1">Construye tiempos, ajusta porciones y valida objetivos en una sola pantalla.</p>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-ghost btn-sm gap-1.5"><Eye size={13} /> Vista previa</button>
-            <button className="btn btn-secondary btn-sm gap-1.5"><Download size={13} /> PDF</button>
-            <button onClick={handleSave} disabled={saving} className="btn btn-primary btn-sm gap-1.5">
-              {saving ? <div className="w-3.5 h-3.5 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" />
-                : saved ? '✓' : <Save size={13} />}
-              {saved ? 'Guardado' : 'Guardar plan'}
+          <div className="menu-builder-actions-main">
+            <button type="button" className="btn btn-ghost btn-sm">
+              <Eye size={15} />
+              Vista previa
+            </button>
+            <button type="button" className="btn btn-outline btn-sm">
+              <Download size={15} />
+              PDF
+            </button>
+            <button type="button" onClick={handleSave} disabled={saving} className="btn btn-primary btn-sm">
+              {saving ? (
+                <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : saved ? (
+                <Check size={15} />
+              ) : (
+                <Save size={15} />
+              )}
+              {saved ? 'Guardado' : 'Guardar'}
             </button>
           </div>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px_280px] gap-5">
-          {/* ── Columna izquierda: Calculadora + Slots ── */}
-          <div className="space-y-5">
-            {/* Calculadora de requerimientos */}
-            <div className="card !p-0 overflow-hidden">
-              <button type="button" onClick={() => setShowCalc(v => !v)}
-                className="flex items-center justify-between w-full px-5 py-4 text-left hover:bg-white/[0.02] transition-colors">
-                <div className="flex items-center gap-2">
-                  <Zap size={16} className="text-gold" />
-                  <span className="font-semibold text-white">Calculadora de Requerimientos</span>
-                  {vet > 0 && (
-                    <span className="badge badge-gold">VET: {vet} kcal</span>
-                  )}
+        <div className="menu-builder-grid">
+          <main className="min-w-0 space-y-4">
+            <button
+              type="button"
+              onClick={() => setShowRequirements(value => !value)}
+              className="menu-collapsible-trigger"
+            >
+              <span className="flex items-center gap-2">
+                <Zap size={16} className="text-gold" />
+                Requerimientos y macros
+              </span>
+              {showRequirements ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {showRequirements && (
+              <RequirementsPanel
+                patientData={patientData}
+                onPatientDataChange={setPatientData}
+                formula={formula}
+                onFormulaChange={setFormula}
+                activityFactor={activityFactor}
+                onActivityFactorChange={setActivityFactor}
+                goal={goal}
+                onGoalChange={setGoal}
+                macroPreset={macroPreset}
+                onMacroPresetChange={setMacroPreset}
+                customMacros={customMacros}
+                onCustomMacrosChange={setCustomMacros}
+                tmbs={tmbs}
+                tmb={tmb}
+                get={get}
+                vet={vet}
+                macrosObj={macrosObj}
+              />
+            )}
+
+            <section className="menu-card meal-list-panel">
+              <div className="menu-section-heading">
+                <div>
+                  <p className="menu-eyebrow">Agenda del menu</p>
+                  <h2>Tiempos de comida</h2>
                 </div>
-                {showCalc ? <ChevronUp size={15} className="text-white/30" /> : <ChevronDown size={15} className="text-white/30" />}
-              </button>
+                <button type="button" onClick={addSlot} className="btn btn-outline btn-sm">
+                  <Plus size={15} />
+                  Tiempo
+                </button>
+              </div>
 
-              {showCalc && (
-                <div className="px-5 pb-5 space-y-5 border-t border-navy-700/50">
-                  {/* Datos del paciente */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
-                    {[
-                      { k: 'peso',  label: 'Peso',   unit: 'kg', ph: '70' },
-                      { k: 'talla', label: 'Talla',  unit: 'cm', ph: '165' },
-                      { k: 'edad',  label: 'Edad',   unit: 'años', ph: '30' },
-                    ].map(f => (
-                      <div key={f.k} className="form-group">
-                        <label className="label">{f.label} <span className="text-white/30 normal-case">({f.unit})</span></label>
-                        <input type="number" className="input text-center font-mono"
-                          value={pacData[f.k]} onChange={e => setPacData(p => ({ ...p, [f.k]: e.target.value }))}
-                          placeholder={f.ph} />
-                      </div>
-                    ))}
-                    <div className="form-group">
-                      <label className="label">Sexo biológico</label>
-                      <select className="select" value={pacData.sexo} onChange={e => setPacData(p => ({ ...p, sexo: e.target.value }))}>
-                        <option value="F">Femenino</option>
-                        <option value="M">Masculino</option>
-                      </select>
-                    </div>
-                  </div>
+              <div className="space-y-3">
+                {slots.map((slot, index) => (
+                  <MealCard
+                    key={slot.id}
+                    slot={slot}
+                    index={index}
+                    isActive={slot.id === selectedSlotId}
+                    onSelect={setSelectedSlotId}
+                    onRemoveFood={removeFood}
+                    onQtyChange={updateQty}
+                    onUpdateSlot={updateSlot}
+                    onRemoveSlot={removeSlot}
+                  />
+                ))}
+              </div>
+            </section>
+          </main>
 
-                  {/* TMB resultados */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {[
-                      { key: 'mifflinStJeor',  label: 'Mifflin-St Jeor' },
-                      { key: 'harrisBenedict',  label: 'Harris-Benedict' },
-                      { key: 'faoOms',          label: 'FAO/OMS'         },
-                      { key: 'owen',            label: 'Owen'            },
-                    ].map(f => (
-                      <button key={f.key} type="button" onClick={() => setFormula(f.key)}
-                        className={`p-3 rounded-xl border text-center transition-all
-                          ${formula === f.key ? 'bg-emerald/10 border-emerald/30' : 'bg-navy-800/40 border-navy-700/40 hover:border-navy-600'}`}>
-                        <div className="font-mono text-lg font-medium text-white">{tmbs[f.key] || '—'}</div>
-                        <div className={`text-2xs mt-0.5 ${formula === f.key ? 'text-emerald' : 'text-white/30'}`}>{f.label}</div>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Factor actividad + objetivo + GET/VET */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="form-group">
-                      <label className="label">Factor de actividad</label>
-                      <select className="select" value={actFactor} onChange={e => setActFactor(e.target.value)}>
-                        {Object.entries(ACTIVITY_FACTORS).map(([k, v]) => (
-                          <option key={k} value={k}>{v.label} (×{v.value})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="label">Objetivo del tratamiento</label>
-                      <select className="select" value={objetivo} onChange={e => setObjetivo(e.target.value)}>
-                        {Object.entries(GOAL_ADJUSTMENTS).map(([k, v]) => (
-                          <option key={k} value={k}>{k.replace(/_/g, ' ')} ({v > 0 ? '+' : ''}{v} kcal)</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="p-3 rounded-xl bg-navy-800/60 border border-navy-700/40 flex flex-col justify-center">
-                      <div className="flex justify-between text-xs text-white/30 mb-1">
-                        <span>GET: <span className="font-mono text-white/60">{Math.round(get)} kcal</span></span>
-                        <span>TMB: <span className="font-mono text-white/60">{tmb} kcal</span></span>
-                      </div>
-                      <div className="font-mono text-2xl font-medium text-gold">{vet}</div>
-                      <div className="text-2xs text-white/30">VET objetivo (kcal/día)</div>
-                    </div>
-                  </div>
-
-                  {/* Distribución de macros */}
-                  <div>
-                    <label className="label mb-2">Distribución de macronutrimentos</label>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {Object.entries(MACRO_PRESETS).map(([k, v]) => (
-                        <button key={k} type="button" onClick={() => { setMacroPreset(k); setCustomMacros(v); }}
-                          className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all
-                            ${macroPreset === k ? 'bg-emerald text-navy-950' : 'bg-navy-700 text-white/50 hover:text-white'}`}>
-                          {k.replace(/_/g, ' ')}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { k: 'prot', label: 'Proteínas %', color: '#2ECC8E' },
-                        { k: 'carbs', label: 'Carbohidratos %', color: '#3B82F6' },
-                        { k: 'fat', label: 'Lípidos %', color: '#E8C96A' },
-                      ].map(m => (
-                        <div key={m.k} className="form-group">
-                          <label className="label text-2xs" style={{ color: m.color }}>{m.label}</label>
-                          <div className="relative">
-                            <input type="number" min="5" max="70" className="input text-center font-mono pr-6"
-                              value={Math.round(customMacros[m.k] * 100)}
-                              onChange={e => setCustomMacros(p => ({ ...p, [m.k]: Number(e.target.value) / 100 }))} />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 text-xs">%</span>
-                          </div>
-                          <div className="text-2xs text-white/30 mt-1 text-center font-mono">
-                            = {m.k === 'prot' ? macrosObj.proteinas_g : m.k === 'carbs' ? macrosObj.carbos_g : macrosObj.lipidos_g}g
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Slots de tiempos de comida */}
-            <div className="space-y-3">
-              {slots.map((slot, i) => (
-                <MealSlot
-                  key={slot.id} slot={slot} index={i}
-                  isActive={slot.id === selectedSlotId}
-                  onSelect={setSelectedSlotId}
-                  onRemoveAlimento={removeAlimento}
-                  onQtyChange={updateQty}
-                  onUpdateSlot={updateSlot}
-                  onRemoveSlot={removeSlot}
-                />
-              ))}
-
-              <button type="button" onClick={addSlot}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-navy-700 text-sm text-white/30
-                           hover:text-emerald hover:border-emerald/40 transition-all duration-200">
-                <Plus size={15} /> Agregar tiempo de comida
-              </button>
-            </div>
-          </div>
-
-          <FoodLibraryPanel
-            alimentos={alimentos}
-            selectedSlot={selectedSlot}
-            search={searchGlobal}
-            onSearchChange={setSearchGlobal}
-            grupoFiltro={grupoFiltro}
-            onGrupoFiltroChange={setGrupoFiltro}
-            onAddAlimento={addAlimento}
-          />
-
-          <NutritionPanel slots={slots} vet={vet} macrosObjetivo={macrosObj} sexo={pacData.sexo} />
+          <aside className="menu-builder-side">
+            <FoodLibrary
+              alimentos={ALIMENTOS_MOCK}
+              selectedSlot={selectedSlot}
+              search={searchGlobal}
+              onSearchChange={setSearchGlobal}
+              groupFilter={groupFilter}
+              onGroupFilterChange={setGroupFilter}
+              onAddFood={addFood}
+            />
+            <SummaryPanel slots={slots} vet={vet} macrosObj={macrosObj} sex={patientData.sexo} />
+          </aside>
         </div>
       </div>
     </DndContext>

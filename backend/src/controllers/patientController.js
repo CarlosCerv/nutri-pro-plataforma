@@ -1,33 +1,9 @@
 import Patient from '../models/Patient.js';
-import multer from 'multer';
-import path from 'path';
+import uploadMiddleware, { getFileUrl } from '../middleware/uploadMiddleware.js';
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    },
-});
+// Export upload middleware for use in routes
+export const upload = uploadMiddleware;
 
-export const upload = multer({
-    storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|pdf|doc|docx/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Only images and documents are allowed'));
-        }
-    },
-});
 
 // @desc    Get all active patients for logged-in nutritionist
 // @route   GET /api/patients
@@ -241,11 +217,12 @@ export const uploadDocument = async (req, res) => {
         }
 
         const isImage = req.file.mimetype.startsWith('image/') && ['front', 'side', 'back', 'other'].includes(req.body.type);
+        const fileUrl = getFileUrl(req.file);
 
         if (isImage) {
             // It's a gallery image
             patient.images.push({
-                url: `/uploads/${req.file.filename}`,
+                url: fileUrl,
                 type: req.body.type || 'other',
                 date: new Date()
             });
@@ -254,8 +231,8 @@ export const uploadDocument = async (req, res) => {
             const docData = {
                 filename: req.file.filename,
                 originalName: req.file.originalname,
-                path: req.file.path,
-                url: `/uploads/${req.file.filename}`,
+                path: req.file.path || fileUrl,
+                url: fileUrl,
                 type: req.body.category || 'other', // Use category for doc type
                 uploadDate: new Date()
             };

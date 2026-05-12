@@ -13,19 +13,19 @@ const MOCK_WEIGHT_DATA = [
 ];
 
 const MOCK_PATOLOGIAS = [
-  { name: 'Sobrepeso/Obesidad', value: 38, color: '#F59E0B' },
-  { name: 'Diabetes T2', value: 22, color: '#EF4444' },
-  { name: 'Hipertensión', value: 15, color: '#8B5CF6' },
-  { name: 'Dislipidemia', value: 13, color: '#3B82F6' },
-  { name: 'Sin patología', value: 12, color: '#2ECC8E' },
+  { name: 'Sobrepeso/Obesidad', value: 38, color: '#FF9F0A' },
+  { name: 'Diabetes T2', value: 22, color: '#FF3B30' },
+  { name: 'Hipertensión', value: 15, color: '#5856D6' },
+  { name: 'Dislipidemia', value: 13, color: '#007AFF' },
+  { name: 'Sin patología', value: 12, color: '#34C759' },
 ];
 
 const MOCK_MACROS = [
-  { name: 'Calorías', valor: 78, color: '#E8C96A' },
-  { name: 'Proteínas', valor: 65, color: '#2ECC8E' },
-  { name: 'Carbohidratos', valor: 83, color: '#3B82F6' },
-  { name: 'Lípidos', valor: 71, color: '#F97316' },
-  { name: 'Fibra', valor: 54, color: '#A855F7' },
+  { name: 'Calorías', valor: 78, color: '#FFCC00' },
+  { name: 'Proteínas', valor: 65, color: '#34C759' },
+  { name: 'Carbohidratos', valor: 83, color: '#007AFF' },
+  { name: 'Lípidos', valor: 71, color: '#FF9F0A' },
+  { name: 'Fibra', valor: 54, color: '#5856D6' },
 ];
 
 const MOCK_CITAS_HOY = [
@@ -47,15 +47,15 @@ const MOCK_ACTIVIDAD = [
 const ESTADO_COLORS = { confirmada: 'badge-success', pendiente: 'badge-warning', cancelada: 'badge-danger' };
 
 const ACTIVIDAD_ICONS = {
-  patient: { Icon: Users, color: '#2ECC8E' },
-  diet: { Icon: Salad, color: '#E8C96A' },
-  pdf: { Icon: FileText, color: '#3B82F6' },
+  patient: { Icon: Users, color: '#007AFF' },
+  diet: { Icon: Salad, color: '#34C759' },
+  pdf: { Icon: FileText, color: '#FF9F0A' },
 };
 
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-navy-800 border border-navy-600 rounded-xl px-3 py-2.5 shadow-navy-md">
+    <div className="bg-white border border-navy-600 rounded-xl px-3 py-2.5 shadow-navy-md">
       <div className="text-xs text-white/40 mb-1">{label}</div>
       {payload.map((entry, index) => (
         <div key={index} className="text-sm font-mono font-medium" style={{ color: entry.color }}>
@@ -91,15 +91,15 @@ export default function DashboardInsights() {
             <AreaChart data={MOCK_WEIGHT_DATA} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2ECC8E" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#2ECC8E" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#007AFF" stopOpacity={0.18} />
+                  <stop offset="95%" stopColor="#007AFF" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="semana" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E5EA" />
+              <XAxis dataKey="semana" tick={{ fill: '#86868B', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#86868B', fontSize: 11 }} axisLine={false} tickLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
               <Tooltip content={<CustomTooltip unit=" kg" />} />
-              <Area type="monotone" dataKey="promedio" name="kg promedio" stroke="#2ECC8E" strokeWidth={2} fill="url(#emeraldGrad)" dot={{ r: 4, fill: '#2ECC8E', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#2ECC8E' }} />
+              <Area type="monotone" dataKey="promedio" name="kg promedio" stroke="#007AFF" strokeWidth={2} fill="url(#emeraldGrad)" dot={{ r: 4, fill: '#007AFF', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#007AFF' }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -113,7 +113,7 @@ export default function DashboardInsights() {
                   <Cell key={index} fill={entry.color} opacity={0.85} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [`${value}%`, '']} contentStyle={{ background: '#0D1526', border: '1px solid #1A2E50', borderRadius: '12px', padding: '8px 12px' }} />
+              <Tooltip formatter={(value) => [`${value}%`, '']} contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E5EA', borderRadius: '8px', padding: '8px 12px', color: '#1D1D1F' }} />
             </PieChart>
           </ResponsiveContainer>
           <div className="space-y-1.5 mt-2">
