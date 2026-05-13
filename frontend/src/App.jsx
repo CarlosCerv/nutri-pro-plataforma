@@ -43,7 +43,7 @@ const applyTheme = () => {
 
 // ── Protected Route ───────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
     return (
@@ -56,7 +56,16 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Force onboarding for first-time users
+  if (user?.firstAccess && window.location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return children;
 };
 
 const PageFallback = ({ fullScreen = false }) => (

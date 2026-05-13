@@ -62,14 +62,10 @@ export default function Dashboard() {
       try {
         const res = await api.get('/api/dashboard/stats');
         setStats(res.data.data);
-      } catch {
-        // Usar mock data si la API no responde
-        setStats({
-          pacientesActivos: 47, pacientesDelta: 12,
-          consultasMes: 89,     consultasDelta: 8,
-          dietasTotal: 234,     dietasDelta: 5,
-          apegoProm: 78,        apegoDelta: -3,
-        });
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        // No usar mock data, mostrar empty state
+        setStats(null);
       } finally {
         setLoading(false);
       }

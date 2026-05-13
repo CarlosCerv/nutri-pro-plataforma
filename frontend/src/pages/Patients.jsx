@@ -57,16 +57,9 @@ export default function Patients() {
     try {
       const res = await api.get('/api/patients');
       setPatients(res.data.data || res.data || []);
-    } catch {
-      // Mock data para desarrollo sin backend
-      setPatients([
-        { _id: '1', firstName: 'María',  lastName: 'González',   email: 'maria@email.com', phone: '3310001111', lastWeight: 72.4, height: 165, sex: 'F', lastConsult: '2026-04-10', objective: 'Bajar de peso',   active: true },
-        { _id: '2', firstName: 'Juan',   lastName: 'Rodríguez',  email: 'juan@email.com',  phone: '3320002222', lastWeight: 88.5, height: 175, sex: 'M', lastConsult: '2026-04-08', objective: 'Ganar músculo',  active: true },
-        { _id: '3', firstName: 'Ana',    lastName: 'Martínez',   email: 'ana@email.com',   phone: '3330003333', lastWeight: 55.2, height: 158, sex: 'F', lastConsult: '2026-03-30', objective: 'Control glucémico', active: true },
-        { _id: '4', firstName: 'Luis',   lastName: 'Hernández',  email: 'luis@email.com',  phone: '3340004444', lastWeight: 95.0, height: 170, sex: 'M', lastConsult: '2026-04-05', objective: 'Bajar de peso',   active: true },
-        { _id: '5', firstName: 'Sofía',  lastName: 'Torres',     email: 'sofia@email.com', phone: '3350005555', lastWeight: 62.8, height: 162, sex: 'F', lastConsult: '2026-04-12', objective: 'Mantener peso',  active: true },
-        { _id: '6', firstName: 'Carlos', lastName: 'Flores',     email: 'carlos@email.com',phone: '3360006666', lastWeight: 79.3, height: 180, sex: 'M', lastConsult: '2026-03-15', objective: 'Deporte',        active: false },
-      ]);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      setPatients([]);
     } finally {
       setLoading(false);
     }

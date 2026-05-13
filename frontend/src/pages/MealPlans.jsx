@@ -3,14 +3,6 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, FileText, Download, MoreVertical, Salad, Trash2, Calendar, FileBadge } from 'lucide-react';
 import api from '../services/api';
 
-const MOCK_DIETAS = [
-  { _id: '1', nombre: 'Plan Hipocalórico 1600', pacienteNombre: 'María González', pacienteId: '1', kcal: 1600, fecha: '2026-04-12', estado: 'activa' },
-  { _id: '2', nombre: 'Aumento Masa Muscular 2800', pacienteNombre: 'Juan Rodríguez', pacienteId: '2', kcal: 2800, fecha: '2026-04-10', estado: 'activa' },
-  { _id: '3', nombre: 'Plan Mantenimiento', pacienteNombre: 'Ana Martínez', pacienteId: '3', kcal: 1900, fecha: '2026-03-30', estado: 'inactiva' },
-  { _id: '4', nombre: 'Ayuno Intermitente 16/8', pacienteNombre: 'Luis Hernández', pacienteId: '4', kcal: 1800, fecha: '2026-04-05', estado: 'activa' },
-  { _id: '5', nombre: 'Plan Diabético 1500 kcal', pacienteNombre: 'Sofía Torres', pacienteId: '5', kcal: 1500, fecha: '2026-04-12', estado: 'activa' },
-];
-
 export default function MealPlans() {
   const [dietas, setDietas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,8 +13,9 @@ export default function MealPlans() {
       try {
         const res = await api.get('/api/mealplans');
         setDietas(res.data.data || res.data || []);
-      } catch {
-        setDietas(MOCK_DIETAS);
+      } catch (error) {
+        console.error('Error fetching meal plans:', error);
+        setDietas([]);
       } finally {
         setLoading(false);
       }
@@ -35,9 +28,13 @@ export default function MealPlans() {
     d.pacienteNombre?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const simulateGenerarPDF = async (_id, nombre) => {
-    // Aquí iría la llamada al backend para generar y descargar o html2pdf
-    alert(`Generando PDF Premium Branding para: ${nombre}`);
+  const handleGenerarPDF = async (_id, nombre) => {
+    try {
+      // Aquí iría la llamada al backend para generar y descargar o html2pdf
+      alert(`Generando PDF Premium Branding para: ${nombre}`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
   };
 
   return (
@@ -90,7 +87,7 @@ export default function MealPlans() {
                 </div>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => simulateGenerarPDF(dieta._id, dieta.nombre)}
+                    onClick={() => handleGenerarPDF(dieta._id, dieta.nombre)}
                     className="p-1.5 rounded-lg text-white/30 hover:bg-emerald/20 hover:text-emerald transition-colors"
                     title="Exportar a PDF Premium">
                     <Download size={16} />

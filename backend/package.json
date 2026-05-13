@@ -6,7 +6,12 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test:connection": "node src/scripts/testConnection.js",
+    "seed:all": "node src/scripts/seedFoods.js && node src/scripts/seedTemplates.js && node src/scripts/seedUsers.js",
+    "seed:foods": "node src/scripts/seedFoods.js",
+    "seed:templates": "node src/scripts/seedTemplates.js",
+    "seed:users": "node src/scripts/seedUsers.js"
   },
   "keywords": [
     "nutrition",
