@@ -1,4 +1,5 @@
-import { Download, Eye, FileSpreadsheet, FileText, QrCode, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Download, Eye, FileSpreadsheet, QrCode, LayoutTemplate } from 'lucide-react';
 
 const REPORT_TYPES = [
   {
@@ -6,6 +7,7 @@ const REPORT_TYPES = [
     subtitle: 'Logo, macros, tiempos, fotos y QR del portal del paciente.',
     accent: 'text-emerald',
     badge: 'badge-success',
+    generateTo: '/dietas',
   },
   {
     title: 'Expediente clínico NOM-168',
@@ -32,22 +34,18 @@ export default function ReportsHub() {
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-gold mb-2">
-            <FileText size={14} />
-            Módulo 6
-          </div>
-          <h1 className="page-title">Generación de PDFs Profesionales</h1>
-          <p className="page-subtitle">Centro de reportes con branding clínico, vista previa y exportación premium.</p>
+          <h1 className="page-title">Reportes PDF</h1>
+          <p className="page-subtitle">Vista previa y exportación con tu branding.</p>
         </div>
         <div className="flex gap-2">
-          <button className="btn btn-outline">
+          <Link to="/dietas" className="btn btn-outline">
             <Eye size={15} />
-            Vista previa
-          </button>
-          <button className="btn btn-primary">
+            Ver dietas
+          </Link>
+          <Link to="/dietas" className="btn btn-primary">
             <Download size={15} />
-            Exportar PDF
-          </button>
+            PDF del plan
+          </Link>
         </div>
       </div>
 
@@ -59,8 +57,14 @@ export default function ReportsHub() {
               <h2 className={`text-xl mt-4 ${report.accent}`}>{report.title}</h2>
               <p className="text-sm text-white/45 mt-2">{report.subtitle}</p>
               <div className="mt-5 flex gap-2">
-                <button className="btn btn-ghost btn-sm">Configurar</button>
-                <button className="btn btn-outline btn-sm">Generar</button>
+                <button type="button" className="btn btn-ghost btn-sm">Configurar</button>
+                {report.generateTo ? (
+                  <Link to={report.generateTo} className="btn btn-outline btn-sm">
+                    Generar
+                  </Link>
+                ) : (
+                  <button type="button" className="btn btn-outline btn-sm">Generar</button>
+                )}
               </div>
             </article>
           ))}
@@ -70,8 +74,8 @@ export default function ReportsHub() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(232,201,106,0.16),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(46,204,142,0.14),transparent_42%)] pointer-events-none" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-4 text-emerald">
-              <Sparkles size={16} />
-              <span className="text-sm font-semibold">Mockup de salida</span>
+              <LayoutTemplate size={16} />
+              <span className="text-sm font-semibold">Vista de salida</span>
             </div>
             <div className="rounded-[28px] bg-white text-slate-900 p-6 min-h-[520px] shadow-navy-lg">
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">

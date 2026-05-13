@@ -193,7 +193,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
   return (
     <>
-      <div className="hidden lg:flex">{sidebarContent}</div>
+      <div className="hidden lg:flex relative z-20 shrink-0">{sidebarContent}</div>
 
       {mobileOpen && (
         <>

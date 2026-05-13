@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, User, Mail, Lock, Phone, Stethoscope } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Logo from '../components/Logo';
 
 const Register = () => {
@@ -41,165 +41,149 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex justify-center mb-6">
-            <Logo size="lg" />
+    <div className="min-h-[100dvh] w-full bg-[var(--bg-primary)] px-5 py-12 sm:py-16 flex flex-col items-center font-sans">
+      <div className="w-full max-w-[440px] pb-8">
+        <header className="mb-8 text-center sm:mb-10">
+          <div className="mb-7 flex justify-center sm:mb-8">
+            <Logo size="md" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--text-primary)] tracking-apple-tight mb-2">
+          <h1 className="text-[1.65rem] font-semibold leading-tight tracking-[-0.02em] text-[var(--text-primary)]">
             Crear cuenta
           </h1>
-          <p className="text-[var(--text-secondary)] text-base">Únete a la plataforma para nutricionistas</p>
-        </div>
+          <p className="mt-2 text-[15px] leading-snug text-[var(--text-secondary)]">
+            Unos datos y empiezas
+          </p>
+        </header>
 
-        <div className="card p-8 sm:p-9">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div
+          className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] px-7 py-8 sm:px-8 sm:py-9"
+          style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06)' }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="form-group">
               <label htmlFor="reg-name" className="label">
                 Nombre completo
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <User size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
-                <input
-                  id="reg-name"
-                  type="text"
-                  name="name"
-                  className="input pl-11"
-                  placeholder="María Pérez"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <input
+                id="reg-name"
+                type="text"
+                name="name"
+                className="input w-full rounded-xl py-3"
+                placeholder="Tu nombre"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                autoComplete="name"
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="reg-email" className="label">
-                Correo electrónico
+                Correo
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
-                <input
-                  id="reg-email"
-                  type="email"
-                  name="email"
-                  className="input pl-11"
-                  placeholder="tu@email.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <input
+                id="reg-email"
+                type="email"
+                name="email"
+                className="input w-full rounded-xl py-3"
+                placeholder="nombre@clinica.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                autoComplete="email"
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="reg-password" className="label">
                 Contraseña
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
-                <input
-                  id="reg-password"
-                  type="password"
-                  name="password"
-                  className="input pl-11"
-                  placeholder="Mínimo 6 caracteres"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength={6}
-                  disabled={loading}
-                />
-              </div>
+              <input
+                id="reg-password"
+                type="password"
+                name="password"
+                className="input w-full rounded-xl py-3"
+                placeholder="Mínimo 6 caracteres"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                minLength={6}
+                disabled={loading}
+                autoComplete="new-password"
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="reg-specialty" className="label">
-                Especialidad <span className="text-[var(--text-tertiary)] font-normal">(opcional)</span>
+                Especialidad <span className="font-normal text-[var(--text-tertiary)]">opcional</span>
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Stethoscope size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
-                <input
-                  id="reg-specialty"
-                  type="text"
-                  name="specialty"
-                  className="input pl-11"
-                  placeholder="Nutrición deportiva"
-                  value={formData.specialty}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </div>
+              <input
+                id="reg-specialty"
+                type="text"
+                name="specialty"
+                className="input w-full rounded-xl py-3"
+                placeholder="Ej. nutrición clínica"
+                value={formData.specialty}
+                onChange={handleChange}
+                disabled={loading}
+              />
             </div>
 
             <div className="form-group">
               <label htmlFor="reg-phone" className="label">
-                Teléfono <span className="text-[var(--text-tertiary)] font-normal">(opcional)</span>
+                Teléfono <span className="font-normal text-[var(--text-tertiary)]">opcional</span>
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Phone size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
-                <input
-                  id="reg-phone"
-                  type="tel"
-                  name="phone"
-                  className="input pl-11"
-                  placeholder="+52 123 456 7890"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </div>
+              <input
+                id="reg-phone"
+                type="tel"
+                name="phone"
+                className="input w-full rounded-xl py-3"
+                placeholder="+52 …"
+                value={formData.phone}
+                onChange={handleChange}
+                disabled={loading}
+                autoComplete="tel"
+              />
             </div>
 
             {error && (
-              <div className="rounded-xl border border-[rgba(255,59,48,0.25)] bg-[rgba(255,59,48,0.06)] p-4">
-                <p className="text-sm text-[var(--danger)] font-medium">{error}</p>
+              <div className="rounded-xl border border-[rgba(255,59,48,0.22)] bg-[rgba(255,59,48,0.06)] px-4 py-3">
+                <p className="text-sm font-medium text-[var(--danger)]">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
-              className="btn btn-primary btn-lg w-full gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary btn-lg mt-1 w-full gap-2 rounded-xl py-3.5 font-semibold disabled:cursor-not-allowed disabled:opacity-45"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="h-5 w-5 rounded-full border-2 border-white/35 border-t-white animate-spin" />
                   <span>Creando cuenta…</span>
                 </>
               ) : (
                 <>
-                  <span>Crear cuenta</span>
+                  <span>Continuar</span>
                   <ArrowRight size={18} strokeWidth={1.75} />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 text-center text-[var(--text-secondary)] text-sm">
+          <p className="mt-8 text-center text-[15px] text-[var(--text-secondary)]">
             ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="font-semibold text-[var(--accent)] hover:opacity-90 transition-opacity">
-              Inicia sesión aquí
+            <Link to="/login" className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline">
+              Iniciar sesión
             </Link>
-          </div>
+          </p>
         </div>
 
-        <div className="text-center mt-8">
-          <p className="text-sm text-[var(--text-tertiary)]">NutriPro · plataforma clínica</p>
-        </div>
+        <p className="mt-8 text-center text-xs text-[var(--text-tertiary)] sm:mt-10">
+          © NutriPro
+        </p>
       </div>
     </div>
   );

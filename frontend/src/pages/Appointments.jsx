@@ -2,199 +2,226 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI } from '../services/api';
 import { Calendar as CalendarIcon, Plus, Clock, User } from 'lucide-react';
-import BackButton from '../components/BackButton';
-import './Appointments.css';
 
 const Appointments = () => {
-    const navigate = useNavigate();
-    const [appointments, setAppointments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' | 'history'
+  const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('upcoming');
 
-    const fetchAppointments = useCallback(async () => {
-        try {
-            const response = await appointmentsAPI.getAll();
-            setAppointments(response.data.data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching appointments:', error);
-            setLoading(false);
-        }
-    }, []);
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const response = await appointmentsAPI.getAll();
+      const list = response?.data?.data;
+      setAppointments(Array.isArray(list) ? list : []);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchAppointments();
-    }, [fetchAppointments]);
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
-    const getGroupTitle = (dateString) => {
-        const date = new Date(dateString);
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+  const getGroupTitle = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const isSameDay = (d1, d2) =>
-            d1.getDate() === d2.getDate() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getFullYear() === d2.getFullYear();
+    const isSameDay = (d1, d2) =>
+      d1.getDate() === d2.getDate() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getFullYear() === d2.getFullYear();
 
-        if (isSameDay(date, today)) return 'Hoy';
-        if (isSameDay(date, tomorrow)) return 'Mañana';
+    if (isSameDay(date, today)) return 'Hoy';
+    if (isSameDay(date, tomorrow)) return 'Mañana';
 
-        return date.toLocaleDateString('es-ES', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long'
-        });
-    };
+    return date.toLocaleDateString('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+  };
 
-    const groupAppointments = (appts) => {
-        const groups = {};
-        appts.forEach(app => {
-            // Fix timezone offset for grouping/display if needed, 
-            // but relying on string split for day bucket is safer for standard ISO dates
-            const dateKey = app.date.split('T')[0];
-            if (!groups[dateKey]) {
-                groups[dateKey] = [];
-            }
-            groups[dateKey].push(app);
-        });
-
-        // Convert to array and sort
-        return Object.entries(groups)
-            .sort(([dateA], [dateB]) => {
-                return activeTab === 'upcoming'
-                    ? new Date(dateA) - new Date(dateB) // Ascending for upcoming
-                    : new Date(dateB) - new Date(dateA); // Descending for history
-            })
-            .map(([dateKey, groupAppts]) => ({
-                title: getGroupTitle(dateKey),
-                date: dateKey,
-                appointments: groupAppts.sort((a, b) => a.time.localeCompare(b.time))
-            }));
-    };
-
-    const filteredAppointments = appointments.filter(app => {
-        const appDate = new Date(app.date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (activeTab === 'upcoming') {
-            // Show today and future, excluding completed/cancelled if desired, 
-            // but usually strictly by date is better for "Agenda". 
-            // Let's filter out 'completed' from upcoming to make it cleaner? 
-            // User asked for "Upcoming", implies future.
-            return appDate >= today && app.status !== 'completed' && app.status !== 'cancelled';
-        } else {
-            // History: Past dates OR completed/cancelled status
-            return appDate < today || app.status === 'completed' || app.status === 'cancelled';
-        }
+  const groupAppointments = (appts) => {
+    const groups = {};
+    appts.forEach((app) => {
+      const dateKey = app.date?.split('T')[0] || '';
+      if (!dateKey) return;
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(app);
     });
 
-    const groupedList = groupAppointments(filteredAppointments);
+    return Object.entries(groups)
+      .sort(([dateA], [dateB]) =>
+        activeTab === 'upcoming'
+          ? new Date(dateA) - new Date(dateB)
+          : new Date(dateB) - new Date(dateA)
+      )
+      .map(([dateKey, groupAppts]) => ({
+        title: getGroupTitle(dateKey),
+        date: dateKey,
+        appointments: groupAppts.sort((a, b) => (a.time || '').localeCompare(b.time || '')),
+      }));
+  };
 
-    if (loading) {
-        return (
-            <div className="page-loading">
-                <div className="spinner-large"></div>
-            </div>
-        );
+  const filteredAppointments = appointments.filter((app) => {
+    const appDate = new Date(app.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (activeTab === 'upcoming') {
+      return appDate >= today && app.status !== 'completed' && app.status !== 'cancelled';
     }
+    return appDate < today || app.status === 'completed' || app.status === 'cancelled';
+  });
 
+  const groupedList = groupAppointments(filteredAppointments);
+
+  const patientLabel = (appointment) => {
+    const p = appointment.patient;
+    if (!p) return 'Paciente';
+    const n = `${p.firstName || ''} ${p.lastName || ''}`.trim();
+    return n || 'Paciente';
+  };
+
+  if (loading) {
     return (
-        <div className="appointments-page fade-in">
-            <div className="page-header">
-                <div>
-                    <BackButton to="/dashboard" />
-                    <h1>Citas</h1>
-                    <p>Gestiona tu agenda de consultas</p>
-                </div>
-                <button className="btn btn-primary" onClick={() => navigate('/agenda/nueva')}>
-                    <Plus size={20} />
-                    Nueva Cita
-                </button>
-            </div>
-
-            <div className="appointments-tabs">
-                <button
-                    className={`tab-btn ${activeTab === 'upcoming' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('upcoming')}
-                >
-                    Próximas
-                </button>
-                <button
-                    className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('history')}
-                >
-                    Historial
-                </button>
-            </div>
-
-            <div className="appointments-container">
-                {groupedList.length === 0 ? (
-                    <div className="empty-state-large">
-                        <CalendarIcon size={64} strokeWidth={1} />
-                        <h3>No hay citas {activeTab === 'upcoming' ? 'próximas' : 'en el historial'}</h3>
-                        {activeTab === 'upcoming' && (
-                            <button className="btn btn-primary mt-4" onClick={() => navigate('/agenda/nueva')}>
-                                <Plus size={20} />
-                                Agendar Cita
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    <div className="appointments-list-grouped">
-                        {groupedList.map((group) => (
-                            <div key={group.date} className="date-group fade-in">
-                                <h3 className="date-group-header">{group.title}</h3>
-                                <div className="group-cards">
-                                    {group.appointments.map((appointment) => (
-                                        <div key={appointment._id} className="appointment-card-new card">
-                                            <div className="appt-time-col">
-                                                <div className="appt-time">
-                                                    <Clock size={16} />
-                                                    <span>{appointment.time}</span>
-                                                </div>
-                                                <span className="appt-duration">{appointment.duration} min</span>
-                                            </div>
-
-                                            <div className="appt-info-col">
-                                                <div className="appt-patient">
-                                                    <User size={18} className="text-secondary" />
-                                                    <span className="patient-name">
-                                                        {appointment.patient?.firstName} {appointment.patient?.lastName}
-                                                    </span>
-                                                </div>
-                                                <div className="appt-type">
-                                                    <span className={`badge badge-${appointment.type === 'initial' ? 'info' : 'success'
-                                                        }`}>
-                                                        {appointment.type === 'initial' ? 'Primera Vez' :
-                                                            appointment.type === 'follow_up' ? 'Seguimiento' : appointment.type}
-                                                    </span>
-                                                    {appointment.status === 'cancelled' && <span className="badge badge-danger">Cancelada</span>}
-                                                    {appointment.status === 'completed' && <span className="badge badge-success">Completada</span>}
-                                                </div>
-                                            </div>
-
-                                            <div className="appt-actions-col">
-                                                {/* Future: Add 'Complete' button here */}
-                                                <button
-                                                    className="btn btn-sm btn-outline"
-                                                    onClick={() => navigate(`/pacientes/${appointment.patient?._id}`)}
-                                                >
-                                                    Ver Expediente
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 animate-fade-up">
+        <div className="h-9 w-9 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
+        <p className="text-sm text-[var(--text-secondary)]">Cargando agenda…</p>
+      </div>
     );
+  }
+
+  return (
+    <div className="space-y-6 animate-fade-up">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[var(--text-secondary)]">
+          {appointments.length}{' '}
+          {appointments.length === 1 ? 'cita en total' : 'citas en total'}
+        </p>
+        <button type="button" className="btn btn-primary gap-2 self-start sm:self-auto" onClick={() => navigate('/agenda/nueva')}>
+          <Plus size={16} />
+          Nueva cita
+        </button>
+      </div>
+
+      <div className="tabs-nav w-full max-w-md shrink-0 overflow-x-auto no-scrollbar sm:w-auto">
+        <button
+          type="button"
+          className={`tab-btn whitespace-nowrap ${activeTab === 'upcoming' ? 'active' : ''}`}
+          onClick={() => setActiveTab('upcoming')}
+        >
+          Próximas
+        </button>
+        <button
+          type="button"
+          className={`tab-btn whitespace-nowrap ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          Historial
+        </button>
+      </div>
+
+      {groupedList.length === 0 ? (
+        <div className="empty-state rounded-xl border border-dashed border-[var(--border-soft)] bg-[var(--surface-muted)]/50">
+          <div className="empty-state-icon">
+            <CalendarIcon size={28} strokeWidth={1.5} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">
+              No hay citas {activeTab === 'upcoming' ? 'próximas' : 'en el historial'}
+            </p>
+            {activeTab === 'upcoming' && (
+              <p className="mt-1 text-xs text-[var(--text-secondary)] max-w-xs mx-auto">
+                Programa consultas desde aquí.
+              </p>
+            )}
+          </div>
+          {activeTab === 'upcoming' && (
+            <button type="button" className="btn btn-primary btn-sm gap-1.5 mt-2" onClick={() => navigate('/agenda/nueva')}>
+              <Plus size={14} />
+              Agendar cita
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {groupedList.map((group) => (
+            <section key={group.date} className="space-y-3">
+              <h2 className="border-l-[3px] border-[var(--accent)] pl-3 text-sm font-semibold capitalize text-[var(--text-primary)] tracking-tight">
+                {group.title}
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {group.appointments.map((appointment) => (
+                  <li
+                    key={appointment._id}
+                    className="overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--surface)] shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-hover)]"
+                  >
+                    <div className="grid gap-4 p-4 md:grid-cols-[minmax(0,5.5rem)_1fr_auto] md:items-center md:gap-5">
+                      <div className="flex flex-row items-center gap-3 border-b border-[var(--border-soft)] pb-3 md:flex-col md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-center">
+                        <div className="flex items-center gap-1.5 font-semibold tabular-nums text-[var(--text-primary)] md:flex-col md:gap-0">
+                          <Clock size={15} className="text-[var(--text-tertiary)] md:hidden" strokeWidth={1.75} />
+                          <span className="text-lg leading-none">{appointment.time}</span>
+                        </div>
+                        <span className="text-2xs font-medium text-[var(--text-tertiary)] md:mt-1">
+                          {appointment.duration} min
+                        </span>
+                      </div>
+
+                      <div className="min-w-0 space-y-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <User size={16} className="shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.75} />
+                          <span className="truncate text-base font-semibold text-[var(--text-primary)]">
+                            {patientLabel(appointment)}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span
+                            className={`badge text-xs ${
+                              appointment.type === 'initial' ? 'badge-info' : 'badge-success'
+                            }`}
+                          >
+                            {appointment.type === 'initial'
+                              ? 'Primera vez'
+                              : appointment.type === 'follow_up'
+                                ? 'Seguimiento'
+                                : appointment.type || 'Consulta'}
+                          </span>
+                          {appointment.status === 'cancelled' && (
+                            <span className="badge badge-danger text-xs">Cancelada</span>
+                          )}
+                          {appointment.status === 'completed' && (
+                            <span className="badge badge-success text-xs">Completada</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex md:justify-end">
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm w-full md:w-auto"
+                          disabled={!appointment.patient?._id}
+                          onClick={() => appointment.patient?._id && navigate(`/pacientes/${appointment.patient._id}`)}
+                        >
+                          Ver expediente
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Appointments;

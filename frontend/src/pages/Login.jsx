@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, ArrowRight, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
 
@@ -29,39 +29,40 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex justify-center mb-6">
-            <Logo size="lg" />
+    <div className="min-h-[100dvh] w-full bg-[var(--bg-primary)] px-5 py-16 sm:py-20 flex flex-col items-center justify-center font-sans">
+      <div className="w-full max-w-[400px]">
+        <header className="mb-10 text-center">
+          <div className="mb-8 flex justify-center">
+            <Logo size="md" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--text-primary)] tracking-apple-tight mb-2">
-            Bienvenido de vuelta
+          <h1 className="text-[1.65rem] font-semibold leading-tight tracking-[-0.02em] text-[var(--text-primary)]">
+            Iniciar sesión
           </h1>
-          <p className="text-[var(--text-secondary)] text-base">Inicia sesión en tu cuenta</p>
-        </div>
+          <p className="mt-2 text-[15px] leading-snug text-[var(--text-secondary)]">
+            NutriPro
+          </p>
+        </header>
 
-        <div className="card p-8 sm:p-9">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div
+          className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] px-7 py-8 sm:px-8 sm:py-9"
+          style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06)' }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="form-group">
               <label htmlFor="login-email" className="label">
-                Correo electrónico
+                Correo
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
-                <input
-                  id="login-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input pl-11"
-                  placeholder="tu@email.com"
-                  required
-                  autoComplete="email"
-                />
-              </div>
+              <input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input w-full rounded-xl py-3"
+                placeholder="nombre@clinica.com"
+                required
+                autoComplete="email"
+                autoCapitalize="off"
+              />
             </div>
 
             <div className="form-group">
@@ -69,45 +70,42 @@ export default function Login() {
                 Contraseña
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                </div>
                 <input
                   id="login-password"
                   type={showPass ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input pl-11 pr-12"
-                  placeholder="Ingresa tu contraseña"
+                  className="input w-full rounded-xl py-3 pr-12"
+                  placeholder="Contraseña"
                   required
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
                   aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
-                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPass ? <EyeOff size={18} strokeWidth={1.75} /> : <Eye size={18} strokeWidth={1.75} />}
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="rounded-xl border border-[rgba(255,59,48,0.25)] bg-[rgba(255,59,48,0.06)] p-4">
-                <p className="text-sm text-[var(--danger)] font-medium">{error}</p>
+              <div className="rounded-xl border border-[rgba(255,59,48,0.22)] bg-[rgba(255,59,48,0.06)] px-4 py-3">
+                <p className="text-sm font-medium text-[var(--danger)]">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className="btn btn-primary btn-lg w-full disabled:opacity-50 disabled:cursor-not-allowed gap-2"
+              className="btn btn-primary btn-lg mt-2 w-full gap-2 rounded-xl py-3.5 font-semibold disabled:cursor-not-allowed disabled:opacity-45"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Iniciando sesión…</span>
+                  <span className="h-5 w-5 rounded-full border-2 border-white/35 border-t-white animate-spin" />
+                  <span>Entrando…</span>
                 </>
               ) : (
                 <>
@@ -118,17 +116,20 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-8 text-center text-[var(--text-secondary)] text-sm">
-            ¿No tienes cuenta?{' '}
-            <Link to="/register" className="font-semibold text-[var(--accent)] hover:opacity-90 transition-opacity">
-              Regístrate aquí
+          <p className="mt-8 text-center text-[15px] text-[var(--text-secondary)]">
+            ¿Sin cuenta?{' '}
+            <Link
+              to="/register"
+              className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline"
+            >
+              Crear cuenta
             </Link>
-          </div>
+          </p>
         </div>
 
-        <div className="text-center mt-8">
-          <p className="text-sm text-[var(--text-tertiary)]">NutriPro · plataforma clínica</p>
-        </div>
+        <p className="mt-10 text-center text-xs text-[var(--text-tertiary)]">
+          © NutriPro
+        </p>
       </div>
     </div>
   );

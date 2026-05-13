@@ -1,4 +1,4 @@
-import { Apple, Filter, Plus, Search, Sparkles } from 'lucide-react';
+import { Filter, Plus, Search, Tag } from 'lucide-react';
 
 const GROUPS = ['Todos', 'Verduras', 'Frutas', 'AOA', 'Cereales', 'Leguminosas', 'Grasas'];
 
@@ -15,16 +15,12 @@ export default function FoodsDatabase() {
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald mb-2">
-            <Apple size={14} />
-            Módulo 4
-          </div>
           <h1 className="page-title">Base de Datos de Alimentos</h1>
-          <p className="page-subtitle">Catálogo clínico con alimentos USDA, preparaciones mexicanas y alimentos personalizados del nutriólogo.</p>
+          <p className="page-subtitle">Catálogo clínico y alimentos personalizados.</p>
         </div>
         <div className="flex gap-2">
           <button className="btn btn-outline">
-            <Sparkles size={15} />
+            <Tag size={15} />
             Importar etiqueta
           </button>
           <button className="btn btn-primary">

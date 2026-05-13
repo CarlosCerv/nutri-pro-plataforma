@@ -1,6 +1,19 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+/** URL base del API (VITE_API_URL o, en prod en el navegador, mismo host que el frontend → /api en Vercel). */
+function resolveRawApiBase() {
+    const explicit = import.meta.env.VITE_API_URL;
+    if (explicit && String(explicit).trim()) return String(explicit).trim();
+    if (import.meta.env.PROD && typeof window !== 'undefined' && window.location?.origin) {
+        return `${window.location.origin}/api`;
+    }
+    return 'http://localhost:5000/api';
+}
+
+/** Origen del backend sin duplicar /api (VITE puede ser ...5000 o ...5000/api). */
+const RAW_BASE = resolveRawApiBase();
+const API_ORIGIN = String(RAW_BASE).trim().replace(/\/api\/?$/i, '').replace(/\/+$/, '') || 'http://localhost:5000';
+const API_URL = `${API_ORIGIN}/api/`;
 
 // Create axios instance
 const api = axios.create({
@@ -10,9 +23,14 @@ const api = axios.create({
     },
 });
 
-// Request interceptor to add token
+// Request interceptor: token + normalizar rutas (/api/foo o /foo → foo) para que combine con base .../api/
 api.interceptors.request.use(
     (config) => {
+        if (typeof config.url === 'string' && config.url.length > 0) {
+            let u = config.url.replace(/^\/+/, '');
+            if (u.startsWith('api/')) u = u.slice(4);
+            config.url = u;
+        }
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;

@@ -24,7 +24,7 @@ const PDFMealPlan = React.forwardRef(({ mealPlan, patient, nutritionist }, ref) 
             {/* Header */}
             <div className="pdf-header">
                 <div className="pdf-branding">
-                    <h1>NutriPlan</h1>
+                    <h1>NutriPro</h1>
                     <p className="pdf-subtitle">Plan Nutricional Personalizado</p>
                     {nutritionist?.name && (
                         <p className="pdf-nutritionist-header">Nutriólogo: {nutritionist.name}</p>
@@ -120,7 +120,11 @@ const PDFMealPlan = React.forwardRef(({ mealPlan, patient, nutritionist }, ref) 
                                     {meal.foods.map((food, index) => (
                                         <tr key={index}>
                                             <td>{food.foodRef?.name || food.item || 'Alimento'}</td>
-                                            <td>{food.quantity || '1 porción'}</td>
+                                            <td>
+                                                {food.quantityGrams != null && food.quantityGrams !== ''
+                                                  ? `${Math.round(Number(food.quantityGrams))} g`
+                                                  : (food.quantity || '—')}
+                                            </td>
                                             <td>{Math.round(food.calories || 0)}</td>
                                             <td>{Math.round(food.protein || 0)}g</td>
                                             <td>{Math.round(food.carbohydrates || 0)}g</td>
