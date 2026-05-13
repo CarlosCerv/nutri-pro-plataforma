@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Menu, Bell, Search, Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Menu, Search, Plus, ChevronRight, Home } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { getPageMeta } from '../../lib/pageMeta';
 
 const QUICK_ACTIONS = [
   { label: 'Nuevo paciente', to: '/pacientes/nuevo' },
@@ -10,97 +11,118 @@ const QUICK_ACTIONS = [
 
 export default function Topbar({ onMenuToggle }) {
   const [quickOpen, setQuickOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
+  const location = useLocation();
+  const meta = getPageMeta(location.pathname);
 
   return (
-    <header className="
-      h-14 flex-shrink-0 flex items-center justify-between px-4 lg:px-6
-      bg-white/95 backdrop-blur-xl border-b border-navy-700/50
-      sticky top-0 z-30
-    ">
+    <header
+      className="
+      min-h-[52px] h-[52px] md:min-h-14 md:h-14 flex-shrink-0 flex items-center gap-2 md:gap-3 px-3 md:px-4 lg:px-5
+      bg-[var(--surface)]/95 backdrop-blur-xl border-b border-[var(--border-soft)]
+      sticky top-0 z-30 supports-[padding:max(0px)]:pt-[env(safe-area-inset-top)]
+    "
+    >
       <button
-        className="lg:hidden btn-icon btn btn-ghost"
-        onClick={() => onMenuToggle(prev => !prev)}
-        aria-label="Menu"
+        type="button"
+        className="lg:hidden btn btn-ghost shrink-0 min-h-11 min-w-11 px-0 rounded-xl -ml-1"
+        onClick={() => onMenuToggle((prev) => !prev)}
+        aria-label="Abrir menú"
       >
-        <Menu size={18} />
+        <Menu size={20} strokeWidth={1.75} />
       </button>
 
-      <div className="hidden md:flex flex-1 max-w-md mx-4">
+      <div className="hidden sm:flex flex-col min-w-0 flex-1 md:max-w-[min(380px,52vw)] lg:max-w-[min(420px,40vw)]">
+        <nav
+          className="flex items-center gap-1 text-2xs text-[var(--text-tertiary)] font-medium mb-0.5"
+          aria-label="Migas de pan"
+        >
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 min-h-8 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors"
+          >
+            <Home size={12} strokeWidth={1.75} aria-hidden />
+            Inicio
+          </Link>
+          {meta.trail?.map((crumb) => (
+            <span key={crumb.to} className="inline-flex items-center gap-1 min-w-0">
+              <ChevronRight size={12} className="shrink-0 opacity-60" aria-hidden />
+              <Link
+                to={crumb.to}
+                className="truncate rounded-md px-1.5 py-1 min-h-8 inline-flex items-center hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors"
+              >
+                {crumb.label}
+              </Link>
+            </span>
+          ))}
+        </nav>
+        <div className="flex items-baseline gap-2 min-w-0">
+          <h1 className="text-base md:text-lg font-semibold text-[var(--text-primary)] tracking-apple-tight truncate leading-tight">
+            {meta.title}
+          </h1>
+        </div>
+        {meta.subtitle && (
+          <p className="text-2xs text-[var(--text-secondary)] truncate hidden lg:block leading-snug">
+            {meta.subtitle}
+          </p>
+        )}
+      </div>
+
+      <div className="flex sm:hidden flex-1 min-w-0 pr-1">
+        <h1 className="text-sm font-semibold text-[var(--text-primary)] tracking-apple-tight truncate leading-tight">
+          {meta.title}
+        </h1>
+      </div>
+
+      <div className="hidden md:flex flex-1 justify-end max-w-sm lg:max-w-md mx-1 lg:mx-4 min-w-0">
         <div className="relative w-full">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] pointer-events-none"
+            strokeWidth={1.75}
+          />
           <input
-            type="text"
-            placeholder="Buscar paciente, dieta o cita"
-            className="input pl-9 py-1.5 text-sm h-9 bg-white"
+            type="search"
+            name="q"
+            autoComplete="off"
+            placeholder="Buscar…"
+            className="input pl-9 py-2 text-sm min-h-11 bg-[var(--surface-muted)] border-[var(--border-soft)]"
+            aria-label="Búsqueda"
+            enterKeyHint="search"
           />
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 shrink-0">
         <div className="relative">
           <button
-            onClick={() => { setQuickOpen(v => !v); setNotifOpen(false); }}
-            className="btn btn-primary btn-sm hidden md:inline-flex"
+            type="button"
+            onClick={() => setQuickOpen((v) => !v)}
+            className="btn btn-primary btn-sm min-h-11 px-3 md:inline-flex gap-1.5"
             aria-expanded={quickOpen}
+            aria-haspopup="menu"
           >
-            <Plus size={14} />
-            Nuevo
+            <Plus size={16} strokeWidth={1.75} />
+            <span className="hidden sm:inline">Nuevo</span>
           </button>
           {quickOpen && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setQuickOpen(false)} />
-              <div className="absolute right-0 top-10 z-50 w-48 bg-white border border-navy-700 rounded-xl shadow-navy-lg overflow-hidden animate-scale-in">
-                {QUICK_ACTIONS.map(a => (
+              <div className="fixed inset-0 z-40" onClick={() => setQuickOpen(false)} aria-hidden />
+              <div
+                role="menu"
+                className="absolute right-0 top-12 z-50 w-[min(calc(100vw-2rem),18rem)] bg-[var(--surface)] border border-[var(--border-soft)] rounded-xl shadow-card-hover overflow-hidden animate-scale-in"
+              >
+                {QUICK_ACTIONS.map((a) => (
                   <Link
                     key={a.to}
+                    role="menuitem"
                     to={a.to}
                     onClick={() => setQuickOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-3.5 min-h-[48px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors border-b border-[var(--border-soft)] last:border-0"
                   >
-                    <Plus size={14} className="text-info" />
-                    {a.label}
+                    <Plus size={14} className="text-[var(--accent)] shrink-0" strokeWidth={1.75} />
+                    <span className="truncate">{a.label}</span>
                   </Link>
                 ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="relative">
-          <button
-            onClick={() => { setNotifOpen(v => !v); setQuickOpen(false); }}
-            className="btn-icon btn btn-ghost relative"
-            aria-label="Notificaciones"
-            aria-expanded={notifOpen}
-          >
-            <Bell size={17} />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-info" />
-          </button>
-          {notifOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-              <div className="absolute right-0 top-11 z-50 w-72 bg-white border border-navy-700 rounded-2xl shadow-navy-lg overflow-hidden animate-scale-in">
-                <div className="px-4 py-3 border-b border-navy-700/50 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-white">Notificaciones</span>
-                  <span className="badge badge-info text-2xs">2 nuevas</span>
-                </div>
-                <div className="py-1">
-                  {[
-                    { msg: 'Cita con Maria G. en 2 horas', time: 'Hace 5 min' },
-                    { msg: 'Juan Lopez subio fotos de progreso', time: 'Hace 1 hora' },
-                  ].map((n) => (
-                    <div key={n.msg} className="px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer">
-                      <div className="text-xs text-white/80 font-medium">{n.msg}</div>
-                      <div className="text-2xs text-white/30 mt-0.5">{n.time}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="px-4 py-2.5 border-t border-navy-700/50">
-                  <button className="text-xs text-info hover:text-blue-600 font-semibold w-full text-center">
-                    Ver todas
-                  </button>
-                </div>
               </div>
             </>
           )}

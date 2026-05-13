@@ -46,7 +46,6 @@ export const register = async (req, res) => {
                     email: user.email,
                     role: user.role,
                     specialty: user.specialty,
-                    firstAccess: user.firstAccess,
                 },
                 token,
             },
@@ -108,7 +107,6 @@ export const login = async (req, res) => {
                     role: user.role,
                     specialty: user.specialty,
                     phone: user.phone,
-                    firstAccess: user.firstAccess,
                 },
                 token,
             },
@@ -192,7 +190,6 @@ export const getMe = async (req, res) => {
                     role: user.role,
                     specialty: user.specialty,
                     phone: user.phone,
-                    firstAccess: user.firstAccess,
                 },
             },
         });
@@ -206,53 +203,3 @@ export const getMe = async (req, res) => {
     }
 };
 
-// @desc    Complete onboarding
-// @route   POST /api/auth/complete-onboarding
-// @access  Private
-export const completeOnboarding = async (req, res) => {
-    try {
-        const { specialty, phone, clinicName, professionalCertificate, pdfHighlight, accentColor } = req.body;
-
-        const user = await User.findById(req.user.id);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found',
-            });
-        }
-
-        // Update user profile with onboarding data
-        user.specialty = specialty || user.specialty;
-        user.phone = phone || user.phone;
-        user.firstAccess = false; // Mark as completed
-
-        // Save additional onboarding data if needed (could extend schema later)
-        // For now, we're just marking firstAccess as false
-
-        const updatedUser = await user.save();
-
-        res.status(200).json({
-            success: true,
-            message: 'Onboarding completed successfully',
-            data: {
-                user: {
-                    id: updatedUser._id,
-                    name: updatedUser.name,
-                    email: updatedUser.email,
-                    role: updatedUser.role,
-                    specialty: updatedUser.specialty,
-                    phone: updatedUser.phone,
-                    firstAccess: updatedUser.firstAccess,
-                },
-            },
-        });
-    } catch (error) {
-        console.error('Complete onboarding error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error completing onboarding',
-            error: error.message,
-        });
-    }
-};

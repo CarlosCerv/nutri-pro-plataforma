@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { mealPlansAPI } from '../services/api';
 import { UtensilsCrossed, Download, Loader, Eye } from 'lucide-react';
@@ -7,6 +8,7 @@ import usePDFExport from '../hooks/usePDFExport';
 import { useAuth } from '../contexts/AuthContext';
 
 const PatientMealPlansTab = ({ patientId, patient }) => {
+    const navigate = useNavigate();
     const [mealPlans, setMealPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPlan, setSelectedPlan] = useState(null);
@@ -97,8 +99,9 @@ const PatientMealPlansTab = ({ patientId, patient }) => {
 
                             <div className="meal-plan-actions">
                                 <button
+                                    type="button"
                                     className="btn btn-outline"
-                                    onClick={() => window.open(`/menu-builder?planId=${plan._id}`, '_blank')}
+                                    onClick={() => navigate(`/dietas/${plan._id}/editar`)}
                                 >
                                     <Eye size={18} />
                                     Ver Detalles

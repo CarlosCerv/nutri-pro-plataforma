@@ -3,54 +3,63 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, "Cascadia Code", "Roboto Mono", monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
 
   --bg-primary: #f5f5f7;
   --bg-secondary: #ffffff;
   --surface: #ffffff;
-  --surface-muted: #f7f8fa;
-  --surface-strong: #f0f0f2;
+  --surface-muted: #f2f2f7;
+  --surface-strong: #e8e8ed;
   --text-primary: #1d1d1f;
-  --text-secondary: #6e6e73;
-  --text-tertiary: #86868b;
-  --border-soft: #e5e5ea;
-  --border: #d2d2d7;
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 44px rgba(0, 0, 0, 0.05);
-  --shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.05), 0 20px 54px rgba(0, 0, 0, 0.07);
+  --text-secondary: #424245;
+  --text-tertiary: #6e6e73;
+  --border-soft: #d2d2d7;
+  --border: #b0b0b5;
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.08);
 
-  --accent: #007aff;
-  --accent-hover: #006edb;
-  --accent-soft: #eaf4ff;
-  --success: #34c759;
-  --warning: #ff9f0a;
-  --danger: #ff3b30;
-  --info: #007aff;
+  /* Apple.com — azul sistema (contraste AA sobre blanco en texto de enlace) */
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-soft: #e8f4ff;
+  --link: #0066cc;
+  --success: #1b7f3a;
+  --warning: #b45309;
+  --danger: #c41e16;
+  --info: #0071e3;
 
   --primary-color: var(--accent);
   --primary-light: var(--accent-soft);
-  --primary-50: #eaf4ff;
-  --primary-100: #d6eaff;
-  --primary-200: #acd6ff;
-  --primary-300: #7dbfff;
-  --primary-400: #4da3ff;
-  --primary-500: #007aff;
-  --primary-600: #006edb;
-  --primary-700: #0057b8;
-  --primary-800: #004080;
+  --primary-50: #e8f4ff;
+  --primary-100: #cce4ff;
+  --primary-200: #99c9ff;
+  --primary-300: #66adff;
+  --primary-400: #3392ff;
+  --primary-500: #0071e3;
+  --primary-600: #005bb5;
+  --primary-700: #004494;
+  --primary-800: #003370;
+
   --secondary-50: #eef8f1;
   --secondary-100: #dcf3e4;
-  --secondary-500: #34c759;
-  --secondary-600: #248a3d;
+  --secondary-500: #1b7f3a;
+  --secondary-600: #145c2a;
 
-  --gray-50: #f7f8fa;
-  --gray-100: #e5e5ea;
+  --chart-green: #1b7f3a;
+  --chart-orange: #b45309;
+  --chart-blue: #0058b0;
+  --chart-red: #b42318;
+  --chart-purple: #5b21b6;
+
+  --gray-50: #f5f5f7;
+  --gray-100: #e8e8ed;
   --gray-200: #d2d2d7;
   --gray-300: #c7c7cc;
   --gray-400: #a1a1a6;
   --gray-500: #86868b;
   --gray-600: #6e6e73;
-  --gray-700: #3a3a3c;
+  --gray-700: #424245;
   --gray-800: #2c2c2e;
   --gray-900: #1d1d1f;
 
@@ -74,7 +83,6 @@
   *::before,
   *::after {
     box-sizing: border-box;
-    letter-spacing: 0 !important;
   }
 
   html {
@@ -84,12 +92,23 @@
     color-scheme: light;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
     min-width: 320px;
     margin: 0;
+    overflow-x: hidden;
     background: var(--bg-primary);
     color: var(--text-primary);
     font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -104,8 +123,10 @@
     margin: 0;
     color: var(--text-primary);
     font-family: var(--font-sans);
-    font-weight: 650;
-    line-height: 1.12;
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+    font-feature-settings: 'kern' 1, 'liga' 1;
   }
 
   p {
@@ -127,7 +148,7 @@
   }
 
   ::selection {
-    background: rgba(0, 122, 255, 0.16);
+    background: rgba(0, 113, 227, 0.18);
     color: var(--text-primary);
   }
 
@@ -155,7 +176,16 @@
 
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.22), 0 0 0 1px var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.25), 0 0 0 1px var(--accent);
+  }
+
+  button,
+  [role='button'],
+  summary,
+  input[type='submit'],
+  input[type='button'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 }
 
@@ -163,9 +193,17 @@
   .app-layout {
     display: flex;
     height: 100vh;
+    max-height: 100vh;
     overflow: hidden;
     background: var(--bg-primary);
     color: var(--text-primary);
+  }
+
+  @supports (height: 100dvh) {
+    .app-layout {
+      height: 100dvh;
+      max-height: 100dvh;
+    }
   }
 
   .main-content {
@@ -181,7 +219,10 @@
     flex: 1;
     overflow-x: hidden;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     padding: 1.25rem;
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
     background: var(--bg-primary);
   }
 
@@ -251,7 +292,7 @@
     background: var(--accent);
     border-color: var(--accent);
     color: #ffffff;
-    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.18);
+    box-shadow: 0 8px 20px rgba(0, 113, 227, 0.18);
   }
 
   .btn-primary:hover {
@@ -272,13 +313,13 @@
 
   .btn-outline {
     background: var(--surface);
-    border-color: rgba(0, 122, 255, 0.28);
+    border-color: rgba(0, 113, 227, 0.28);
     color: var(--accent);
   }
 
   .btn-outline:hover {
     background: var(--accent-soft);
-    border-color: rgba(0, 122, 255, 0.42);
+    border-color: rgba(0, 113, 227, 0.42);
   }
 
   .btn-ghost {
@@ -330,7 +371,7 @@
   .input:focus,
   .select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.14);
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.14);
     outline: none;
   }
 
@@ -389,27 +430,27 @@
   }
 
   .badge-success {
-    background: rgba(52, 199, 89, 0.12);
-    border-color: rgba(52, 199, 89, 0.22);
-    color: #248a3d;
+    background: rgba(27, 127, 58, 0.12);
+    border-color: rgba(27, 127, 58, 0.28);
+    color: var(--chart-green);
   }
 
   .badge-warning {
-    background: rgba(255, 159, 10, 0.13);
-    border-color: rgba(255, 159, 10, 0.24);
-    color: #b26a00;
+    background: rgba(180, 83, 9, 0.12);
+    border-color: rgba(180, 83, 9, 0.28);
+    color: var(--chart-orange);
   }
 
   .badge-danger {
-    background: rgba(255, 59, 48, 0.12);
-    border-color: rgba(255, 59, 48, 0.22);
-    color: #d70015;
+    background: rgba(196, 30, 22, 0.1);
+    border-color: rgba(196, 30, 22, 0.28);
+    color: var(--danger);
   }
 
   .badge-info {
-    background: rgba(0, 122, 255, 0.12);
-    border-color: rgba(0, 122, 255, 0.22);
-    color: #0057b8;
+    background: rgba(0, 113, 227, 0.12);
+    border-color: rgba(0, 113, 227, 0.22);
+    color: #004494;
   }
 
   .badge-neutral {
@@ -425,21 +466,21 @@
   }
 
   .semaforo-normal {
-    background: rgba(52, 199, 89, 0.12);
-    border-color: rgba(52, 199, 89, 0.22);
-    color: #248a3d;
+    background: rgba(27, 127, 58, 0.12);
+    border-color: rgba(27, 127, 58, 0.28);
+    color: var(--chart-green);
   }
 
   .semaforo-warning {
-    background: rgba(255, 159, 10, 0.13);
-    border-color: rgba(255, 159, 10, 0.24);
-    color: #b26a00;
+    background: rgba(180, 83, 9, 0.12);
+    border-color: rgba(180, 83, 9, 0.28);
+    color: var(--chart-orange);
   }
 
   .semaforo-critical {
-    background: rgba(255, 59, 48, 0.12);
-    border-color: rgba(255, 59, 48, 0.22);
-    color: #d70015;
+    background: rgba(196, 30, 22, 0.1);
+    border-color: rgba(196, 30, 22, 0.28);
+    color: var(--danger);
   }
 
   .skeleton {
@@ -488,7 +529,7 @@
   }
 
   .table tbody tr:hover {
-    background: rgba(0, 122, 255, 0.035);
+    background: rgba(0, 113, 227, 0.035);
   }
 
   .tabs-nav {
@@ -595,7 +636,7 @@
   }
 
   .toast-info {
-    border-color: rgba(0, 122, 255, 0.24);
+    border-color: rgba(0, 113, 227, 0.24);
   }
 
   .kpi-card {
@@ -627,7 +668,7 @@
   }
 
   .kpi-delta-up {
-    color: #248a3d;
+    color: var(--chart-green);
   }
 
   .kpi-delta-down {
@@ -958,6 +999,13 @@ html.dark .rounded-xl,
 html.dark .rounded-2xl,
 html.dark .rounded-3xl {
   border-radius: 8px !important;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .content-area {
+    padding-left: max(1.15rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.15rem, env(safe-area-inset-right, 0px));
+  }
 }
 
 @media (min-width: 1024px) {

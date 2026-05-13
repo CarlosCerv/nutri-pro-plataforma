@@ -162,7 +162,7 @@ const NewPatient = () => {
     return (
         <div className="new-patient-page fade-in">
             <div className="page-header">
-                <BackButton to="/patients" />
+                <BackButton to="/pacientes" />
                 <div>
                     <h1>{isEditMode ? 'Editar Paciente' : 'Nuevo Paciente'}</h1>
                     <p>{isEditMode ? 'Modifica la información del paciente' : 'Completa la información del paciente'}</p>
@@ -283,7 +283,7 @@ const NewPatient = () => {
                 </div>
 
                 <div className="form-footer-actions">
-                    <button type="button" className="btn-v2-secondary" onClick={() => navigate('/patients')} disabled={loading}> Cancelar </button>
+                    <button type="button" className="btn-v2-secondary" onClick={() => navigate('/pacientes')} disabled={loading}> Cancelar </button>
                     <button type="submit" className="btn-v2-primary" disabled={loading}>
                         {loading ? <><Loader className="spinner" size={20} /><span>Guardando...</span></> : <><Save size={20} /><span>{isEditMode ? 'Actualizar Paciente' : 'Guardar Paciente'}</span></>}
                     </button>

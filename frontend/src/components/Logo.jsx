@@ -1,30 +1,34 @@
-import { Salad } from 'lucide-react';
+const MARK_SIZE = { sm: 28, md: 32, lg: 40 };
 
-const Logo = ({ size = 40, showText = true, color = 'var(--text-primary)' }) => {
-    return (
-        <div className="flex items-center justify-center" style={{ gap: '0.75rem' }}>
-            <div
-                style={{
-                    width: size * 1.35,
-                    height: size * 1.35,
-                    background: '#EAF8EF',
-                    border: '1px solid rgba(52, 199, 89, 0.22)',
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Salad size={size * 0.72} color="#248A3D" strokeWidth={1.8} />
-            </div>
-            {showText && (
-                <div style={{ textAlign: 'left' }}>
-                    <h2 style={{ fontSize: size * 0.62, margin: 0, lineHeight: 1, color }}>NutriPro</h2>
-                    <p style={{ fontSize: size * 0.28, margin: '4px 0 0', color: 'var(--text-secondary)' }}>PLATFORM</p>
-                </div>
-            )}
+/**
+ * Marca NutriPro alineada al icono en /public/brand-icon.svg
+ * @param {{ size?: 'sm'|'md'|'lg', showText?: boolean, className?: string }} props
+ */
+const Logo = ({ size = 'md', showText = true, className = '' }) => {
+  const px = MARK_SIZE[size] ?? MARK_SIZE.md;
+
+  return (
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <img
+        src="/brand-icon.svg?v=6"
+        width={px}
+        height={px}
+        alt=""
+        className="rounded-[10px] shadow-sm ring-1 ring-black/[0.06]"
+        decoding="async"
+      />
+      {showText && (
+        <div className="text-left min-w-0">
+          <div className="font-display font-semibold text-[var(--text-primary)] leading-none tracking-apple-tight text-[0.95rem] sm:text-base">
+            NutriPro
+          </div>
+          <div className="mt-0.5 text-[0.62rem] font-medium uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
+            Plataforma clínica
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default Logo;

@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
     },
     firstAccess: {
         type: Boolean,
-        default: true,
+        default: false,
     },
     createdAt: {
         type: Date,
