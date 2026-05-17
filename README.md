@@ -115,21 +115,68 @@ nutrition-platform/
 - Validación estricta de esquemas de datos.
 - Políticas de CORS configuradas para servidores seguros.
 
-## Despliegue
+## 🎯 Planificador de Comidas Interactivo (NUEVO)
 
-### Backend
-- Soporte para plataformas como Render, AWS o DigitalOcean.
-- Configuración mediante variables de entorno.
+### DailyMealPlanner Component ✨
+Un componente React profesional para la planificación de comidas diarias con:
 
-### Frontend
-- Optimizado para Vercel o Netlify.
+- **Gestión de Tiempos de Comida**: Desayuno, Comida, Cena (editables)
+- **Catálogo de Alimentos**: Base de datos con valores nutricionales
+- **Cálculo Automático de Macronutrientes**: Reactividad en tiempo real
+- **Modal de Búsqueda**: Selección intuitiva de alimentos
+- **Tabla de Resumen Diario**: Totales de calorías y macros con gráficas
+- **Diseño Responsivo**: Tailwind CSS + Mobile-first
+
+**Archivos incluidos:**
+- `frontend/src/components/DailyMealPlanner.jsx` - Componente principal
+- `frontend/src/hooks/useMealPlanner.ts` - State management
+- `frontend/src/utils/calculations.ts` - Lógica de cálculos
+- `frontend/src/types/nutrition.ts` - Interfaces TypeScript
+- `frontend/src/components/MEAL_PLANNER_README.md` - Documentación completa
+
+**Acceder al componente:**
+```
+Desarrollo: http://localhost:5173/meal-planner
+Producción: https://tu-dominio.vercel.app/meal-planner
+```
+
+## 🚀 Despliegue
+
+### Opción 1: Vercel (RECOMENDADO - Automático)
+```bash
+# 1. Push a GitHub
+git push origin main
+
+# 2. Ve a https://vercel.com/dashboard
+# 3. Importa tu repositorio
+# 4. Configura variables de entorno
+# 5. ¡Listo en 5 minutos!
+```
+
+### Opción 2: Vercel CLI
+```bash
+npm install -g vercel
+cd nutri-pro-plataforma
+vercel --prod
+```
+
+### Opción 3: Backend en Render, Frontend en Netlify
+- Backend: Render.com
+- Frontend: Netlify
+
+**Para más detalles, consulta:**
+- `DEPLOY_NOW.md` - Despliegue rápido (5 min)
+- `VERCEL_DEPLOYMENT_GUIDE.md` - Guía completa
+- `DEPLOYMENT_CHECKLIST.md` - Checklist de verificación
 
 ## Próximas Implementaciones
 
+- ✅ Planificador de comidas interactivo (COMPLETADO)
 - Generación automatizada de reportes en formato PDF.
-- Registro de progresos mediante gráficas interactivas.
+- Registro histórico de planes de comidas.
 - Integración con servicios de mensajería para recordatorios.
 - Sincronización con calendarios externos.
+- Objetivos de macronutrientes personalizables.
 
 ## Licencia
 
