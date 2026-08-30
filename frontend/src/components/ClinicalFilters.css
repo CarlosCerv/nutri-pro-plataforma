@@ -98,7 +98,7 @@
     border-top: 1px solid #e5e7eb;
 }
 
-.btn-icon {
+.filter-icon-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -110,7 +110,7 @@
     justify-content: center;
 }
 
-.btn-icon:hover {
+.filter-icon-btn:hover {
     color: #1f2937;
 }
 

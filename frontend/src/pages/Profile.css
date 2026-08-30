@@ -19,7 +19,7 @@
     align-items: center;
     gap: var(--space-lg);
     padding-bottom: var(--space-xl);
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-soft);
     margin-bottom: var(--space-xl);
 }
 
@@ -96,28 +96,28 @@
 
 .alert-error {
     background-color: #fef2f2;
-    color: var(--error);
+    color: var(--danger);
     border: 1px solid #fecaca;
 }
 
 .form-actions {
     display: flex;
-    gap: var(--spacing-md);
-    padding: var(--spacing-lg) 0;
+    gap: var(--space-md);
+    padding: var(--space-lg) 0;
     border-top: 2px solid var(--border);
 }
 
 .backup-section {
-    padding: var(--spacing-lg);
+    padding: var(--space-lg);
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    margin-top: var(--spacing-md);
+    margin-top: var(--space-md);
 }
 
 .backup-description {
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--space-lg);
     line-height: 1.6;
 }
 
@@ -145,6 +145,6 @@
     }
 
     .backup-section {
-        padding: var(--spacing-md);
+        padding: var(--space-md);
     }
 }

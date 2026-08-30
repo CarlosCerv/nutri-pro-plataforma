@@ -172,6 +172,10 @@ const dietTemplateSchema = new mongoose.Schema({
 dietTemplateSchema.index({ name: 'text', description: 'text' });
 dietTemplateSchema.index({ category: 1, isSystemTemplate: 1 });
 
+// getAll usa $or: [{ isSystemTemplate: true }, { createdBy: req.user.id }] cuando no se filtra por categoria.
+dietTemplateSchema.index({ isSystemTemplate: 1 });
+dietTemplateSchema.index({ createdBy: 1 });
+
 const DietTemplate = mongoose.model('DietTemplate', dietTemplateSchema);
 
 export default DietTemplate;

@@ -84,7 +84,7 @@ const ClinicalFilters = ({ filters, onChange, onClose }) => {
             <div className="filters-header">
                 <h3>Filtros Clínicos</h3>
                 {onClose && (
-                    <button className="btn-icon" onClick={onClose}>
+                    <button className="filter-icon-btn" onClick={onClose}>
                         <X size={20} />
                     </button>
                 )}

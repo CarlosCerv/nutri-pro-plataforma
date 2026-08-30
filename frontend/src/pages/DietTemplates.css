@@ -14,11 +14,11 @@
     gap: 0.75rem;
     padding: 1rem 1.25rem;
     background: white;
-    border: 2px solid var(--border-light);
+    border: 2px solid var(--border-soft);
     border-radius: var(--radius-xl);
     margin-bottom: 1.5rem;
     transition: all 0.2s;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-1);
 }
 
 .search-box:focus-within {
@@ -58,7 +58,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    border: 1px solid var(--border-medium);
+    border: 1px solid var(--border);
     background: white;
     border-radius: var(--radius-full);
     cursor: pointer;
@@ -92,7 +92,7 @@
     flex-direction: column;
     padding: var(--space-xl);
     background: white;
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-soft);
     border-radius: var(--radius-xl);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -101,7 +101,7 @@
 
 .template-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-1);
     border-color: var(--primary-200);
 }
 
@@ -222,7 +222,7 @@
 .template-footer {
     margin-top: auto;
     padding-top: var(--space-lg);
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-soft);
     display: flex;
 }
 
@@ -242,7 +242,7 @@
     color: var(--text-tertiary);
     background: white;
     border-radius: var(--radius-2xl);
-    border: 2px dashed var(--border-light);
+    border: 2px dashed var(--border-soft);
 }
 
 .empty-state-large svg {
@@ -307,7 +307,7 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         gap: 0.5rem;
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-soft);
     }
 
     .category-btn {

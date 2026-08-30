@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI } from '../services/api';
 import { Calendar as CalendarIcon, Plus, Clock, User } from 'lucide-react';
+import Badge from '../design-system/components/Badge.jsx';
+import Button from '../design-system/components/Button.jsx';
 
 const Appointments = () => {
   const navigate = useNavigate();
@@ -105,10 +107,10 @@ const Appointments = () => {
           {appointments.length}{' '}
           {appointments.length === 1 ? 'cita en total' : 'citas en total'}
         </p>
-        <button type="button" className="btn btn-primary gap-2 self-start sm:self-auto" onClick={() => navigate('/agenda/nueva')}>
+        <Button className="gap-2 self-start sm:self-auto" onClick={() => navigate('/agenda/nueva')}>
           <Plus size={16} />
           Nueva cita
-        </button>
+        </Button>
       </div>
 
       <div className="tabs-nav w-full max-w-md shrink-0 overflow-x-auto no-scrollbar sm:w-auto">
@@ -144,10 +146,10 @@ const Appointments = () => {
             )}
           </div>
           {activeTab === 'upcoming' && (
-            <button type="button" className="btn btn-primary btn-sm gap-1.5 mt-2" onClick={() => navigate('/agenda/nueva')}>
+            <Button size="sm" className="gap-1.5 mt-2" onClick={() => navigate('/agenda/nueva')}>
               <Plus size={14} />
               Agendar cita
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -182,35 +184,32 @@ const Appointments = () => {
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <span
-                            className={`badge text-xs ${
-                              appointment.type === 'initial' ? 'badge-info' : 'badge-success'
-                            }`}
-                          >
+                          <Badge variant={appointment.type === 'initial' ? 'info' : 'success'} className="text-xs">
                             {appointment.type === 'initial'
                               ? 'Primera vez'
                               : appointment.type === 'follow_up'
                                 ? 'Seguimiento'
                                 : appointment.type || 'Consulta'}
-                          </span>
+                          </Badge>
                           {appointment.status === 'cancelled' && (
-                            <span className="badge badge-danger text-xs">Cancelada</span>
+                            <Badge variant="danger" className="text-xs">Cancelada</Badge>
                           )}
                           {appointment.status === 'completed' && (
-                            <span className="badge badge-success text-xs">Completada</span>
+                            <Badge variant="success" className="text-xs">Completada</Badge>
                           )}
                         </div>
                       </div>
 
                       <div className="flex md:justify-end">
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm w-full md:w-auto"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full md:w-auto"
                           disabled={!appointment.patient?._id}
                           onClick={() => appointment.patient?._id && navigate(`/pacientes/${appointment.patient._id}`)}
                         >
                           Ver expediente
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </li>

@@ -27,7 +27,7 @@ export default function Topbar({ onMenuToggle }) {
       className="
       flex-shrink-0 sticky top-0 z-30 supports-[padding:max(0px)]:pt-[env(safe-area-inset-top)]
       border-b border-[var(--border-soft)]
-      bg-[var(--surface)]
+      bg-[rgba(255,255,255,0.82)] backdrop-blur-[20px] backdrop-saturate-[1.8]
     "
     >
       <div className="px-3 md:px-4 lg:px-5 py-2.5 md:py-3 flex flex-col gap-2.5 min-w-0">

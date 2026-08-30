@@ -94,9 +94,9 @@ const WeeklyCalendar = () => {
             <div className="card-header calendar-header">
                 <h3><CalendarIcon size={20} style={{ marginRight: '8px' }} /> Calendario Semanal</h3>
                 <div className="calendar-controls">
-                    <button className="btn-icon" onClick={prevWeek}><ChevronLeft size={20} /></button>
+                    <button className="calendar-icon-btn" onClick={prevWeek}><ChevronLeft size={20} /></button>
                     <span className="week-label">{weekRange}</span>
-                    <button className="btn-icon" onClick={nextWeek}><ChevronRight size={20} /></button>
+                    <button className="calendar-icon-btn" onClick={nextWeek}><ChevronRight size={20} /></button>
                 </div>
             </div>
 

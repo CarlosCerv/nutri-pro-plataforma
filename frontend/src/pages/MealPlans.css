@@ -11,7 +11,7 @@
     background: var(--bg-primary);
     padding: var(--space-sm);
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-soft);
 }
 
 .filter-tab {
@@ -23,7 +23,7 @@
     font-weight: 600;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all var(--transition-base);
+    transition: all var(--duration-micro) var(--ease);
 }
 
 .filter-tab:hover {
@@ -34,7 +34,7 @@
 .filter-tab.active {
     background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
     color: white;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-1);
 }
 
 .mealplans-grid {
@@ -126,7 +126,7 @@
     display: flex;
     gap: var(--space-sm);
     padding-top: var(--space-md);
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-soft);
     margin-top: var(--space-md);
 }
 

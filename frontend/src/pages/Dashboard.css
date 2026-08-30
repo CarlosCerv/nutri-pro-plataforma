@@ -52,24 +52,25 @@
     gap: var(--space-lg);
 }
 
+/*
+ * .btn-action-secondary se combina con la clase compartida .btn
+ * (className="btn btn-action-secondary") — no redeclara radio ni
+ * transform aqui para que el pill y el hover scale(1.03) de .btn
+ * (index.css) sean los que ganen, en vez de pisarlos sin capa.
+ */
 .btn-action-secondary {
     background: white;
     border: 2px solid var(--primary-100);
     color: var(--primary-600);
     font-weight: 700;
     padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-xl);
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
 .btn-action-secondary:hover {
     border-color: var(--primary-500);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(219, 39, 119, 0.1);
     background: var(--primary-50);
 }
 
@@ -81,38 +82,27 @@
 }
 
 .stat-card-modern {
-    background: white;
+    background: var(--surface);
     padding: var(--space-xl);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-m);
     display: flex;
     align-items: center;
     gap: var(--space-lg);
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.03);
+    box-shadow: var(--shadow-1);
     border: 1px solid var(--gray-100);
-    transition: all 0.3s ease;
+    transition: border-color var(--duration-layout) var(--ease);
 }
 
 .stat-card-modern:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
     border-color: var(--primary-100);
 }
 
+/* Iconos de KPI: tile plano estilo Apple, sin sombra propia (--shadow-1 es
+   para tarjetas, no para un chip de 56px) y sin tinte rosa heredado. */
 .stat-icon-wrapper {
     width: 56px;
     height: 56px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-/* Unified Premium Pink Icons */
-.stat-icon-wrapper {
-    width: 56px;
-    height: 56px;
-    border-radius: 18px;
+    border-radius: var(--radius-l);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -120,15 +110,13 @@
     background: linear-gradient(135deg, white, var(--primary-50));
     color: var(--primary-600);
     border: 1.5px solid var(--primary-100);
-    box-shadow: 0 4px 10px rgba(219, 39, 119, 0.08);
-    transition: all 0.3s ease;
+    transition: all var(--duration-layout) var(--ease);
 }
 
 .stat-card-modern:hover .stat-icon-wrapper {
     background: var(--primary-600);
     color: white;
     transform: scale(1.05) rotate(-5deg);
-    box-shadow: 0 8px 15px rgba(219, 39, 119, 0.2);
     border-color: var(--primary-600);
 }
 
@@ -150,7 +138,7 @@
     font-size: 0.75rem;
     font-weight: 700;
     padding: 3px 8px;
-    border-radius: 99px;
+    border-radius: var(--radius-pill);
     background: var(--gray-50);
 }
 
@@ -173,9 +161,9 @@
 }
 
 .card-outer {
-    background: white;
-    border-radius: var(--radius-2xl);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+    background: var(--surface);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-1);
     border: 1px solid var(--gray-100);
     overflow: hidden;
 }
@@ -183,7 +171,7 @@
 .card-he.badge-mini {
     font-size: 0.675rem;
     padding: 4px 10px;
-    border-radius: 99px;
+    border-radius: var(--radius-pill);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.025em;
@@ -214,11 +202,11 @@
     padding: 0.75rem;
     background: var(--gray-50);
     border: none;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-pill);
     font-weight: 700;
     color: var(--gray-600);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--duration-micro) var(--ease);
     font-size: 0.85rem;
 }
 
@@ -260,16 +248,16 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: opacity 0.2s;
+    transition: opacity var(--duration-micro) var(--ease);
 }
 
 .calendar-view-box {
     padding: var(--space-xl);
 }
 
-/* Activity Bar Refinement */
+/* Activity Bar Refinement — el radio ya lo pone .card (index.css) via
+   --radius-m; aqui solo se ajusta el color de borde para esta seccion. */
 .dashboard-activity-section.card {
-    border-radius: var(--radius-2xl);
     border: 1px solid var(--gray-100);
 }
 
@@ -289,21 +277,20 @@
     color: var(--gray-500);
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 99px;
+    border-radius: var(--radius-pill);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--duration-layout) var(--ease);
     white-space: nowrap;
 }
 
 .activity-tab.active {
     background: white;
     color: var(--primary-600);
-    box-shadow: 0 4px 12px rgba(219, 39, 119, 0.12);
     border-color: var(--primary-100);
 }
 
 .activity-tab:hover:not(.active) {
-    background: rgba(219, 39, 119, 0.05);
+    background: rgba(0, 113, 227, 0.05);
     color: var(--primary-600);
 }
 
@@ -312,13 +299,12 @@
     height: 44px;
     background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
     color: var(--primary-600);
-    border-radius: 12px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
     font-size: 1rem;
-    box-shadow: 0 2px 5px rgba(219, 39, 119, 0.05);
 }
 
 .text-secondary-pink {
@@ -412,7 +398,7 @@
     .stat-icon-wrapper {
         width: 44px;
         height: 44px;
-        border-radius: 14px;
+        border-radius: var(--radius-m);
     }
 
     .stat-number-row h3 {

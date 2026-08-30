@@ -191,6 +191,10 @@ mealPlanSchema.pre('save', function (next) {
     next();
 });
 
+// getMealPlans filtra siempre por nutritionist, opcionalmente por isTemplate, y ordena por createdAt.
+mealPlanSchema.index({ nutritionist: 1, isTemplate: 1, createdAt: -1 });
+mealPlanSchema.index({ patient: 1 });
+
 const MealPlan = mongoose.model('MealPlan', mealPlanSchema);
 
 export default MealPlan;

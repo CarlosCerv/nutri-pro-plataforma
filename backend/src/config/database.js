@@ -12,15 +12,16 @@ const connectDB = async () => {
 
   if (!process.env.MONGODB_URI) {
     console.error('❌ MONGODB_URI is not defined. Please configure your database connection string.');
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
     return null;
   }
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(process.env.MONGODB_URI).then((mongooseInstance) => {
       return mongooseInstance;
+    }).catch((error) => {
+      // Let a later call retry instead of caching a rejected connection attempt forever.
+      cached.promise = null;
+      throw error;
     });
   }
 
@@ -30,9 +31,6 @@ const connectDB = async () => {
     return cached.conn;
   } catch (error) {
     console.error(`❌ Error connecting to MongoDB: ${error.message}`);
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
     return null;
   }
 };

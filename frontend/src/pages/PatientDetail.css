@@ -46,7 +46,7 @@
     justify-content: center;
     font-weight: 700;
     font-size: 2.5rem;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-1);
     margin-bottom: var(--space-md);
 }
 
@@ -60,7 +60,7 @@
     width: 100%;
     margin-bottom: var(--space-xl);
     padding-bottom: var(--space-lg);
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-soft);
 }
 
 .w-full {
@@ -94,7 +94,7 @@
 .btn-link-danger {
     background: none;
     border: none;
-    color: var(--error);
+    color: var(--danger);
     font-size: 0.85rem;
     cursor: pointer;
     display: inline-flex;
@@ -160,7 +160,7 @@
     text-align: left;
     background: white;
     border: 1px solid var(--gray-100);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-1);
 }
 
 .stat-card-mini .stat-label {
@@ -384,7 +384,7 @@
 .meal-plan-meta {
     margin-top: var(--space-md);
     padding-top: var(--space-md);
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-soft);
     color: var(--text-tertiary);
     font-size: 0.875rem;
 }

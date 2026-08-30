@@ -124,6 +124,8 @@ cd frontend && npm run dev   # http://localhost:5173
 | `FRONTEND_URL` | Recomendada | Origen permitido por CORS ademas de `localhost` |
 | `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` | No | Envio de recordatorios de citas por correo (nodemailer). Si faltan, el servicio se desactiva silenciosamente sin romper el servidor. |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | No | Envio de recordatorios por SMS (Twilio). Mismo comportamiento: opcional y silencioso si falta. |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Recomendada en produccion | Almacenamiento persistente de archivos subidos (fotos/documentos de pacientes). Sin esto, los uploads en Vercel no persisten entre invocaciones. |
+| `CRON_SECRET` | Solo en Vercel | Autentica las invocaciones de `GET /api/cron/reminders` — Vercel la manda automaticamente como `Authorization: Bearer <valor>` en sus propios cron jobs cuando esta configurada en el proyecto. Sin ella, el endpoint rechaza toda invocacion. |
 
 ### `frontend/.env`
 
@@ -183,8 +185,8 @@ Ver [`frontend/README.md`](./frontend/README.md) para: estructura de carpetas, m
 
 ### Limitaciones conocidas del entorno serverless
 
-- **Subida de archivos**: `backend/src/middleware/uploadMiddleware.js` usa almacenamiento en disco en local y almacenamiento en memoria en Vercel. En Vercel el filesystem es efimero — los archivos subidos **no persisten** entre invocaciones. Para produccion real se necesita un servicio externo (Cloudinary, S3, Vercel Blob); esto todavia no esta integrado (ver Deuda tecnica).
-- **Cron jobs**: `backend/src/scripts/reminderCron.js` usa `node-cron`, que solo funciona mientras el proceso Node vive de forma continua. En el runtime serverless de Vercel el proceso no persiste entre requests, por lo que **el cron de recordatorios no se ejecuta en produccion** aunque funcione correctamente en local. La migracion pendiente es a Vercel Cron Jobs (ver Deuda tecnica).
+- **Subida de archivos**: `backend/src/middleware/uploadMiddleware.js` sube a Cloudinary si `CLOUDINARY_CLOUD_NAME`/`CLOUDINARY_API_KEY`/`CLOUDINARY_API_SECRET` estan configurados en las variables de entorno (ver tabla arriba) — sin eso, usa disco local en desarrollo o memoria efimera en Vercel, donde los archivos **no persisten** entre invocaciones. Para produccion real, configura Cloudinary.
+- **Cron jobs**: los recordatorios de citas corren via `node-cron` en local/host persistente, y via `GET /api/cron/reminders` + `vercel.json`'s `"crons"` en Vercel (protegido con `CRON_SECRET`). El plan Hobby de Vercel limita los cron jobs a una vez al dia — el schedule configurado (`0 * * * *`, cada hora) requiere Vercel Pro; ver el detalle de esta disyuntiva en Deuda tecnica y en `backend/README.md`.
 
 ## Sistema de diseno
 
@@ -207,9 +209,8 @@ El frontend usa un tema unico, claro, estilo Apple (no existe modo oscuro). Los 
 
 Registrada aqui para que quede visible en un solo lugar en vez de dispersa en notas sueltas:
 
-- **Almacenamiento de archivos**: sin integracion a un servicio externo (Cloudinary/S3); en Vercel los uploads son efimeros (ver arriba).
-- **Recordatorios automaticos**: `node-cron` no funciona en el runtime serverless de Vercel; pendiente migrar a Vercel Cron Jobs.
+- **Recordatorios automaticos en Vercel Hobby**: la migracion a Vercel Cron Jobs esta hecha (`GET /api/cron/reminders`, ver `backend/README.md`), pero el plan gratuito de Vercel no permite cron jobs mas frecuentes que una vez al dia. El schedule configurado en `vercel.json` es cada hora (para preservar exactamente el comportamiento actual), lo cual requiere Vercel Pro. En Hobby hay que decidir entre pagar el upgrade o rediseñar la ventana de `reminderService.js` para un chequeo diario — ver el detalle de la disyuntiva en `backend/README.md`.
 - **`setup-credentials.js`**: usa `require()` (CommonJS) pero el `package.json` raiz declara `"type": "module"`, por lo que ejecutarlo directamente con `node setup-credentials.js` falla con `ERR_REQUIRE_ESM`. Usa `setup.js` en su lugar para generar los `.env` locales.
-- **Componente `DailyMealPlanner`**: (`frontend/src/components/DailyMealPlanner.jsx`, `MealPlannerExamples.jsx`, `pages/MealPlannerPage.jsx`) no esta conectado a ninguna ruta de `App.jsx` — es codigo presente pero inactivo, con su propia paleta de colores desconectada del sistema de diseno actual. Antes de reactivarlo, evaluar si conviene reescribirlo contra el sistema de diseno vigente o retirarlo.
-- **Validacion de entrada**: `express-validator` esta instalado pero su adopcion en los controladores es parcial.
-- **Manejo de errores en controladores**: no hay un wrapper `asyncHandler` uniforme; varios controladores repiten el mismo bloque try/catch.
+- **Componente `DailyMealPlanner`**: (`frontend/src/components/DailyMealPlanner.jsx`, `MealPlannerExamples.jsx`, `pages/MealPlannerPage.jsx`) no esta conectado a ninguna ruta de `App.jsx` — es codigo presente pero inactivo, con su propia paleta de colores desconectada del sistema de diseno actual. `SavePlanModal.jsx` y `FoodExchangeModal.jsx` tampoco estan importados desde ninguna pagina activa (ver `frontend/README.md`). Antes de reactivar cualquiera de estos, evaluar si conviene reescribirlos contra el sistema de diseno/componentes vigentes o retirarlos.
+- **Vulnerabilidades de `npm audit`**: `twilio` (via `axios`/`form-data`), `express`, `mongoose` y `nodemailer` traen CVEs conocidos de versiones transitivas — ninguno introducido por trabajo reciente, todos preexistentes en dependencias directas del proyecto. Resolverlos implica actualizar esas dependencias (potencialmente con breaking changes, ej. Express 5), evaluar por separado de una sesion de deuda tecnica general.
+- **Validacion de entrada**: `express-validator` se adopto de forma acotada en `/api/auth/register` y `/api/auth/login` (donde cerraba una inyeccion NoSQL real, ver `backend/README.md`); el resto de los controladores sigue confiando en la validacion de esquema de Mongoose. Ampliar la cobertura es un trabajo incremental, no un requisito de esta fase.

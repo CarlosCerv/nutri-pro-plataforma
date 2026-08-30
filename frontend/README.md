@@ -15,7 +15,7 @@ frontend/
 │   ├── components/                # Componentes reutilizables no ligados a una ruta especifica
 │   │   └── Dashboard/             # Subcomponentes especificos del dashboard
 │   ├── design-system/
-│   │   └── components/            # Sidebar y Topbar del layout principal
+│   │   └── components/            # Sidebar/Topbar del layout + Button/Card/Badge/Input/Modal reutilizables
 │   ├── contexts/
 │   │   └── AuthContext.jsx        # Estado de sesion (usuario, token, login/logout)
 │   ├── services/
@@ -62,6 +62,24 @@ Rutas en ingles antiguas (`/patients`, `/appointments`, `/mealplans`, `/menu-bui
 
 `src/components/DailyMealPlanner.jsx`, `src/components/MealPlannerExamples.jsx` y `src/pages/MealPlannerPage.jsx` no estan referenciados desde ninguna `<Route>` de `App.jsx`. Usan una paleta de colores generica (rosa/azul) independiente del sistema de diseno actual. Si vas a retomar este componente, decide primero si conviene reescribirlo contra los tokens de `index.css` o retirarlo del repositorio.
 
+`src/components/SavePlanModal.jsx` y `src/components/FoodExchangeModal.jsx` tampoco estan importados desde ninguna pagina activa — quedaron migrados al componente `Modal` compartido (ver abajo) por si se retoman, pero hoy no son alcanzables desde la UI.
+
+## Componentes reutilizables (`design-system/components`)
+
+Ademas de `Sidebar.jsx`/`Topbar.jsx` (layout), la carpeta expone cinco componentes de UI que envuelven las clases `.btn`/`.card`/`.badge`/`.input`/`.modal-*` de `index.css` en una API de props en vez de className armado a mano. Import recomendado: `import { Button, Card, Badge, Input, Select, Modal } from '../design-system/components'`.
+
+| Componente | Props principales | Notas |
+|---|---|---|
+| `Button` | `variant` (`primary`\|`secondary`\|`outline`\|`ghost`\|`danger`), `size` (`sm`\|`md`\|`lg`), `iconOnly`, `loading`, `fullWidth` | `loading` muestra el spinner con el color correcto segun la variante (mismo patron `border-white/35 border-t-white` ya usado en Login/Register) |
+| `Card` | `as`, `kpi`, `hover`, `padded` | `kpi` usa `.card-kpi`; `hover={false}` / `padded={false}` cubren los overrides `!hover:shadow-none` / `!p-0` que ya aparecian sueltos en varias paginas |
+| `Badge` | `variant` (`success`\|`warning`\|`danger`\|`info`\|`neutral`\|`gold`) | Alias directo de `.badge-*`; usalo en vez de reconstruir el color con Tailwind suelto |
+| `Input` / `Select` | `label`, `error`, `helperText`, `required` | Resuelven `.form-group`/`.label`/`.input`/`.input-error`/`.error-text`/`.helper-text` juntos, con los `id`/`aria-describedby` de accesibilidad generados automaticamente (`useId`) |
+| `Modal` | `open`, `onClose`, `title`, `footer`, `size` (`sm`\|`md`\|`lg`), `closeOnOverlayClick` | Renderiza via `createPortal` a `document.body`, cierra con Escape y bloquea el scroll del body mientras esta abierto — comportamiento que los modales escritos a mano (ver `SavePlanModal.jsx`/`FoodExchangeModal.jsx` como ejemplo migrado) no tenian |
+
+Las paginas existentes que siguen usando `className="btn ..."` / `className="badge ..."` a mano (la mayoria) no estan rotas — los componentes nuevos son la forma preferida para trabajo nuevo, pero adoptarlos en el resto de la app es una migracion incremental, no un requisito para tocar una pagina por otro motivo.
+
+**Nota sobre ESLint y props polimorficas (`as`)**: `eslint.config.js` trae `languageOptions.ecmaVersion: 2020` a la vez que `languageOptions.parserOptions.ecmaVersion: 'latest'` (boilerplate por defecto de Vite, sin tocar). Esa combinacion hace que `no-unused-vars` reporte un falso positivo cuando una prop se desestructura y renombra en la firma de la funcion para usarse directo como tag JSX (`{ as: Component = 'div' }` seguido de `<Component>`). `Card.jsx` evita el problema asignando el tag a una variable en una linea aparte (`const Tag = as || 'div'`) en vez de renombrar en la desestructuracion — sigue ese mismo patron si agregas otro componente polimorfico.
+
 ## Sistema de diseno
 
 Un solo tema, claro, sin modo oscuro (no hay clase `dark:` en uso ni toggle de tema — no reintroducir ninguno de los dos).
@@ -79,6 +97,7 @@ Un solo tema, claro, sin modo oscuro (no hay clase `dark:` en uso ni toggle de t
 | `--success` / `--warning` / `--danger` / `--info` | `#1b7f3a` / `#b45309` / `#c41e16` / `#0071e3` | Estados semanticos (badges, alertas, validacion) |
 | `--shadow-soft` / `--shadow-hover` | ver `index.css` | Los unicos dos niveles de sombra del sistema; expuestos en Tailwind como `shadow-card` / `shadow-card-hover` |
 | `--radius-md` a `--radius-2xl` | `8px` (uniforme) | Radio de borde estandar de toda la interfaz |
+| `--ease-apple` | `cubic-bezier(0.32, 0.72, 0, 1)` | Curva de aceleracion unica para animaciones de entrada/salida (modal, toast, sidebar, hover de `.btn`/`.card`/`.input`/`.tab-btn`); expuesta en Tailwind como `ease-apple`. No introduzcas otra curva para estos casos — micro-transiciones de color/opacidad sueltas en JSX (`transition-colors` sin mas) pueden seguir usando el `ease` por defecto de Tailwind, no requieren el token. |
 
 ### Tailwind (`tailwind.config.js`)
 
@@ -92,6 +111,14 @@ Un solo tema, claro, sin modo oscuro (no hay clase `dark:` en uso ni toggle de t
 - Sin emojis en la interfaz ni en el codigo.
 - Sin modo oscuro: no agregues `darkMode` a `tailwind.config.js` ni clases `dark:`.
 - Los archivos `.css` por pagina (`Dashboard.css`, `MenuBuilder.css`, etc.) deben usar las variables de `index.css` en vez de valores hex propios — evita que un color quede desincronizado del resto de la app si el tema cambia.
+
+## PWA y comportamiento en dispositivos Apple
+
+- **Manifest**: `public/manifest.webmanifest`, enlazado desde `index.html` (`<link rel="manifest">`). Define nombre, `start_url` (`/dashboard`), `display: standalone`, colores de tema/fondo, y los iconos `pwa-192.png`/`pwa-512.png`/`brand-icon.svg`.
+- **Iconos**: `scripts/build-favicon.mjs` genera `favicon.ico`, `apple-touch-icon.png` (180x180), `pwa-192.png` y `pwa-512.png` a partir de `public/brand-icon.svg` usando `sharp`. Corre automaticamente en `prebuild`; si cambias el logo, corre `node scripts/build-favicon.mjs` para regenerar los cuatro archivos antes de commitear.
+- **Meta tags en `index.html`**: `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style` (`default`, porque el tema es claro — no uses `black-translucent` sin revisar el contraste de los iconos de la barra de estado), `apple-mobile-web-app-title`, `mobile-web-app-capable` (equivalente no-Apple), y `format-detection=telephone=no` (evita que iOS convierta numeros sueltos del contenido clinico en enlaces de llamada).
+- **Safe-area-inset**: `viewport-fit=cover` ya estaba declarado en el `<meta name="viewport">`, lo que habilita `env(safe-area-inset-*)`. Esta aplicado en: `.content-area` y `Topbar` (ya existia), y ahora tambien en `.modal-overlay`/`.modal-content` (padding en las cuatro direcciones), `.toast` (`top`/`right`), y el `Sidebar` (padding superior del header, inferior del footer, e izquierdo del drawer movil `fixed`). Cualquier elemento nuevo con `position: fixed` que toque un borde de la pantalla (no solo overlays centrados) deberia sumar el `env(safe-area-inset-*)` correspondiente con `max(valor-base, env(...))`, siguiendo el mismo patron.
+- **Easing**: ver el token `--ease-apple` en la tabla de arriba.
 
 ## Scripts (`package.json`)
 

@@ -120,15 +120,19 @@ export default {
         xs: '2px',
       },
       boxShadow: {
-        card:          'var(--shadow-soft)',
-        'card-hover':  'var(--shadow-hover)',
+        // apple-style-frontend: una sola sombra en todo el sistema (--shadow-1).
+        // card-hover se mantiene por compatibilidad con className existentes,
+        // pero ya no es una sombra distinta — el hover de tarjeta diferencia
+        // con borde, no con una segunda sombra (ver .card:hover en index.css).
+        card:          'var(--shadow-1)',
+        'card-hover':  'var(--shadow-1)',
       },
       animation: {
-        'fade-in':       'fadeIn 0.2s ease-out',
-        'fade-up':       'fadeUp 0.3s ease-out',
-        'slide-in-left': 'slideInLeft 0.3s ease-out',
-        'slide-in-right':'slideInRight 0.3s ease-out',
-        'scale-in':      'scaleIn 0.2s ease-out',
+        'fade-in':       'fadeIn 0.2s var(--ease-apple)',
+        'fade-up':       'fadeUp 0.3s var(--ease-apple)',
+        'slide-in-left': 'slideInLeft 0.3s var(--ease-apple)',
+        'slide-in-right':'slideInRight 0.3s var(--ease-apple)',
+        'scale-in':      'scaleIn 0.2s var(--ease-apple)',
         'pulse-soft':    'pulseSoft 2s ease-in-out infinite',
         shimmer:         'shimmer 1.5s linear infinite',
         'spin-slow':     'spin 3s linear infinite',
@@ -168,7 +172,7 @@ export default {
         300: '300ms',
       },
       transitionTimingFunction: {
-        smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        apple: 'var(--ease-apple)',
       },
       backgroundImage: {
         'shimmer-base': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',

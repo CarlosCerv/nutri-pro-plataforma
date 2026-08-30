@@ -20,3 +20,11 @@ console.log('Wrote public/favicon.ico');
 const touch = await sharp(svg).resize(180, 180).png().toBuffer();
 fs.writeFileSync(path.join(root, 'public', 'apple-touch-icon.png'), touch);
 console.log('Wrote public/apple-touch-icon.png');
+
+const pwa192 = await sharp(svg).resize(192, 192).png().toBuffer();
+fs.writeFileSync(path.join(root, 'public', 'pwa-192.png'), pwa192);
+console.log('Wrote public/pwa-192.png');
+
+const pwa512 = await sharp(svg).resize(512, 512).png().toBuffer();
+fs.writeFileSync(path.join(root, 'public', 'pwa-512.png'), pwa512);
+console.log('Wrote public/pwa-512.png');

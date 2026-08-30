@@ -16,8 +16,12 @@ backend/
 │   ├── routes/                   # Definicion de rutas Express por recurso
 │   ├── middleware/
 │   │   ├── auth.js               # protect (JWT) y authorize (roles)
-│   │   └── uploadMiddleware.js   # multer: disco en local, memoria en Vercel
-│   ├── services/                 # emailService, smsService, reminderService, nutritionCalculator
+│   │   ├── uploadMiddleware.js   # multer: Cloudinary si esta configurado, si no disco en local / memoria en Vercel
+│   │   └── validators.js         # cadenas express-validator (register/login) + handleValidation
+│   ├── services/                 # emailService, smsService, reminderService, cloudinaryService, nutritionCalculator
+│   ├── utils/
+│   │   ├── asyncHandler.js       # wrapper try/catch -> res.status(...).json(...) para controladores
+│   │   └── ownership.js          # isOwnedBy(doc, userId) — compara doc.nutritionist/createdBy contra el usuario autenticado
 │   └── scripts/                  # seeds, auditoria, pruebas manuales (ver abajo)
 └── uploads/                       # Almacenamiento local de archivos subidos (no usar en produccion serverless)
 ```
@@ -31,7 +35,17 @@ En Vercel, `../api/[...path].js` importa `src/app.js` directamente y lo envuelve
   - `protect`: exige header `Authorization: Bearer <token>`, verifica el JWT y adjunta el usuario (sin password) a `req.user`. Responde 401 si falta o es invalido.
   - `authorize(...roles)`: middleware adicional para restringir por rol (`nutritionist` | `admin`).
 - Passwords hasheados con bcrypt (`User.pre('save')`), nunca se devuelven en las respuestas (`select: false` en el esquema).
-- Todas las rutas de recursos (pacientes, citas, planes, etc.) aplican `router.use(protect)`; solo `/api/auth/register`, `/api/auth/login` y `/api/calculations/*` son publicas.
+- Todas las rutas de recursos aplican `router.use(protect)`, `/api/calculations/*` incluido. Las unicas rutas realmente publicas son `/api/auth/register`, `/api/auth/login`, `/api/health`, y `/api/cron/reminders` (protegida aparte por `CRON_SECRET`, no por JWT — ver [Sistema de recordatorios](#sistema-de-recordatorios-de-citas)).
+- `middleware/validators.js` valida `register`/`login` con `express-validator` antes de tocar la base de datos: rechaza email/password que no sean string (sin esto, un body como `{"email": {"$gt": ""}}` llega intacto a `User.findOne({ email })` y Mongoose lo interpreta como operador de consulta — una inyeccion NoSQL real que existia en el login) y devuelve errores 400 por campo en vez de un 500 generico.
+
+## Controladores: `asyncHandler` y `isOwnedBy`
+
+Los 12 controladores usan dos utilidades de `src/utils/` para no repetir el mismo boilerplate en cada handler:
+
+- **`asyncHandler(fn, { status, message })`** envuelve un controlador async: si `fn` lanza, responde `{ success: false, message, error: error.message }` con el `status` indicado (default 500) y hace `console.error` una sola vez. El status/message se declaran al envolver cada ruta para no cambiar el contrato de respuesta que el frontend ya espera — no delega a un error handler generico.
+- **`isOwnedBy(doc, userId, field = 'nutritionist')`** reemplaza el patron `String(doc.nutritionist) !== String(req.user.id)` repetido en cada controlador. Trata un campo de ownership ausente/null como "no autorizado" en vez de lanzar `TypeError` (que antes del helper se colaba como 500 en vez de 403 en varios controladores cuando el documento no tenia el campo poblado).
+
+Si agregas un controlador nuevo, sigue este mismo patron en vez de volver a un try/catch manual.
 
 ## Modelos de datos
 
@@ -47,7 +61,9 @@ En Vercel, `../api/[...path].js` importa `src/app.js` directamente y lo envuelve
 | `ClinicalNote` | `models/ClinicalNote.js` | Notas clinicas por paciente |
 | `Payment` | `models/Payment.js` | Registro de pagos/facturacion |
 
-**Aislamiento multi-tenant**: el patron en toda la API es que cada nutricionista solo ve sus propios datos, filtrando por el campo `nutritionist` en el documento (poblado desde `req.user.id` al crear, comparado con `String(doc.nutritionist) === String(req.user.id)` al leer/modificar). Si agregas un modelo nuevo con esta misma relacion, sigue el mismo patron: declara el campo en el esquema (`required: true`, `index: true`) desde el principio — un campo de ownership ausente del esquema se descarta silenciosamente por el modo `strict` de Mongoose en vez de fallar de forma visible.
+**Aislamiento multi-tenant**: el patron en toda la API es que cada nutricionista solo ve sus propios datos, filtrando por el campo `nutritionist` en el documento (poblado desde `req.user.id` al crear, comparado con `isOwnedBy(doc, req.user.id)` al leer/modificar — ver arriba). Si agregas un modelo nuevo con esta misma relacion, sigue el mismo patron: declara el campo en el esquema (`required: true`, `index: true`) desde el principio — un campo de ownership ausente del esquema se descarta silenciosamente por el modo `strict` de Mongoose en vez de fallar de forma visible.
+
+**Indices**: cada modelo con una relacion `nutritionist`/`patient` tiene un indice compuesto que respalda su query de listado real (no uno generico por campo) — por ejemplo `MealPlan` indexa `{ nutritionist: 1, isTemplate: 1, createdAt: -1 }` porque `getMealPlans` filtra y ordena exactamente asi, y `DietTemplate` indexa `createdBy` e `isSystemTemplate` por separado porque su `$or` de listado no puede usar el indice compuesto `{ category, isSystemTemplate }` cuando no hay filtro de categoria. Si agregas un endpoint de listado nuevo, revisa el `query` real que arma el controlador antes de decidir que indice agregar — no asumas que un indice por campo alcanza para un filtro compuesto.
 
 ## Referencia de endpoints
 
@@ -70,7 +86,7 @@ Todas las rutas cuelgan de `/api`. Salvo que se indique "publica", requieren `Au
 | GET | `/:id` | Detalle de paciente |
 | PUT | `/:id` | Actualiza paciente |
 | DELETE | `/:id` | Elimina paciente |
-| POST | `/:id/upload` | Sube un documento/foto (multipart, campo `document`) |
+| POST | `/:id/upload` | Sube un documento/foto (multipart, campo `document`). Si `CLOUDINARY_*` esta configurado, el archivo se sube ahi y persiste; si no, cae a disco local (dev) o al placeholder efimero de Vercel — ver [uploadMiddleware.js](#almacenamiento-de-archivos-cloudinary) |
 
 ### Citas (`/api/appointments`) — `routes/appointments.js`
 | Metodo | Ruta | Descripcion |
@@ -128,7 +144,6 @@ Todas las rutas cuelgan de `/api`. Salvo que se indique "publica", requieren `Au
 | DELETE | `/:noteId` | Elimina nota |
 
 ### Calculos nutricionales (`/api/calculations`) — `routes/calculations.routes.js`
-Publicas (no requieren `protect`).
 
 | Metodo | Ruta | Descripcion |
 |---|---|---|
@@ -150,16 +165,45 @@ Publicas (no requieren `protect`).
 |---|---|---|
 | GET | `/stats` | Metricas agregadas para el panel principal |
 
+### Cron (`/api/cron`) — `routes/cron.routes.js`
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | `/reminders` | Dispara `reminderService.checkAndSendReminders()`. Sin `protect` — se autentica con `CRON_SECRET`, no con JWT de usuario (ver [Sistema de recordatorios](#sistema-de-recordatorios-de-citas)) |
+
 ### Salud del servicio
 `GET /api/health` — publica, sin autenticacion. Responde `{ success: true, message, timestamp }`.
 
 ## Sistema de recordatorios de citas
 
-`src/scripts/reminderCron.js` programa un job con `node-cron` (`0 * * * *`, cada hora en punto) que llama a `reminderService.js`. El servicio busca citas en estado `scheduled` cuya fecha caiga entre 23 y 25 horas en el futuro y que no tengan `reminderSent: true`, e intenta notificar por email (`emailService.js`, via nodemailer) y SMS (`smsService.js`, via Twilio). Marca `reminderSent`, `reminderSentAt`, `reminderEmail` y `reminderSMS` en el documento de la cita al terminar.
+`reminderService.js` busca citas en estado `scheduled` cuya fecha caiga entre 23 y 25 horas en el futuro y que no tengan `reminderSent: true`, e intenta notificar por email (`emailService.js`, via nodemailer) y SMS (`smsService.js`, via Twilio). Marca `reminderSent`, `reminderSentAt`, `reminderEmail` y `reminderSMS` en el documento de la cita al terminar. Ambos servicios de notificacion son lazy: si las variables `EMAIL_*` o `TWILIO_*` no estan configuradas, el servicio correspondiente registra un aviso en consola y no falla.
 
-Ambos servicios son lazy: si las variables `EMAIL_*` o `TWILIO_*` no estan configuradas, el servicio correspondiente registra un aviso en consola y no falla — el resto de la aplicacion sigue funcionando con normalidad.
+Ese servicio se dispara de **dos formas independientes**, segun el entorno:
 
-**Importante**: este cron solo se ejecuta mientras el proceso Node vive de forma continua (`npm run dev` / `npm start` local, o un host con proceso persistente). En el despliegue serverless de Vercel el proceso no persiste entre invocaciones, por lo que el cron **no dispara recordatorios en produccion**. La migracion pendiente es a Vercel Cron Jobs (definir el endpoint como ruta HTTP invocada por un cron externo, en vez de un `setInterval`/`node-cron` en proceso).
+- **Local / host persistente**: `src/scripts/reminderCron.js` programa un job con `node-cron` (`0 * * * *`, cada hora en punto), iniciado desde `server.js` al arrancar (`startReminderCron()`). Funciona mientras el proceso Node vive de forma continua.
+- **Vercel (produccion serverless)**: `node-cron` no sirve aqui — el proceso no persiste entre invocaciones, asi que un scheduler en memoria simplemente nunca dispara. En su lugar, `GET /api/cron/reminders` (`controllers/cron.controller.js`) expone el mismo `reminderService.checkAndSendReminders()` como endpoint HTTP, y `vercel.json` lo registra en `"crons"` con el schedule `0 * * * *` (cada hora). Vercel invoca esa URL directamente — el endpoint verifica que el header `Authorization` sea `Bearer <CRON_SECRET>`, que es exactamente lo que Vercel manda automaticamente en sus propias invocaciones cuando la variable de entorno `CRON_SECRET` esta configurada en el proyecto. Sin `CRON_SECRET` configurado el endpoint responde 500 y rechaza todo (fail-closed), para que nadie pueda disparar recordatorios llamando la URL publica sin conocer el secreto.
+
+**Limite del plan Hobby de Vercel**: los cron jobs de Vercel en el plan gratuito solo pueden ejecutarse una vez al dia como minimo, no cada hora. Si el proyecto esta en Hobby, Vercel puede ignorar o rechazar el schedule `0 * * * *` de `vercel.json`. Opciones si aplica:
+- Actualizar a Vercel Pro (sin limite de frecuencia), manteniendo el schedule y el algoritmo de `reminderService.js` tal cual estan.
+- Cambiar el schedule a una vez al dia (ej. `0 8 * * *`) — funciona en Hobby, pero con el algoritmo actual (ventana de 23-25 horas desde el momento exacto de la invocacion) solo se enviarian recordatorios a las citas que caigan justo en esa ventana de 2 horas una vez al dia, dejando la mayoria sin recordatorio. Antes de usar un schedule diario habria que ampliar la ventana en `reminderService.js` (por ejemplo, "citas de mañana" en vez de "citas en 23-25 horas") para que un solo chequeo diario cubra todas las citas del dia siguiente.
+
+## Almacenamiento de archivos (Cloudinary)
+
+`middleware/uploadMiddleware.js` decide donde guardar un archivo subido segun lo que este configurado:
+
+1. **Cloudinary configurado** (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` en `.env`): usa `multer.memoryStorage()` y `services/cloudinaryService.js` sube el buffer directo a Cloudinary; `getFileUrl()` devuelve la `secure_url` publica. Persiste en cualquier entorno, incluido Vercel.
+2. **Sin Cloudinary, local**: `multer.diskStorage()` en `backend/uploads/` (comportamiento de siempre).
+3. **Sin Cloudinary, Vercel**: memoria efimera — el archivo no persiste entre invocaciones (el filesystem de una funcion serverless se descarta). `getFileUrl()` devuelve un placeholder y deja un `console.warn`.
+
+`services/cloudinaryService.js` sigue el mismo patron lazy que `emailService`/`smsService`: sin credenciales, `isCloudinaryConfigured()` es `false` y el resto de la app sigue funcionando (cae al punto 2 o 3 de arriba). Para activarlo:
+
+1. Crea una cuenta gratuita en [cloudinary.com](https://cloudinary.com).
+2. Copia `Cloud name`, `API Key` y `API Secret` del dashboard.
+3. En `.env`:
+   ```env
+   CLOUDINARY_CLOUD_NAME=tu_cloud_name
+   CLOUDINARY_API_KEY=tu_api_key
+   CLOUDINARY_API_SECRET=tu_api_secret
+   ```
 
 ### Configurar email (Gmail de ejemplo)
 
@@ -219,6 +263,16 @@ node src/scripts/auditPatients.js
 
 Cuenta cuantos documentos de la coleccion `patients` tienen el campo `nutritionist` ausente o nulo, consultando con el driver nativo de MongoDB (sin pasar por el esquema de Mongoose). Util para auditar integridad de datos antes de aplicar cambios al esquema de `Patient`.
 
+## Seguridad
+
+Lineamientos que ya se aplicaron en el codigo actual y que hay que mantener al agregar rutas nuevas:
+
+- **Nunca pases un campo del `req.body`/`req.query` directo a un filtro de Mongoose sin validar su tipo.** Un body como `{"email": {"$gt": ""}}` es un objeto JS valido que Mongoose acepta como operador de consulta dentro de `User.findOne({ email })` — sin validar que `email` sea string, eso es una inyeccion NoSQL. `middleware/validators.js` cierra esta puerta en `/api/auth/register` y `/api/auth/login` con `.isEmail()`/`.isString()`; cualquier ruta nueva que reciba un campo usado directamente en una query de Mongo deberia validarlo igual antes de llegar al controlador.
+- **Un valor de busqueda de usuario nunca deberia ir directo a un `$regex`.** `foods.controller.js` escapa los caracteres especiales de regex (`escapeRegex`) antes de construir `{ $regex: search, $options: 'i' }» — sin eso, un patron como `(a+)+` puede causar backtracking catastrofico (ReDoS).
+- **Un endpoint que recibe un `:patientId`/`:id` de la URL sin verificar ownership es una fuga de datos entre cuentas**, no un detalle menor — pasaba en `getPatientNotes` (cualquier cuenta autenticada podia leer las notas clinicas de un paciente ajeno con solo conocer su id). Usa siempre `isOwnedBy()` (ver arriba) antes de devolver el recurso, no solo antes de modificarlo.
+- **Un fallo de autorizacion es 403, no 401.** 401 es "no autenticado" (falta o es invalido el JWT); 403 es "autenticado pero no autorizado para este recurso". Todos los controladores usan 403 para fallos de `isOwnedBy`.
+- **`CRON_SECRET` sin configurar debe rechazar, no permitir.** `cron.controller.js` responde 500 si la variable no esta seteada, en vez de dejar pasar la invocacion sin verificar nada.
+
 ## Docker
 
-`Dockerfile` construye una imagen de solo el backend (`node:18-alpine`, `npm ci --only=production`, expone el puerto 5000). No forma parte del flujo de despliegue actual (que es Vercel serverless, ver README raiz); util si en el futuro se necesita un despliegue con proceso persistente (por ejemplo, para que el cron de recordatorios funcione sin migrar a Vercel Cron Jobs).
+`Dockerfile` construye una imagen de solo el backend (`node:18-alpine`, `npm ci --only=production`, expone el puerto 5000). No forma parte del flujo de despliegue actual (que es Vercel serverless, ver README raiz); util si en el futuro se necesita un despliegue con proceso persistente (por ejemplo, para correr el cron de recordatorios con `node-cron` en vez de Vercel Cron Jobs).
