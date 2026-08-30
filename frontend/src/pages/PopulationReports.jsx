@@ -32,7 +32,7 @@ export default function PopulationReports() {
               <item.icon size={18} style={{ color: item.color }} />
             </div>
             <div className="font-mono text-3xl" style={{ color: item.color }}>{item.value}</div>
-            <div className="text-sm text-white/40 mt-1">{item.label}</div>
+            <div className="text-sm text-[#1d1d1f]/40 mt-1">{item.label}</div>
           </div>
         ))}
       </div>
@@ -46,7 +46,7 @@ export default function PopulationReports() {
               'Evolución de peso promedio por mes o por cohorte.',
               'Exportación para investigación y análisis académico.',
             ].map((item) => (
-              <div key={item} className="rounded-2xl border border-navy-700/50 bg-navy-800/50 px-4 py-3 text-sm text-white/65">
+              <div key={item} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-muted)] px-4 py-3 text-sm text-[#1d1d1f]/65">
                 {item}
               </div>
             ))}
@@ -55,7 +55,7 @@ export default function PopulationReports() {
 
         <section className="card">
           <h2 className="section-title">Estado del módulo</h2>
-          <p className="text-sm text-white/45 mt-2">
+          <p className="text-sm text-[#1d1d1f]/45 mt-2">
             La navegación y el shell del reporte ya quedan integrados. Falta conectar agregaciones reales desde backend para IMC poblacional, patologías y series temporales.
           </p>
         </section>

@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
 const patientSchema = new mongoose.Schema({
+    nutritionist: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true,
+    },
+
     // Personal Information
     firstName: {
         type: String,
@@ -145,7 +152,17 @@ const patientSchema = new mongoose.Schema({
     // Files & Documents
     medicalFiles: [{
         url: String,
-        filename: String, // Original name
+        filename: String,
+        originalName: String,
+        path: String,
+        type: { type: String, enum: ['lab_result', 'prescription', 'referral', 'other'] },
+        uploadDate: { type: Date, default: Date.now }
+    }],
+    documents: [{
+        url: String,
+        filename: String,
+        originalName: String,
+        path: String,
         type: { type: String, enum: ['lab_result', 'prescription', 'referral', 'other'] },
         uploadDate: { type: Date, default: Date.now }
     }],
@@ -184,6 +201,8 @@ patientSchema.pre('save', function (next) {
 patientSchema.virtual('fullName').get(function () {
     return `${this.firstName} ${this.lastName}`;
 });
+
+patientSchema.index({ nutritionist: 1, isActive: 1 });
 
 const Patient = mongoose.model('Patient', patientSchema);
 

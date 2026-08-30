@@ -57,8 +57,8 @@ export default function FoodHabitsTab({ patient }) {
     <form onSubmit={handleSave} className="space-y-8">
       {/* ── Recordatorio de 24 horas ── */}
       <div className="space-y-3">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Recordatorio de 24 Horas</h3>
-        <p className="text-xs text-white/30">Registra todos los alimentos y bebidas consumidos en las últimas 24 horas</p>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Recordatorio de 24 Horas</h3>
+        <p className="text-xs text-[#1d1d1f]/30">Registra todos los alimentos y bebidas consumidos en las últimas 24 horas</p>
         <textarea
           className="input min-h-[120px] resize-none font-mono text-sm"
           value={form.recordatorio24h}
@@ -69,10 +69,10 @@ export default function FoodHabitsTab({ patient }) {
 
       {/* ── Horarios habituales de comida ── */}
       <div className="space-y-3">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Horarios Habituales de Comida</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Horarios Habituales de Comida</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {form.horariosComida.map((t, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-navy-800/50 border border-navy-700/50">
+            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-soft)]">
               <input
                 type="time"
                 className="input !w-auto !py-1.5 font-mono text-sm flex-shrink-0"
@@ -92,7 +92,7 @@ export default function FoodHabitsTab({ patient }) {
 
       {/* ── Preferencias ── */}
       <div className="space-y-4">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Preferencias Alimentarias</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Preferencias Alimentarias</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="form-group">
             <label className="label">Alimentos preferidos / que le gustan</label>
@@ -117,24 +117,24 @@ export default function FoodHabitsTab({ patient }) {
 
       {/* ── Frecuencia de consumo ── */}
       <div className="space-y-4">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Frecuencia de Consumo por Grupos</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Frecuencia de Consumo por Grupos</h3>
         <div className="space-y-2">
           {GRUPOS_FRECUENCIA.map(grupo => {
             const val = form.frecuencias[grupo] || 'Nunca';
             return (
-              <div key={grupo} className="flex items-center gap-3 p-3 rounded-xl bg-navy-800/30 hover:bg-navy-800/50 transition-colors">
-                <span className="text-sm text-white/70 flex-1 min-w-0 truncate">{grupo}</span>
+              <div key={grupo} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface-muted)] transition-colors">
+                <span className="text-sm text-[#1d1d1f]/70 flex-1 min-w-0 truncate">{grupo}</span>
                 <div className="flex gap-1.5 flex-shrink-0">
                   {FRECUENCIAS.map(f => (
                     <button key={f} type="button"
                       onClick={() => setFreq(grupo, f)}
                       className={`px-2.5 py-1 rounded-lg text-2xs font-bold transition-all
                         ${val === f
-                          ? f === 'Nunca'     ? 'bg-white/15 text-white/70'
+                          ? f === 'Nunca'     ? 'bg-[var(--surface-strong)] text-[var(--text-secondary)]'
                           : f === 'Ocasional' ? 'bg-info/20 text-info border border-info/30'
                           : f === 'Semanal'   ? 'bg-warning/20 text-warning border border-warning/30'
                           : 'bg-emerald/20 text-emerald border border-emerald/30'
-                          : 'bg-transparent text-white/25 hover:text-white/50'
+                          : 'bg-transparent text-[#1d1d1f]/25 hover:text-[#1d1d1f]/50'
                         }`}>
                       {f}
                     </button>
@@ -147,9 +147,9 @@ export default function FoodHabitsTab({ patient }) {
       </div>
 
       {/* Guardar */}
-      <div className="flex justify-end pt-4 border-t border-navy-700/50">
+      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
         <button type="submit" disabled={saving} className="btn btn-primary gap-2">
-          {saving ? <><div className="w-4 h-4 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" />Guardando...</>
+          {saving ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
             : saved ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
             : <><Save size={15} />Guardar hábitos</>
           }

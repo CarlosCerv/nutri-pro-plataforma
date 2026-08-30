@@ -170,7 +170,7 @@ export default function PatientDetail() {
         <div className="flex flex-col sm:flex-row gap-5">
           <div className="flex-shrink-0">
             <div
-              className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-2xl font-semibold font-display text-white"
+              className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-2xl font-semibold font-display text-[#1d1d1f]"
               style={{ background: avatarColor }}
             >
               {patient.photoUrl ? (

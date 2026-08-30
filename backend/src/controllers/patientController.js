@@ -51,7 +51,7 @@ export const getPatient = async (req, res) => {
         }
 
         // Make sure user owns this patient
-        if (patient.nutritionist.toString() !== req.user.id) {
+        if (String(patient.nutritionist) !== String(req.user.id)) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to access this patient',
@@ -114,7 +114,7 @@ export const updatePatient = async (req, res) => {
         }
 
         // Make sure user owns this patient
-        if (patient.nutritionist.toString() !== req.user.id) {
+        if (String(patient.nutritionist) !== String(req.user.id)) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to update this patient',
@@ -160,7 +160,7 @@ export const deletePatient = async (req, res) => {
         }
 
         // Make sure user owns this patient
-        if (patient.nutritionist.toString() !== req.user.id) {
+        if (String(patient.nutritionist) !== String(req.user.id)) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to delete this patient',
@@ -202,7 +202,7 @@ export const uploadDocument = async (req, res) => {
         }
 
         // Make sure user owns this patient
-        if (patient.nutritionist.toString() !== req.user.id) {
+        if (String(patient.nutritionist) !== String(req.user.id)) {
             return res.status(403).json({
                 success: false,
                 message: 'Not authorized to upload documents for this patient',

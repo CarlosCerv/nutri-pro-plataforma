@@ -46,17 +46,17 @@ export default function Profile() {
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Nav Tabs Lateral */}
         <div className="w-full lg:w-64 flex-shrink-0 card !p-2 space-y-1">
-          <button onClick={() => setActiveTab('perfil')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'perfil' ? 'bg-emerald/10 text-emerald' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('perfil')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'perfil' ? 'bg-emerald/10 text-emerald' : 'text-[#1d1d1f]/50 hover:bg-[rgba(60,60,67,0.07)] hover:text-[#1d1d1f]'}`}>
             <User size={18} /> Datos Profesionales
           </button>
-          <button onClick={() => setActiveTab('branding')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'branding' ? 'bg-gold/10 text-gold' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('branding')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'branding' ? 'bg-gold/10 text-gold' : 'text-[#1d1d1f]/50 hover:bg-[rgba(60,60,67,0.07)] hover:text-[#1d1d1f]'}`}>
             <Palette size={18} /> Branding (PDFs)
           </button>
-          <button onClick={() => setActiveTab('seguridad')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'seguridad' ? 'bg-blue-500/10 text-blue-500' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+          <button onClick={() => setActiveTab('seguridad')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'seguridad' ? 'bg-blue-500/10 text-blue-500' : 'text-[#1d1d1f]/50 hover:bg-[rgba(60,60,67,0.07)] hover:text-[#1d1d1f]'}`}>
             <Shield size={18} /> Contraseña y Acceso
           </button>
-          <hr className="border-navy-700/50 my-2 mx-2" />
-          <button onClick={() => setActiveTab('licencia')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'licencia' ? 'bg-purple-500/10 text-purple-400' : 'text-white/50 hover:bg-white/5 hover:text-white'}`}>
+          <hr className="border-[var(--border-soft)] my-2 mx-2" />
+          <button onClick={() => setActiveTab('licencia')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${activeTab === 'licencia' ? 'bg-purple-500/10 text-purple-400' : 'text-[#1d1d1f]/50 hover:bg-[rgba(60,60,67,0.07)] hover:text-[#1d1d1f]'}`}>
             <CreditCard size={18} /> Mi Licencia SaaS
           </button>
         </div>
@@ -66,13 +66,13 @@ export default function Profile() {
           <form onSubmit={handleSave}>
             {activeTab === 'perfil' && (
               <div className="space-y-5 animate-fade-in">
-                <h2 className="text-xl font-display text-white mb-4">Datos Profesionales</h2>
+                <h2 className="text-xl font-display text-[#1d1d1f] mb-4">Datos Profesionales</h2>
                 <div className="flex items-center gap-5 mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-emerald flex items-center justify-center text-2xl font-bold text-navy-950 font-display">
+                  <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center text-2xl font-bold text-navy-950 font-display">
                     {profileData.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </div>
                   <button type="button" className="btn btn-outline btn-sm gap-2"><Camera size={14} /> Cambiar Foto</button>
-                  <p className="text-xs text-white/30 hidden sm:block">Esta foto aparece en el sidebar y portal de pacientes.</p>
+                  <p className="text-xs text-[#1d1d1f]/30 hidden sm:block">Esta foto aparece en el sidebar y portal de pacientes.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -104,7 +104,7 @@ export default function Profile() {
             {activeTab === 'branding' && (
               <div className="space-y-5 animate-fade-in">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-display text-white">Diseño de PDFs y Reportes</h2>
+                  <h2 className="text-xl font-display text-[#1d1d1f]">Diseño de PDFs y Reportes</h2>
                   <span className="badge badge-gold bg-gold/10 text-gold border-gold/30">Premium Feature</span>
                 </div>
                 
@@ -115,25 +115,25 @@ export default function Profile() {
                       <input className="input" value={brandingData.slogan} onChange={e => setBrandingData({...brandingData, slogan: e.target.value})} />
                     </div>
                     <div className="form-group">
-                      <label className="label flex justify-between">Color Primario <span className="text-white/40 font-mono">{brandingData.colorPrimario}</span></label>
+                      <label className="label flex justify-between">Color Primario <span className="text-[#1d1d1f]/40 font-mono">{brandingData.colorPrimario}</span></label>
                       <div className="flex items-center gap-3">
                         <input type="color" className="w-10 h-10 rounded cursor-pointer border-none bg-transparent" value={brandingData.colorPrimario} onChange={e => setBrandingData({...brandingData, colorPrimario: e.target.value})} />
-                        <span className="text-xs text-white/50">Aplica a botones y encabezados en PDF</span>
+                        <span className="text-xs text-[#1d1d1f]/50">Aplica a botones y encabezados en PDF</span>
                       </div>
                     </div>
                     <div className="form-group">
-                      <label className="label flex justify-between">Color Secundario <span className="text-white/40 font-mono">{brandingData.colorSecundario}</span></label>
+                      <label className="label flex justify-between">Color Secundario <span className="text-[#1d1d1f]/40 font-mono">{brandingData.colorSecundario}</span></label>
                       <div className="flex items-center gap-3">
                         <input type="color" className="w-10 h-10 rounded cursor-pointer border-none bg-transparent" value={brandingData.colorSecundario} onChange={e => setBrandingData({...brandingData, colorSecundario: e.target.value})} />
-                        <span className="text-xs text-white/50">Aplica a fondos de tablas y pies de página</span>
+                        <span className="text-xs text-[#1d1d1f]/50">Aplica a fondos de tablas y pies de página</span>
                       </div>
                     </div>
                     
-                    <hr className="border-navy-700 my-4" />
+                    <hr className="border-[var(--border-soft)] my-4" />
                     
                     <label className="flex items-center gap-3 cursor-pointer">
                       <input type="checkbox" className="w-4 h-4 accent-emerald" checked={brandingData.mostrarRedes} onChange={e => setBrandingData({...brandingData, mostrarRedes: e.target.checked})} />
-                      <span className="text-sm text-white/80">Mostrar redes sociales en el pie de página</span>
+                      <span className="text-sm text-[#1d1d1f]/80">Mostrar redes sociales en el pie de página</span>
                     </label>
                     
                     {brandingData.mostrarRedes && (
@@ -145,7 +145,7 @@ export default function Profile() {
                   </div>
                   
                   {/* Vista previa mock (visual solo) */}
-                  <div className="border border-navy-600 bg-white rounded-xl p-4 flex flex-col pointer-events-none select-none relative overflow-hidden h-[340px]">
+                  <div className="border border-[var(--border-soft)] bg-white rounded-xl p-4 flex flex-col pointer-events-none select-none relative overflow-hidden h-[340px]">
                     <div className="absolute top-0 inset-x-0 h-4" style={{ backgroundColor: brandingData.colorPrimario }}></div>
                     <div className="mt-6 flex justify-between items-start">
                       <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
@@ -170,23 +170,23 @@ export default function Profile() {
             )}
 
             {activeTab === 'seguridad' && (
-              <div className="space-y-4 animate-fade-in text-center py-10 text-white/40">
-                <Shield size={32} className="mx-auto mb-3 text-white/20" />
+              <div className="space-y-4 animate-fade-in text-center py-10 text-[#1d1d1f]/40">
+                <Shield size={32} className="mx-auto mb-3 text-[#1d1d1f]/20" />
                 <p>Gestión de contraseñas y doble factor de autenticación estarián aquí.</p>
               </div>
             )}
 
             {activeTab === 'licencia' && (
-              <div className="space-y-4 animate-fade-in text-center py-10 text-white/40">
-                <CreditCard size={32} className="mx-auto mb-3 text-white/20" />
+              <div className="space-y-4 animate-fade-in text-center py-10 text-[#1d1d1f]/40">
+                <CreditCard size={32} className="mx-auto mb-3 text-[#1d1d1f]/20" />
                 <p>Estado de la licencia, límites de pacientes y facturación.</p>
               </div>
             )}
 
-            <div className="mt-8 pt-5 border-t border-navy-700/50 flex justify-end">
+            <div className="mt-8 pt-5 border-t border-[var(--border-soft)] flex justify-end">
               <button type="submit" disabled={saving || activeTab === 'seguridad' || activeTab === 'licencia'} className="btn btn-primary gap-2 w-full sm:w-auto">
                 {saving ? (
-                  <><div className="w-4 h-4 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" /> Guardando...</>
+                  <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" /> Guardando...</>
                 ) : saved ? (
                   <>✓ Guardado</>
                 ) : (

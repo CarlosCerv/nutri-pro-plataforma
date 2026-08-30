@@ -196,7 +196,7 @@ export default function Patients() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-white"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-[#1d1d1f]"
                         style={{ background: fg }}
                       >
                         {p.photoUrl
@@ -258,7 +258,7 @@ export default function Patients() {
             <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors">
               Anterior
             </button>
-            <button type="button" className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white font-semibold">
+            <button type="button" className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-[#1d1d1f] font-semibold">
               1
             </button>
             <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors">

@@ -1,191 +1,215 @@
-# Nutrition Platform - SaaS para Nutricionistas
+# NutriPro
 
-Una plataforma web moderna y completa para nutricionistas, diseñada para simplificar la gestión de pacientes, consultas y planes de alimentación.
+Plataforma SaaS para nutricionistas: gestión de pacientes, citas, planes de alimentación, cálculos nutricionales y reportes clínicos. Backend en Node.js/Express/MongoDB, frontend en React/Vite, desplegada como una sola aplicación serverless en Vercel.
 
-## Características
+## Contenido
 
-### Backend (Node.js + Express + MongoDB)
-- **Autenticación JWT**: Sistema seguro de registro y login.
-- **Gestión de Pacientes**: CRUD completo con datos antropométricos e historial médico.
-- **Sistema de Citas**: Calendario de consultas con seguimiento.
-- **Planes de Alimentación**: Creación de plantillas y asignación a pacientes.
-- **Carga de Archivos**: Subida de documentos y fotos de progreso.
-- **Autorización**: Protección de rutas y datos por usuario.
+- [Stack tecnico](#stack-tecnico)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Requisitos previos](#requisitos-previos)
+- [Instalacion y ejecucion local](#instalacion-y-ejecucion-local)
+- [Variables de entorno](#variables-de-entorno)
+- [Datos de prueba (seed)](#datos-de-prueba-seed)
+- [Arquitectura](#arquitectura)
+- [Despliegue en Vercel](#despliegue-en-vercel)
+- [Sistema de diseno](#sistema-de-diseno)
+- [Documentacion especifica](#documentacion-especifica)
+- [Deuda tecnica conocida](#deuda-tecnica-conocida)
 
-### Frontend (React + Vite)
-- **Diseño Moderno**: Interfaz optimizada con una paleta de colores profesional.
-- **Efectos Visuales**: Gradientes sutiles y micro-animaciones refinadas.
-- **Responsive**: Diseño totalmente adaptable a desktop, tablet y dispositivos móviles.
-- **Dashboard**: Visualización de métricas clave y actividad reciente.
-- **Búsqueda y Filtros**: Herramientas eficientes para localización de información.
-- **Rendimiento**: Optimización avanzada mediante el uso de Vite.
+## Stack tecnico
 
-## Instalación y Uso
+**Backend**
+- Node.js (ESM) + Express 4
+- MongoDB + Mongoose 8
+- Autenticacion JWT + bcryptjs
+- express-validator, multer, node-cron, nodemailer, twilio
 
-### Prerrequisitos
-- Node.js (v18 o superior)
-- MongoDB (local o MongoDB Atlas)
-- npm o yarn
+**Frontend**
+- React 19 + Vite 5
+- React Router 6
+- Tailwind CSS 3 (tema Apple light, ver [Sistema de diseno](#sistema-de-diseno))
+- axios, recharts, date-fns, dnd-kit, lucide-react, jspdf/html2canvas
 
-### Backend
+**Infraestructura**
+- Despliegue unico en Vercel: frontend como build estatico, backend como funcion serverless Node (`api/[...path].js` envuelve la app de Express con `serverless-http`)
+- MongoDB Atlas como base de datos
+
+## Estructura del repositorio
+
+```
+nutri-pro-plataforma/
+├── api/
+│   └── [...path].js        # Entry point serverless de Vercel (envuelve backend/src/app.js)
+├── backend/                 # API Express + MongoDB — ver backend/README.md
+├── frontend/                 # SPA React + Vite — ver frontend/README.md
+├── vercel.json               # Configuracion de build y rutas del monorepo
+├── setup.js                  # Genera backend/.env y frontend/.env con valores por defecto
+└── package.json               # Scripts raiz (dev concurrente, install:all)
+```
+
+## Requisitos previos
+
+- Node.js v18 o superior
+- npm
+- Una base de datos MongoDB accesible: MongoDB Atlas (recomendado, gratuito) o una instancia local
+
+## Instalacion y ejecucion local
+
+### 1. Instalar dependencias
+
+```bash
+npm run install:all
+```
+
+Esto instala las dependencias de `backend/` y `frontend/` (el `package.json` raiz solo declara las dependencias compartidas con la funcion serverless de Vercel; no hace falta correr `npm install` en la raiz para desarrollo local).
+
+### 2. Configurar variables de entorno
+
+Crea `backend/.env` y `frontend/.env` (ver [Variables de entorno](#variables-de-entorno) para el detalle de cada valor). Puedes partir de los ejemplos:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Edita `backend/.env` con tu cadena de conexion de MongoDB (`MONGODB_URI`) y genera un `JWT_SECRET` real:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Alternativa: `node setup.js` desde la raiz crea ambos archivos `.env` con una estructura por defecto (genera un secreto de relleno con `Math.random`, no criptografico — reemplazalo antes de usar el proyecto mas alla de una prueba local rapida).
+
+### 3. Poblar la base de datos con datos de prueba (opcional pero recomendado)
 
 ```bash
 cd backend
-npm install
-cp .env.example .env
-# Edita .env con su configuración de MongoDB
+npm run seed:all
+```
+
+Ver [Datos de prueba (seed)](#datos-de-prueba-seed) para las credenciales que esto crea.
+
+### 4. Levantar backend y frontend
+
+Desde la raiz, ambos a la vez:
+
+```bash
 npm run dev
 ```
 
-El servidor estará en funcionamiento en `http://localhost:5000`
+O por separado:
+
+```bash
+cd backend && npm run dev    # http://localhost:5000
+cd frontend && npm run dev   # http://localhost:5173
+```
+
+### 5. Verificar
+
+- Frontend: `http://localhost:5173`
+- Backend health check: `curl http://localhost:5000/api/health`
+- El proxy de Vite reenvia `/api/*` al backend en `localhost:5000` durante desarrollo (`frontend/vite.config.js`), por lo que el frontend puede llamar a rutas relativas `/api/...` sin CORS en local.
+
+## Variables de entorno
+
+### `backend/.env`
+
+| Variable | Requerida | Descripcion |
+|---|---|---|
+| `PORT` | No (default 5000) | Puerto del servidor Express en local |
+| `MONGODB_URI` | Si | Cadena de conexion de MongoDB (Atlas o local) |
+| `JWT_SECRET` | Si | Secreto para firmar tokens JWT — usa un valor aleatorio de al menos 32 bytes |
+| `JWT_EXPIRE` | No (default `30d`) | Duracion del token |
+| `NODE_ENV` | No | `development` o `production` |
+| `FRONTEND_URL` | Recomendada | Origen permitido por CORS ademas de `localhost` |
+| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` | No | Envio de recordatorios de citas por correo (nodemailer). Si faltan, el servicio se desactiva silenciosamente sin romper el servidor. |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | No | Envio de recordatorios por SMS (Twilio). Mismo comportamiento: opcional y silencioso si falta. |
+
+### `frontend/.env`
+
+| Variable | Requerida | Descripcion |
+|---|---|---|
+| `VITE_API_URL` | Si | URL base de la API. En local: `http://localhost:5000/api` |
+
+Ambos archivos `.env` estan excluidos de git (`.gitignore`). Nunca subas credenciales reales al repositorio; usa siempre `.env.example` como plantilla publica.
+
+## Datos de prueba (seed)
+
+`backend/package.json` expone estos scripts (deben ejecutarse en este orden si se corren por separado, porque las plantillas de dieta requieren usuarios existentes):
+
+```bash
+npm run seed:users      # crea los 2 usuarios de prueba
+npm run seed:foods      # carga el catalogo de alimentos
+npm run seed:templates  # carga plantillas de dieta (requiere usuarios ya creados)
+npm run seed:all        # ejecuta los tres en el orden correcto
+```
+
+Usuarios creados por `seed:users`:
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| Nutricionista | `nutricionista@test.com` | `password123` |
+| Admin | `admin@nutripro.com` | `admin123secure` |
+
+`seed:all` borra y recrea estos usuarios (`User.deleteMany({})`), asi que no lo corras contra una base con datos reales sin revisar el script primero (`backend/src/scripts/seedUsers.js`).
+
+## Arquitectura
+
+### Modelo de despliegue
+
+El proyecto corre como **una sola aplicacion Express** (`backend/src/app.js`) montada en dos contextos distintos:
+
+- **Local**: `backend/server.js` importa `app.js` y lo sirve con `app.listen()` en el puerto 5000.
+- **Vercel**: `api/[...path].js` importa el mismo `app.js`, lo envuelve con `serverless-http` y Vercel lo invoca como funcion serverless en cada request a `/api/*`.
+
+`vercel.json` en la raiz configura el build del monorepo: el frontend se construye como sitio estatico (`frontend/package.json`, salida en `dist`) y el backend se despliega como funcion Node desde `api/[...path].js`. Las rutas `/api/*` van a la funcion serverless; el resto sirve el `index.html` del frontend (SPA routing).
+
+### Backend
+
+Ver [`backend/README.md`](./backend/README.md) para: estructura de carpetas, modelos de datos, referencia completa de endpoints, autenticacion, sistema de recordatorios (cron), y scripts disponibles.
 
 ### Frontend
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+Ver [`frontend/README.md`](./frontend/README.md) para: estructura de carpetas, mapa de rutas, sistema de diseno, y convenciones de estilo.
 
-La aplicación estará disponible en `http://localhost:5173`
+## Despliegue en Vercel
 
-## Estructura del Proyecto
+1. Sube el repositorio a GitHub.
+2. En [vercel.com/dashboard](https://vercel.com/dashboard), importa el repositorio. Vercel detecta `vercel.json` automaticamente — no hace falta configurar build command ni output directory manualmente.
+3. En **Project Settings → Environment Variables**, agrega las mismas variables de `backend/.env` (ver tabla arriba) mas `VITE_API_URL=https://<tu-dominio>.vercel.app/api`. Aplica a Production, Preview y Development segun corresponda.
+4. Haz clic en **Deploy**.
+5. Una vez desplegado, actualiza `FRONTEND_URL` con el dominio real que Vercel asigno y vuelve a desplegar (redeploy) para que CORS lo reconozca.
+6. Verifica: `https://<tu-dominio>.vercel.app/api/health` debe responder `{"success":true,...}`.
 
-```
-nutrition-platform/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # Configuración de base de datos
-│   │   ├── models/          # Modelos de datos
-│   │   ├── controllers/     # Controladores de lógica
-│   │   ├── routes/          # Definición de endpoints
-│   │   ├── middleware/      # Seguridad y validación
-│   │   ├── services/        # Lógica de servicios externos
-│   │   └── scripts/         # Automatización de tareas
-│   ├── uploads/             # Almacenamiento de archivos
-│   └── server.js            # Punto de entrada principal
-│
-└── frontend/
-    ├── src/
-    │   ├── components/      # Componentes de UI modulares
-    │   ├── pages/           # Vistas de la aplicación
-    │   ├── contexts/        # Estado global (Autenticación)
-    │   ├── hooks/           # Funciones personalizadas
-    │   ├── services/        # Comunicación con la API
-    │   └── styles/          # Estilos y variables globales
-    └── index.html
-```
+### Limitaciones conocidas del entorno serverless
 
-## API Endpoints
+- **Subida de archivos**: `backend/src/middleware/uploadMiddleware.js` usa almacenamiento en disco en local y almacenamiento en memoria en Vercel. En Vercel el filesystem es efimero — los archivos subidos **no persisten** entre invocaciones. Para produccion real se necesita un servicio externo (Cloudinary, S3, Vercel Blob); esto todavia no esta integrado (ver Deuda tecnica).
+- **Cron jobs**: `backend/src/scripts/reminderCron.js` usa `node-cron`, que solo funciona mientras el proceso Node vive de forma continua. En el runtime serverless de Vercel el proceso no persiste entre requests, por lo que **el cron de recordatorios no se ejecuta en produccion** aunque funcione correctamente en local. La migracion pendiente es a Vercel Cron Jobs (ver Deuda tecnica).
 
-### Autenticación
-- `POST /api/auth/register` - Registro de nuevos usuarios.
-- `POST /api/auth/login` - Inicio de sesión.
-- `GET /api/auth/me` - Consulta de datos del usuario actual.
+## Sistema de diseno
 
-### Pacientes
-- `GET /api/patients` - Listado general de pacientes.
-- `POST /api/patients` - Registro de nuevo paciente.
-- `GET /api/patients/:id` - Detalle de un paciente específico.
-- `PUT /api/patients/:id` - Actualización de información.
-- `DELETE /api/patients/:id` - Eliminación de registros.
+El frontend usa un tema unico, claro, estilo Apple (no existe modo oscuro). Los tokens viven en `frontend/src/index.css` y se consumen desde Tailwind (`frontend/tailwind.config.js`) y CSS de pagina.
 
-### Citas
-- `GET /api/appointments` - Consulta de agenda.
-- `POST /api/appointments` - Programación de citas.
-- `GET /api/appointments/:id` - Detalle de consulta.
-- `PUT /api/appointments/:id` - Reprogramación.
-- `DELETE /api/appointments/:id` - Cancelación de citas.
+- **Tipografia**: `-apple-system, BlinkMacSystemFont, "SF Pro Text/Display", Helvetica, Arial` (`--font-sans`), con tracking negativo en tamaños grandes siguiendo la escala tipografica de Apple.
+- **Color de fondo**: `--bg-primary: #f5f5f7` (gris Apple), superficies en blanco (`--surface: #ffffff`) con variantes `--surface-muted` / `--surface-strong` para jerarquia visual.
+- **Texto**: `--text-primary: #1d1d1f`, `--text-secondary: #424245`, `--text-tertiary: #6e6e73`.
+- **Acento**: `--accent: #0071e3` (azul de sistema de apple.com), con estado hover `--accent-hover` y fondo suave `--accent-soft`.
+- **Estados semanticos**: `--success`, `--warning`, `--danger`, `--info`, reutilizados en badges, alertas y graficas.
+- **Radios y sombras**: radios de borde consistentes (`--radius-*`, mayormente 8px) y dos niveles de sombra (`--shadow-soft`, `--shadow-hover`) en vez de sombras ad-hoc por componente.
+- Las paletas `navy` / `emerald` / `gold` en `tailwind.config.js` son colores puntuales (headings oscuros, iconografia con los colores de sistema de iOS), no un tema alterno — no declares clases `dark:` ni reintroduzcas un toggle de tema.
 
-## Sistema de Diseño
+## Documentacion especifica
 
-### Paleta de Colores
-- **Primario**: Rosa Corporativo (#db2777) - Modernidad y dinamismo.
-- **Secundario**: Azul Profesional (#3b82f6) - Seguridad y profesionalismo.
-- **Neutrales**: Escala de grises refinada.
+- [`backend/README.md`](./backend/README.md) — API, modelos, autenticacion, recordatorios, scripts.
+- [`frontend/README.md`](./frontend/README.md) — rutas, componentes, sistema de diseno en detalle.
 
-### Tipografía
-- **Títulos**: Inter (Google Fonts).
-- **Cuerpo**: Inter (Google Fonts).
+## Deuda tecnica conocida
 
-## Seguridad
+Registrada aqui para que quede visible en un solo lugar en vez de dispersa en notas sueltas:
 
-- Encriptación de contraseñas mediante Bcrypt.
-- Gestión de sesiones a través de JWT.
-- Validación estricta de esquemas de datos.
-- Políticas de CORS configuradas para servidores seguros.
-
-## 🎯 Planificador de Comidas Interactivo (NUEVO)
-
-### DailyMealPlanner Component ✨
-Un componente React profesional para la planificación de comidas diarias con:
-
-- **Gestión de Tiempos de Comida**: Desayuno, Comida, Cena (editables)
-- **Catálogo de Alimentos**: Base de datos con valores nutricionales
-- **Cálculo Automático de Macronutrientes**: Reactividad en tiempo real
-- **Modal de Búsqueda**: Selección intuitiva de alimentos
-- **Tabla de Resumen Diario**: Totales de calorías y macros con gráficas
-- **Diseño Responsivo**: Tailwind CSS + Mobile-first
-
-**Archivos incluidos:**
-- `frontend/src/components/DailyMealPlanner.jsx` - Componente principal
-- `frontend/src/hooks/useMealPlanner.ts` - State management
-- `frontend/src/utils/calculations.ts` - Lógica de cálculos
-- `frontend/src/types/nutrition.ts` - Interfaces TypeScript
-- `frontend/src/components/MEAL_PLANNER_README.md` - Documentación completa
-
-**Acceder al componente:**
-```
-Desarrollo: http://localhost:5173/meal-planner
-Producción: https://tu-dominio.vercel.app/meal-planner
-```
-
-## 🚀 Despliegue
-
-### Opción 1: Vercel (RECOMENDADO - Automático)
-```bash
-# 1. Push a GitHub
-git push origin main
-
-# 2. Ve a https://vercel.com/dashboard
-# 3. Importa tu repositorio
-# 4. Configura variables de entorno
-# 5. ¡Listo en 5 minutos!
-```
-
-### Opción 2: Vercel CLI
-```bash
-npm install -g vercel
-cd nutri-pro-plataforma
-vercel --prod
-```
-
-### Opción 3: Backend en Render, Frontend en Netlify
-- Backend: Render.com
-- Frontend: Netlify
-
-**Para más detalles, consulta:**
-- `DEPLOY_NOW.md` - Despliegue rápido (5 min)
-- `VERCEL_DEPLOYMENT_GUIDE.md` - Guía completa
-- `DEPLOYMENT_CHECKLIST.md` - Checklist de verificación
-
-## Próximas Implementaciones
-
-- ✅ Planificador de comidas interactivo (COMPLETADO)
-- Generación automatizada de reportes en formato PDF.
-- Registro histórico de planes de comidas.
-- Integración con servicios de mensajería para recordatorios.
-- Sincronización con calendarios externos.
-- Objetivos de macronutrientes personalizables.
-
-## Licencia
-
-Este proyecto se distribuye bajo la licencia MIT.
-
-## Autor
-
-Desarrollado para profesionales de la nutrición que buscan la excelencia en la gestión de su práctica clínica.
-
----
-
-**Soporte técnico**: Para asistencia, por favor abra una incidencia en el repositorio de GitHub o contacte con el equipo de soporte.
+- **Almacenamiento de archivos**: sin integracion a un servicio externo (Cloudinary/S3); en Vercel los uploads son efimeros (ver arriba).
+- **Recordatorios automaticos**: `node-cron` no funciona en el runtime serverless de Vercel; pendiente migrar a Vercel Cron Jobs.
+- **`setup-credentials.js`**: usa `require()` (CommonJS) pero el `package.json` raiz declara `"type": "module"`, por lo que ejecutarlo directamente con `node setup-credentials.js` falla con `ERR_REQUIRE_ESM`. Usa `setup.js` en su lugar para generar los `.env` locales.
+- **Componente `DailyMealPlanner`**: (`frontend/src/components/DailyMealPlanner.jsx`, `MealPlannerExamples.jsx`, `pages/MealPlannerPage.jsx`) no esta conectado a ninguna ruta de `App.jsx` — es codigo presente pero inactivo, con su propia paleta de colores desconectada del sistema de diseno actual. Antes de reactivarlo, evaluar si conviene reescribirlo contra el sistema de diseno vigente o retirarlo.
+- **Validacion de entrada**: `express-validator` esta instalado pero su adopcion en los controladores es parcial.
+- **Manejo de errores en controladores**: no hay un wrapper `asyncHandler` uniforme; varios controladores repiten el mismo bloque try/catch.

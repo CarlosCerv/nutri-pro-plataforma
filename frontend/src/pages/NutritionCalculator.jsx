@@ -104,7 +104,7 @@ export default function NutritionCalculator() {
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Búsqueda */}
         <div className="relative w-full md:w-96">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1d1d1f]/30" />
           <input
             type="text"
             className="input pl-10"
@@ -115,7 +115,7 @@ export default function NutritionCalculator() {
         </div>
         {/* Filtro por grupo */}
         <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto no-scrollbar pb-1">
-          <span className="text-xs text-white/30 font-semibold mr-1 flex-shrink-0"><Filter size={14} className="inline mr-1" />Grupo:</span>
+          <span className="text-xs text-[#1d1d1f]/30 font-semibold mr-1 flex-shrink-0"><Filter size={14} className="inline mr-1" />Grupo:</span>
           {grupos.map((grupo) => (
             <button
               key={grupo}
@@ -123,7 +123,7 @@ export default function NutritionCalculator() {
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors border
                 ${selectedGroup === grupo
                   ? 'bg-emerald/20 text-emerald border-emerald/30'
-                  : 'bg-navy-800/50 text-white/50 border-navy-700/50 hover:bg-navy-800'
+                  : 'bg-[var(--surface-muted)] text-[#1d1d1f]/50 border-[var(--border-soft)] hover:bg-[var(--surface-muted)]'
                 }`}
             >
               {grupo}
@@ -137,45 +137,45 @@ export default function NutritionCalculator() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-navy-900/50 border-b border-navy-700/50">
-                <th className="px-5 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider">Alimento</th>
-                <th className="px-3 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider">Grupo</th>
-                <th className="px-3 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider text-right">Porción</th>
-                <th className="px-3 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider text-right text-emerald">Kcal</th>
-                <th className="px-3 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider text-right">Prot</th>
-                <th className="px-3 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider text-right">Carbs</th>
-                <th className="px-3 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider text-right">Líp</th>
-                <th className="px-5 py-3 text-2xs font-bold text-white/30 uppercase tracking-wider text-right">Acciones</th>
+              <tr className="bg-white/94 border-b border-[var(--border-soft)]">
+                <th className="px-5 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider">Alimento</th>
+                <th className="px-3 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider">Grupo</th>
+                <th className="px-3 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider text-right">Porción</th>
+                <th className="px-3 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider text-right text-emerald">Kcal</th>
+                <th className="px-3 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider text-right">Prot</th>
+                <th className="px-3 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider text-right">Carbs</th>
+                <th className="px-3 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider text-right">Líp</th>
+                <th className="px-5 py-3 text-2xs font-bold text-[#1d1d1f]/30 uppercase tracking-wider text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-navy-700/50">
               {loading ? (
-                <tr><td colSpan="8" className="p-8 text-center text-white/30">Cargando base de datos...</td></tr>
+                <tr><td colSpan="8" className="p-8 text-center text-[#1d1d1f]/30">Cargando base de datos...</td></tr>
               ) : paginatedAlimentos.length === 0 ? (
-                <tr><td colSpan="8" className="p-8 text-center text-white/30">No se encontraron alimentos.</td></tr>
+                <tr><td colSpan="8" className="p-8 text-center text-[#1d1d1f]/30">No se encontraron alimentos.</td></tr>
               ) : (
                 paginatedAlimentos.map(a => {
                   const Icono = GRUPO_ICONS[a.grupo] || Salad;
                   const color = GRUPO_COLORS[a.grupo] || '#ffffff';
                   return (
-                    <tr key={a._id} className="hover:bg-white/[0.02] transition-colors group">
+                    <tr key={a._id} className="hover:bg-[rgba(60,60,67,0.05)] transition-colors group">
                       <td className="px-5 py-3.5 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}>
                           <Icono size={14} style={{ color }} />
                         </div>
-                        <div className="text-sm font-semibold text-white/90 truncate max-w-[200px] sm:max-w-xs">{a.nombre}</div>
+                        <div className="text-sm font-semibold text-[#1d1d1f]/90 truncate max-w-[200px] sm:max-w-xs">{a.nombre}</div>
                       </td>
-                      <td className="px-3 py-3 text-xs text-white/50">{a.grupo}</td>
-                      <td className="px-3 py-3 text-xs text-white/50 text-right"><span className="font-mono">{a.porcion}</span>{a.unidad}</td>
+                      <td className="px-3 py-3 text-xs text-[#1d1d1f]/50">{a.grupo}</td>
+                      <td className="px-3 py-3 text-xs text-[#1d1d1f]/50 text-right"><span className="font-mono">{a.porcion}</span>{a.unidad}</td>
                       <td className="px-3 py-3 text-sm font-mono font-medium text-emerald text-right">{a.cal}</td>
-                      <td className="px-3 py-3 text-xs font-mono text-white/60 text-right">{a.prot}g</td>
-                      <td className="px-3 py-3 text-xs font-mono text-white/60 text-right">{a.carbs}g</td>
-                      <td className="px-3 py-3 text-xs font-mono text-white/60 text-right">{a.fat}g</td>
+                      <td className="px-3 py-3 text-xs font-mono text-[#1d1d1f]/60 text-right">{a.prot}g</td>
+                      <td className="px-3 py-3 text-xs font-mono text-[#1d1d1f]/60 text-right">{a.carbs}g</td>
+                      <td className="px-3 py-3 text-xs font-mono text-[#1d1d1f]/60 text-right">{a.fat}g</td>
                       <td className="px-5 py-3 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1.5 text-white/30 hover:text-white transition-colors" title="Ver detalles"><Eye size={14} /></button>
-                          <button className="p-1.5 text-white/30 hover:text-emerald transition-colors" title="Editar"><Edit3 size={14} /></button>
-                          <button className="p-1.5 text-white/30 hover:text-danger transition-colors" title="Eliminar"><Trash2 size={14} /></button>
+                          <button className="p-1.5 text-[#1d1d1f]/30 hover:text-[#1d1d1f] transition-colors" title="Ver detalles"><Eye size={14} /></button>
+                          <button className="p-1.5 text-[#1d1d1f]/30 hover:text-emerald transition-colors" title="Editar"><Edit3 size={14} /></button>
+                          <button className="p-1.5 text-[#1d1d1f]/30 hover:text-danger transition-colors" title="Eliminar"><Trash2 size={14} /></button>
                         </div>
                       </td>
                     </tr>
@@ -187,21 +187,21 @@ export default function NutritionCalculator() {
         </div>
         {/* Pagination */}
         {!loading && totalPages > 1 && (
-          <div className="px-5 py-3 border-t border-navy-700/50 flex items-center justify-between">
-            <span className="text-xs text-white/30">
+          <div className="px-5 py-3 border-t border-[var(--border-soft)] flex items-center justify-between">
+            <span className="text-xs text-[#1d1d1f]/30">
               Mostrando {((page - 1) * ITEMS_PER_PAGE) + 1} a {Math.min(page * ITEMS_PER_PAGE, filteredAlimentos.length)} de {filteredAlimentos.length}
             </span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg bg-navy-800 text-xs font-semibold hover:bg-navy-700 disabled:opacity-50 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] text-xs font-semibold hover:bg-[var(--surface-strong)] disabled:opacity-50 transition-colors"
               >Anterior</button>
               <div className="px-3 py-1.5 text-xs font-mono font-medium text-emerald">{page} / {totalPages}</div>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1.5 rounded-lg bg-navy-800 text-xs font-semibold hover:bg-navy-700 disabled:opacity-50 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] text-xs font-semibold hover:bg-[var(--surface-strong)] disabled:opacity-50 transition-colors"
               >Siguiente</button>
             </div>
           </div>

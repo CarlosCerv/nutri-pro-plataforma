@@ -164,7 +164,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
       <div className="px-2 py-3 border-t border-[var(--border-soft)] bg-[var(--surface-muted)]/40">
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-1'} mb-2`}>
-          <div className="w-9 h-9 rounded-full bg-[var(--accent)] text-white flex-shrink-0 flex items-center justify-center shadow-[0_6px_16px_rgba(0,113,227,0.22)]">
+          <div className="w-9 h-9 rounded-full bg-[var(--accent)] text-[#1d1d1f] flex-shrink-0 flex items-center justify-center shadow-[0_6px_16px_rgba(0,113,227,0.22)]">
             <span className="text-xs font-bold font-mono">{initials}</span>
           </div>
           {!collapsed && (

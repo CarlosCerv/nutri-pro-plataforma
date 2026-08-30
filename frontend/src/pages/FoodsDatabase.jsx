@@ -32,9 +32,9 @@ export default function FoodsDatabase() {
 
       <div className="grid gap-4 xl:grid-cols-[1fr_300px]">
         <section className="card !p-0 overflow-hidden">
-          <div className="border-b border-navy-700/50 p-4 flex flex-col lg:flex-row gap-3">
+          <div className="border-b border-[var(--border-soft)] p-4 flex flex-col lg:flex-row gap-3">
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1d1d1f]/30" />
               <input className="input pl-10" placeholder="Buscar por nombre, grupo o micronutrimento..." />
             </div>
             <button className="btn btn-ghost">
@@ -68,8 +68,8 @@ export default function FoodsDatabase() {
                   {FOODS.map((food) => (
                     <tr key={food.name}>
                       <td>
-                        <div className="font-semibold text-white">{food.name}</div>
-                        <div className="text-xs text-white/30">Referencia por 100 g</div>
+                        <div className="font-semibold text-[#1d1d1f]">{food.name}</div>
+                        <div className="text-xs text-[#1d1d1f]/30">Referencia por 100 g</div>
                       </td>
                       <td><span className="badge badge-neutral">{food.group}</span></td>
                       <td className="font-mono">{food.kcal}</td>
@@ -93,16 +93,16 @@ export default function FoodsDatabase() {
                 ['Mexicanos típicos', 'Tortillas, nopales, moles, tamales'],
                 ['Alimentos propios', 'Recetas y productos del nutriólogo'],
               ].map(([label, value]) => (
-                <div key={label} className="rounded-2xl border border-navy-700/50 bg-navy-800/50 p-4">
-                  <div className="text-xs text-white/35 uppercase tracking-wide">{label}</div>
-                  <div className="text-sm text-white mt-1">{value}</div>
+                <div key={label} className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-muted)] p-4">
+                  <div className="text-xs text-[#1d1d1f]/35 uppercase tracking-wide">{label}</div>
+                  <div className="text-sm text-[#1d1d1f] mt-1">{value}</div>
                 </div>
               ))}
             </div>
           </section>
           <section className="card">
             <h2 className="section-title">Listo para el constructor</h2>
-            <p className="text-sm text-white/45 mt-2">
+            <p className="text-sm text-[#1d1d1f]/45 mt-2">
               Esta pantalla deja preparada la búsqueda fuzzy, filtros por grupo y alta de alimentos personalizados para integrarse con el módulo de dietas automáticas.
             </p>
           </section>

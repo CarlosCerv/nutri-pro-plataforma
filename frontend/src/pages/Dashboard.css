@@ -155,13 +155,13 @@
 }
 
 .trend-badge.positive {
-    background: #dcfce7;
-    color: #15803d;
+    background: rgba(27, 127, 58, 0.12);
+    color: var(--success);
 }
 
 .trend-badge.negative {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: rgba(196, 30, 22, 0.1);
+    color: var(--danger);
 }
 
 /* Main Grid Layout */
@@ -193,15 +193,15 @@
 }
 
 .badge-info {
-    background: #f0f9ff;
-    color: #0369a1;
-    border-color: #e0f2fe;
+    background: rgba(0, 113, 227, 0.12);
+    color: #004494;
+    border-color: rgba(0, 113, 227, 0.22);
 }
 
 .badge-success {
-    background: #f0fdf4;
-    color: #15803d;
-    border-color: #dcfce7;
+    background: rgba(27, 127, 58, 0.12);
+    color: var(--chart-green);
+    border-color: rgba(27, 127, 58, 0.28);
 }
 
 .activity-footer {

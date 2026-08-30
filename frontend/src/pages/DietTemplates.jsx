@@ -39,7 +39,7 @@ export default function DietTemplates() {
       </div>
 
       <div className="relative w-full max-w-md">
-        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1d1d1f]/30" />
         <input
           type="text"
           className="input pl-10"
@@ -52,14 +52,14 @@ export default function DietTemplates() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="card h-48 bg-gradient-to-br from-navy-800 to-navy-900 animate-pulse" />
+            <div key={i} className="card h-48 bg-gradient-to-br from-[var(--surface-muted)] to-[var(--surface-strong)] animate-pulse" />
           ))}
         </div>
       ) : templates.length === 0 ? (
         <div className="empty-state py-12">
-          <FileBadge size={32} className="mx-auto text-white/20 mb-3" />
-          <div className="text-white/50 font-semibold mb-1">Sin plantillas disponibles</div>
-          <div className="text-white/30 text-xs mb-4">Crea tu primera plantilla para comenzar.</div>
+          <FileBadge size={32} className="mx-auto text-[#1d1d1f]/20 mb-3" />
+          <div className="text-[#1d1d1f]/50 font-semibold mb-1">Sin plantillas disponibles</div>
+          <div className="text-[#1d1d1f]/30 text-xs mb-4">Crea tu primera plantilla para comenzar.</div>
           <Link to="/dietas/nueva?template=new" className="btn btn-primary btn-sm gap-2">
             <Layers size={14} /> Crear Plantilla
           </Link>
@@ -73,29 +73,29 @@ export default function DietTemplates() {
                   {t.tipo}
                 </span>
                 <div className="flex gap-1">
-                  <button className="p-1.5 rounded-lg text-white/30 hover:bg-white/5 transition-colors" title="Editar"><Edit3 size={15} /></button>
-                  <button className="p-1.5 rounded-lg text-white/30 hover:text-danger hover:bg-danger/10 transition-colors" title="Eliminar"><Trash2 size={15} /></button>
+                  <button className="p-1.5 rounded-lg text-[#1d1d1f]/30 hover:bg-[rgba(60,60,67,0.07)] transition-colors" title="Editar"><Edit3 size={15} /></button>
+                  <button className="p-1.5 rounded-lg text-[#1d1d1f]/30 hover:text-danger hover:bg-danger/10 transition-colors" title="Eliminar"><Trash2 size={15} /></button>
                 </div>
               </div>
               
               <div className="flex-1">
-                <h3 className="text-base font-semibold text-white mb-1">{t.nombre}</h3>
-                <p className="text-xs text-white/50 mb-4 line-clamp-2">{t.description}</p>
+                <h3 className="text-base font-semibold text-[#1d1d1f] mb-1">{t.nombre}</h3>
+                <p className="text-xs text-[#1d1d1f]/50 mb-4 line-clamp-2">{t.description}</p>
                 
                 <div className="flex gap-4">
                   <div>
-                    <div className="text-2xs text-white/30 uppercase tracking-widest mb-0.5">Kcal</div>
+                    <div className="text-2xs text-[#1d1d1f]/30 uppercase tracking-widest mb-0.5">Kcal</div>
                     <div className="font-mono text-sm font-medium text-gold">{t.kcal}</div>
                   </div>
-                  <div className="w-px h-8 bg-navy-700"></div>
+                  <div className="w-px h-8 bg-[var(--surface-strong)]"></div>
                   <div>
-                    <div className="text-2xs text-white/30 uppercase tracking-widest mb-0.5">Macros</div>
-                    <div className="font-mono text-sm font-medium text-white/80">{t.macros}</div>
+                    <div className="text-2xs text-[#1d1d1f]/30 uppercase tracking-widest mb-0.5">Macros</div>
+                    <div className="font-mono text-sm font-medium text-[#1d1d1f]/80">{t.macros}</div>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 mt-5 border-t border-navy-700/50">
+              <div className="pt-4 mt-5 border-t border-[var(--border-soft)]">
                 <Link to={`/dietas/nueva?templateId=${t._id}`} 
                   className="w-full btn btn-ghost justify-between text-emerald hover:bg-emerald/10 hover:border-emerald/20 transition-all border border-transparent">
                   <span className="flex items-center gap-2"><Copy size={16} /> Usar esta plantilla</span>
@@ -105,10 +105,10 @@ export default function DietTemplates() {
             </div>
           ))}
           {filtered.length === 0 && search && (
-            <div className="col-span-full py-12 text-center border-2 border-dashed border-navy-700 rounded-3xl">
-              <FileBadge size={32} className="mx-auto text-white/20 mb-3" />
-              <div className="text-white/50 font-semibold mb-1">Sin coincidencias</div>
-              <div className="text-white/30 text-xs text-center">No se encontraron plantillas con ese nombre.</div>
+            <div className="col-span-full py-12 text-center border-2 border-dashed border-[var(--border-soft)] rounded-3xl">
+              <FileBadge size={32} className="mx-auto text-[#1d1d1f]/20 mb-3" />
+              <div className="text-[#1d1d1f]/50 font-semibold mb-1">Sin coincidencias</div>
+              <div className="text-[#1d1d1f]/30 text-xs text-center">No se encontraron plantillas con ese nombre.</div>
             </div>
           )}
         </div>

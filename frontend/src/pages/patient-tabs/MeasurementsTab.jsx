@@ -12,11 +12,11 @@ const Field = ({ label, unit, children, hint }) => (
   <div className="form-group">
     <label className="label flex items-center gap-1.5">
       {label}
-      {unit && <span className="text-white/30 normal-case">({unit})</span>}
+      {unit && <span className="text-[#1d1d1f]/30 normal-case">({unit})</span>}
       {hint && (
         <div className="group relative">
-          <Info size={12} className="text-white/20 cursor-help" />
-          <div className="absolute bottom-5 left-0 z-10 w-48 px-2.5 py-1.5 bg-navy-800 border border-navy-600 rounded-lg text-2xs text-white/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-navy-md">
+          <Info size={12} className="text-[#1d1d1f]/20 cursor-help" />
+          <div className="absolute bottom-5 left-0 z-10 w-48 px-2.5 py-1.5 bg-[var(--surface-muted)] border border-[var(--border-soft)] rounded-lg text-2xs text-[#1d1d1f]/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-card">
             {hint}
           </div>
         </div>
@@ -39,8 +39,8 @@ const FORMULAS_GRASA = [
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-navy-800 border border-navy-600 rounded-xl px-3 py-2 shadow-navy-md text-xs">
-      <div className="text-white/40 mb-1">{label}</div>
+    <div className="bg-[var(--surface-muted)] border border-[var(--border-soft)] rounded-xl px-3 py-2 shadow-card text-xs">
+      <div className="text-[#1d1d1f]/40 mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="font-mono font-medium" style={{ color: p.color }}>
           {p.value} {p.name}
@@ -148,7 +148,7 @@ export default function MeasurementsTab({ patient }) {
 
       {/* ── Medidas básicas ── */}
       <div className="space-y-4">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Medidas Básicas</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Medidas Básicas</h3>
         <Row cols={4}>
           <Field label="Peso" unit="kg">
             <input type="number" step="0.1" className="input" value={form.peso} onChange={e => set('peso', e.target.value)} placeholder="72.4" />
@@ -177,10 +177,10 @@ export default function MeasurementsTab({ patient }) {
 
         {/* IMC visual */}
         {imc && (
-          <div className="p-4 rounded-2xl bg-navy-800/50 border border-navy-700/50 space-y-3">
+          <div className="p-4 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border-soft)] space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs text-white/40">IMC calculado</span>
+                <span className="text-xs text-[#1d1d1f]/40">IMC calculado</span>
                 <div className="flex items-center gap-3 mt-0.5">
                   <span className="font-mono text-3xl font-medium" style={{ color: imcCI?.color }}>{imc.toFixed(1)}</span>
                   <span className="badge" style={{ background: `${imcCI?.color}20`, color: imcCI?.color, borderColor: `${imcCI?.color}30` }}>
@@ -190,8 +190,8 @@ export default function MeasurementsTab({ patient }) {
               </div>
               {icc && (
                 <div className="text-right">
-                  <span className="text-xs text-white/40">ICC (Cintura/Cadera)</span>
-                  <div className="font-mono text-xl font-medium text-white/80 mt-0.5">{icc}</div>
+                  <span className="text-xs text-[#1d1d1f]/40">ICC (Cintura/Cadera)</span>
+                  <div className="font-mono text-xl font-medium text-[#1d1d1f]/80 mt-0.5">{icc}</div>
                 </div>
               )}
             </div>
@@ -206,7 +206,7 @@ export default function MeasurementsTab({ patient }) {
               <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg"
                 style={{ left: `${Math.min(imcPct, 98)}%`, transform: 'translateX(-50%)' }} />
             </div>
-            <div className="flex justify-between text-2xs text-white/25">
+            <div className="flex justify-between text-2xs text-[#1d1d1f]/25">
               <span>16</span><span>18.5</span><span>25</span><span>30</span><span>35</span><span>40+</span>
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function MeasurementsTab({ patient }) {
 
       {/* ── Pliegues cutáneos ── */}
       <div className="space-y-4">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Pliegues Cutáneos (mm)</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Pliegues Cutáneos (mm)</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {[
             { key: 'bicipital',    label: 'Bicipital'    },
@@ -237,14 +237,14 @@ export default function MeasurementsTab({ patient }) {
         </div>
 
         {/* Selector de fórmula + resultados */}
-        <div className="p-4 rounded-2xl bg-navy-800/50 border border-navy-700/50">
+        <div className="p-4 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border-soft)]">
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="text-xs font-semibold text-white/60">Fórmula:</span>
+            <span className="text-xs font-semibold text-[#1d1d1f]/60">Fórmula:</span>
             {FORMULAS_GRASA.map(f => (
               <button key={f.key} type="button"
                 onClick={() => setFormulaGrasa(f.key)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all
-                  ${formulaGrasa === f.key ? 'bg-emerald text-navy-950' : 'bg-navy-700 text-white/50 hover:text-white'}`}>
+                  ${formulaGrasa === f.key ? 'bg-emerald text-navy-950' : 'bg-[var(--surface-strong)] text-[#1d1d1f]/50 hover:text-[#1d1d1f]'}`}>
                 {f.label}
                 <span className="ml-1 opacity-50">({f.pliegues})</span>
               </button>
@@ -259,21 +259,21 @@ export default function MeasurementsTab({ patient }) {
                 { label: 'Masa grasa',  value: `${grasaActual.masaGrasa} kg`, color: '#EF4444' },
                 { label: 'Masa magra',  value: `${grasaActual.masaMagra} kg`, color: '#2ECC8E' },
               ].map(r => (
-                <div key={r.label} className="text-center p-3 rounded-xl bg-navy-900/60">
+                <div key={r.label} className="text-center p-3 rounded-xl bg-white/94">
                   <div className="font-mono text-xl font-medium" style={{ color: r.color }}>{r.value || '—'}</div>
-                  <div className="text-2xs text-white/30 mt-0.5">{r.label}</div>
+                  <div className="text-2xs text-[#1d1d1f]/30 mt-0.5">{r.label}</div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-white/30 text-center py-2">Ingresa los pliegues para calcular % de grasa</p>
+            <p className="text-xs text-[#1d1d1f]/30 text-center py-2">Ingresa los pliegues para calcular % de grasa</p>
           )}
         </div>
       </div>
 
       {/* ── Perímetros ── */}
       <div className="space-y-4">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Perímetros (cm)</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Perímetros (cm)</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { key: 'brazo_rel',  label: 'Brazo relajado'   },
@@ -296,11 +296,11 @@ export default function MeasurementsTab({ patient }) {
       {/* ── Gráficas de evolución ── */}
       {historico.length > 0 && (
         <div className="space-y-4">
-          <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Evolución Histórica</h3>
+          <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Evolución Histórica</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Peso */}
             <div className="card !p-4">
-              <div className="text-xs font-semibold text-white/40 mb-3">Peso (kg)</div>
+              <div className="text-xs font-semibold text-[#1d1d1f]/40 mb-3">Peso (kg)</div>
               <ResponsiveContainer width="100%" height={140}>
                 <LineChart data={historico}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -313,7 +313,7 @@ export default function MeasurementsTab({ patient }) {
             </div>
             {/* % Grasa */}
             <div className="card !p-4">
-              <div className="text-xs font-semibold text-white/40 mb-3">% Grasa Corporal</div>
+              <div className="text-xs font-semibold text-[#1d1d1f]/40 mb-3">% Grasa Corporal</div>
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={historico}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -329,10 +329,10 @@ export default function MeasurementsTab({ patient }) {
       )}
 
       {/* Guardar */}
-      <div className="flex justify-end pt-4 border-t border-navy-700/50">
+      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
         <button type="submit" disabled={saving} className="btn btn-primary gap-2">
           {saving
-            ? <><div className="w-4 h-4 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" />Guardando...</>
+            ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
             : saved
             ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
             : <><Save size={15} />Guardar mediciones</>

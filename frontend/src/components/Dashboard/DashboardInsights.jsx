@@ -18,12 +18,12 @@ const ACTIVIDAD_ICONS = {
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-navy-600 rounded-xl px-3 py-2.5 shadow-navy-md">
-      <div className="text-xs text-white/40 mb-1">{label}</div>
+    <div className="bg-white border border-[var(--border-soft)] rounded-xl px-3 py-2.5 shadow-card">
+      <div className="text-xs text-[#1d1d1f]/40 mb-1">{label}</div>
       {payload.map((entry, index) => (
         <div key={index} className="text-sm font-mono font-medium" style={{ color: entry.color }}>
           {entry.value}{unit}
-          <span className="text-white/30 text-xs ml-1">{entry.name}</span>
+          <span className="text-[#1d1d1f]/30 text-xs ml-1">{entry.name}</span>
         </div>
       ))}
     </div>
@@ -34,7 +34,7 @@ const SectionHeader = ({ title, subtitle, action, actionTo }) => (
   <div className="flex items-center justify-between mb-5">
     <div>
       <h2 className="section-title mb-0.5">{title}</h2>
-      {subtitle && <p className="text-xs text-white/30">{subtitle}</p>}
+      {subtitle && <p className="text-xs text-[#1d1d1f]/30">{subtitle}</p>}
     </div>
     {action && (
       <Link to={actionTo} className="flex items-center gap-1 text-xs font-semibold text-emerald hover:text-emerald-300 transition-colors">
@@ -124,7 +124,7 @@ export default function DashboardInsights() {
               </ResponsiveContainer>
             </>
           ) : (
-            <div className="min-h-[280px] flex items-center justify-center text-white/30">
+            <div className="min-h-[280px] flex items-center justify-center text-[#1d1d1f]/30">
               <p>No hay datos de peso disponibles</p>
             </div>
           )}
@@ -149,15 +149,15 @@ export default function DashboardInsights() {
                   <div key={pathology.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: pathology.color }} />
-                      <span className="text-xs text-white/50 truncate">{pathology.name}</span>
+                      <span className="text-xs text-[#1d1d1f]/50 truncate">{pathology.name}</span>
                     </div>
-                    <span className="text-xs font-mono text-white/60">{pathology.value}%</span>
+                    <span className="text-xs font-mono text-[#1d1d1f]/60">{pathology.value}%</span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
-            <div className="min-h-[280px] flex items-center justify-center text-white/30">
+            <div className="min-h-[280px] flex items-center justify-center text-[#1d1d1f]/30">
               <p>Sin datos</p>
             </div>
           )}
@@ -173,10 +173,10 @@ export default function DashboardInsights() {
                 {macroData.map((macro) => (
                   <div key={macro.name}>
                     <div className="flex justify-between mb-1">
-                      <span className="text-xs text-white/50">{macro.name}</span>
+                      <span className="text-xs text-[#1d1d1f]/50">{macro.name}</span>
                       <span className="text-xs font-mono font-medium" style={{ color: macro.color }}>{macro.valor}%</span>
                     </div>
-                    <div className="h-1.5 bg-navy-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-[var(--surface-muted)] rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-700" style={{ width: `${macro.valor}%`, background: macro.color }} />
                     </div>
                   </div>
@@ -184,7 +184,7 @@ export default function DashboardInsights() {
               </div>
             </>
           ) : (
-            <div className="min-h-[220px] flex items-center justify-center text-white/30">
+            <div className="min-h-[220px] flex items-center justify-center text-[#1d1d1f]/30">
               <p>Sin datos</p>
             </div>
           )}
@@ -196,30 +196,30 @@ export default function DashboardInsights() {
               <SectionHeader title="Agenda de Hoy" subtitle={`${appointments.length} consultas programadas`} action="Ver calendario" actionTo="/agenda" />
               <div className="space-y-2">
                 {appointments.map((cita, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-navy-800/50 hover:bg-navy-800 transition-colors group cursor-pointer">
+                  <div key={index} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface-muted)] transition-colors group cursor-pointer">
                     <div className="flex-shrink-0 text-center w-12">
-                      <div className="font-mono text-xs font-semibold text-white">{cita.hora}</div>
+                      <div className="font-mono text-xs font-semibold text-[#1d1d1f]">{cita.hora}</div>
                     </div>
-                    <div className="w-px h-8 bg-navy-700" />
+                    <div className="w-px h-8 bg-[var(--surface-strong)]" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">{cita.nombre}</div>
-                      <div className="text-xs text-white/30">{cita.tipo}</div>
+                      <div className="text-sm font-semibold text-[#1d1d1f] truncate">{cita.nombre}</div>
+                      <div className="text-xs text-[#1d1d1f]/30">{cita.tipo}</div>
                     </div>
                     <span className={`badge ${ESTADO_COLORS[cita.estado] || 'badge-neutral'}`}>{cita.estado}</span>
-                    <ChevronRight size={14} className="text-white/20 group-hover:text-white/50 transition-colors flex-shrink-0" />
+                    <ChevronRight size={14} className="text-[#1d1d1f]/20 group-hover:text-[#1d1d1f]/50 transition-colors flex-shrink-0" />
                   </div>
                 ))}
               </div>
             </>
           ) : (
             <div className="min-h-[220px] flex items-center justify-center flex-col gap-2">
-              <p className="text-white/30">Sin citas programadas</p>
+              <p className="text-[#1d1d1f]/30">Sin citas programadas</p>
               <Link to="/agenda/nueva" className="btn btn-sm btn-primary gap-1">
                 <Plus size={13} /> Agendar cita
               </Link>
             </div>
           )}
-          <Link to="/agenda/nueva" className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-navy-700 text-xs text-white/30 hover:text-emerald hover:border-emerald/30 transition-all duration-200">
+          <Link to="/agenda/nueva" className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[var(--border-soft)] text-xs text-[#1d1d1f]/30 hover:text-emerald hover:border-emerald/30 transition-all duration-200">
             <Plus size={13} /> Agregar consulta
           </Link>
         </div>
@@ -233,13 +233,13 @@ export default function DashboardInsights() {
               {activity.map((actItem, index) => {
                 const { Icon, color } = ACTIVIDAD_ICONS[actItem.tipo] || ACTIVIDAD_ICONS.patient;
                 return (
-                  <div key={index} className="flex items-start gap-3 px-2 py-2.5 rounded-xl hover:bg-white/[0.02] transition-colors">
+                  <div key={index} className="flex items-start gap-3 px-2 py-2.5 rounded-xl hover:bg-[rgba(60,60,67,0.05)] transition-colors">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${color}15`, border: `1px solid ${color}20` }}>
                       <Icon size={13} style={{ color }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white/70">{actItem.msg}</p>
-                      <p className="text-xs text-white/25 mt-0.5 flex items-center gap-1">
+                      <p className="text-sm text-[#1d1d1f]/70">{actItem.msg}</p>
+                      <p className="text-xs text-[#1d1d1f]/25 mt-0.5 flex items-center gap-1">
                         <Clock size={10} /> {actItem.tiempo}
                       </p>
                     </div>
@@ -249,7 +249,7 @@ export default function DashboardInsights() {
             </div>
           </>
         ) : (
-          <div className="min-h-[240px] flex items-center justify-center text-white/30">
+          <div className="min-h-[240px] flex items-center justify-center text-[#1d1d1f]/30">
             <p>Sin actividad reciente</p>
           </div>
         )}

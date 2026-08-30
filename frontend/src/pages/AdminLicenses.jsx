@@ -51,14 +51,14 @@ export default function AdminLicenses() {
               <IconComponent size={18} style={{ color }} />
             </div>
             <div className="font-mono text-2xl" style={{ color }}>{value}</div>
-            <div className="text-sm text-white/40 mt-1">{label}</div>
+            <div className="text-sm text-[#1d1d1f]/40 mt-1">{label}</div>
           </div>
         )})}
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
         <section className="card !p-0 overflow-hidden">
-          <div className="px-5 py-4 border-b border-navy-700/50">
+          <div className="px-5 py-4 border-b border-[var(--border-soft)]">
             <h2 className="section-title">Licencias registradas</h2>
           </div>
           <div className="table-wrapper rounded-none border-0">
@@ -74,7 +74,7 @@ export default function AdminLicenses() {
               <tbody>
                 {LICENSES.map((license) => (
                   <tr key={license.email}>
-                    <td className="font-medium text-white">{license.email}</td>
+                    <td className="font-medium text-[#1d1d1f]">{license.email}</td>
                     <td><span className={`badge ${STATUS_CLASS[license.status]}`}>{license.status}</span></td>
                     <td>{license.plan}</td>
                     <td className="font-mono">{license.expires}</td>
@@ -92,15 +92,15 @@ export default function AdminLicenses() {
               {Array.from({ length: 100 }).map((_, index) => (
                 <div
                   key={index}
-                  className={`aspect-square rounded-md ${index < 68 ? 'bg-emerald/80' : index < 77 ? 'bg-gold/80' : 'bg-navy-700'}`}
+                  className={`aspect-square rounded-md ${index < 68 ? 'bg-emerald/80' : index < 77 ? 'bg-gold/80' : 'bg-[var(--surface-strong)]'}`}
                 />
               ))}
             </div>
-            <div className="text-xs text-white/35 mt-3">68 activas · 9 trial · 23 disponibles</div>
+            <div className="text-xs text-[#1d1d1f]/35 mt-3">68 activas · 9 trial · 23 disponibles</div>
           </section>
           <section className="card">
             <h2 className="section-title">Pendientes backend</h2>
-            <p className="text-sm text-white/45 mt-2">
+            <p className="text-sm text-[#1d1d1f]/45 mt-2">
               Falta conectar Stripe, activación/desactivación real y trazabilidad de pagos. La pantalla ya deja resuelta la navegación administrativa del MVP.
             </p>
           </section>

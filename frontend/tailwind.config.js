@@ -4,7 +4,6 @@ export default {
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
-  darkMode: 'class',
   theme: {
     borderRadius: {
       none: '0',
@@ -121,16 +120,8 @@ export default {
         xs: '2px',
       },
       boxShadow: {
-        'emerald-sm':  '0 6px 16px rgba(52, 199, 89, 0.14)',
-        'emerald-md':  '0 10px 24px rgba(52, 199, 89, 0.18)',
-        'emerald-lg':  '0 16px 44px rgba(52, 199, 89, 0.2)',
-        'gold-sm':     '0 6px 16px rgba(255, 204, 0, 0.16)',
-        'gold-md':     '0 10px 24px rgba(255, 204, 0, 0.18)',
-        'navy-md':     '0 10px 28px rgba(0, 0, 0, 0.08)',
-        'navy-lg':     '0 20px 54px rgba(0, 0, 0, 0.12)',
-        glass:         '0 16px 44px rgba(0, 0, 0, 0.08)',
-        card:          '0 1px 2px rgba(0,0,0,0.04), 0 16px 44px rgba(0,0,0,0.05)',
-        'card-hover':  '0 2px 6px rgba(0,0,0,0.05), 0 20px 54px rgba(0,0,0,0.07)',
+        card:          'var(--shadow-soft)',
+        'card-hover':  'var(--shadow-hover)',
       },
       animation: {
         'fade-in':       'fadeIn 0.2s ease-out',
@@ -180,11 +171,7 @@ export default {
         smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
       backgroundImage: {
-        'gradient-emerald': 'linear-gradient(180deg, #EAF8EF 0%, #D8F4E0 100%)',
-        'gradient-gold':    'linear-gradient(180deg, #FFFBE6 0%, #FFF6CC 100%)',
-        'gradient-navy':    'linear-gradient(180deg, #0D1526 0%, #090E1A 100%)',
-        'gradient-glass':   'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(247,248,250,0.96) 100%)',
-        'shimmer-base':     'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',
+        'shimmer-base': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',
       },
     },
   },

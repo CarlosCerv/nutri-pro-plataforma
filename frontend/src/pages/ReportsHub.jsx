@@ -55,7 +55,7 @@ export default function ReportsHub() {
             <article key={report.title} className="card">
               <div className={`badge ${report.badge}`}>Disponible</div>
               <h2 className={`text-xl mt-4 ${report.accent}`}>{report.title}</h2>
-              <p className="text-sm text-white/45 mt-2">{report.subtitle}</p>
+              <p className="text-sm text-[#1d1d1f]/45 mt-2">{report.subtitle}</p>
               <div className="mt-5 flex gap-2">
                 <button type="button" className="btn btn-ghost btn-sm">Configurar</button>
                 {report.generateTo ? (
@@ -77,7 +77,7 @@ export default function ReportsHub() {
               <LayoutTemplate size={16} />
               <span className="text-sm font-semibold">Vista de salida</span>
             </div>
-            <div className="rounded-[28px] bg-white text-slate-900 p-6 min-h-[520px] shadow-navy-lg">
+            <div className="rounded-[28px] bg-white text-slate-900 p-6 min-h-[520px] shadow-card">
               <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 <div>
                   <div className="font-serif text-2xl font-bold text-[#07192E]">Plan Alimentario</div>

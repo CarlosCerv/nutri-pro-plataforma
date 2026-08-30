@@ -85,7 +85,7 @@ function main() {
 
   console.log('5. Abre http://localhost:5173 (o 5174) en tu navegador\n');
 
-  console.log('📚 Para más info: ver LOCAL_SETUP.md\n');
+  console.log('📚 Para más info: ver README.md\n');
 }
 
 main();

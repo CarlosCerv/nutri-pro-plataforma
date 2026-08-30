@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
@@ -32,18 +32,6 @@ function RedirectToPatientTab({ tab }) {
   const { id } = useParams();
   return <Navigate to={`/pacientes/${id}/${tab}`} replace />;
 }
-
-const THEME_KEY = 'nutripro-theme-v3';
-const THEME_META_SELECTOR = 'meta[name="theme-color"]';
-
-const applyTheme = () => {
-  const root = document.documentElement;
-  root.classList.remove('dark', 'light');
-  root.classList.add('light');
-  root.style.colorScheme = 'light';
-  localStorage.setItem(THEME_KEY, 'light');
-  document.querySelector(THEME_META_SELECTOR)?.setAttribute('content', '#FBFBFD');
-};
 
 // ── Protected Route ───────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
@@ -81,10 +69,6 @@ const PageFallback = ({ fullScreen = false }) => (
 // ── Main App Layout ───────────────────────────────────────────────
 const AppLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    applyTheme();
-  }, []);
 
   return (
     <div className="app-layout">

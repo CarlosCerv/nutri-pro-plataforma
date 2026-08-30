@@ -67,7 +67,7 @@ export default function ClinicalTab({ patient }) {
         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 border
           ${active
             ? 'bg-emerald/15 text-emerald border-emerald/30'
-            : 'bg-navy-800/50 text-white/40 border-navy-700/50 hover:border-navy-600 hover:text-white/70'
+            : 'bg-[var(--surface-muted)] text-[#1d1d1f]/40 border-[var(--border-soft)] hover:border-[var(--border-soft)] hover:text-[#1d1d1f]/70'
           }`}>
         {active && <span className="mr-1">✓</span>}
         {valor}
@@ -79,7 +79,7 @@ export default function ClinicalTab({ patient }) {
     <form onSubmit={handleSave} className="space-y-8">
       {/* ── Diagnóstico nutricional ── */}
       <div className="space-y-3">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Diagnóstico Nutricional</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Diagnóstico Nutricional</h3>
         <div className="flex flex-wrap gap-2">
           {DIAGNOSTICOS_NUTRICIONALES.map(d => (
             <button key={d} type="button"
@@ -87,7 +87,7 @@ export default function ClinicalTab({ patient }) {
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border
                 ${form.diagnosticoNutricional === d
                   ? 'bg-gold/15 text-gold border-gold/30'
-                  : 'bg-navy-800/50 text-white/40 border-navy-700/50 hover:text-white/70 hover:border-navy-600'
+                  : 'bg-[var(--surface-muted)] text-[#1d1d1f]/40 border-[var(--border-soft)] hover:text-[#1d1d1f]/70 hover:border-[var(--border-soft)]'
                 }`}>
               {d}
             </button>
@@ -97,10 +97,10 @@ export default function ClinicalTab({ patient }) {
 
       {/* ── Patologías ── */}
       <div className="space-y-4">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Patologías Presentes</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Patologías Presentes</h3>
         {PATOLOGIAS.map(grupo => (
           <div key={grupo.grupo}>
-            <div className="text-2xs font-bold text-white/25 uppercase tracking-wider mb-2">{grupo.grupo}</div>
+            <div className="text-2xs font-bold text-[#1d1d1f]/25 uppercase tracking-wider mb-2">{grupo.grupo}</div>
             <div className="flex flex-wrap gap-2">
               {grupo.items.map(p => <ChipToggle key={p} campo="patologias" valor={p} />)}
             </div>
@@ -110,7 +110,7 @@ export default function ClinicalTab({ patient }) {
 
       {/* ── Síntomas GI ── */}
       <div className="space-y-3">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Síntomas Gastrointestinales</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Síntomas Gastrointestinales</h3>
         <div className="flex flex-wrap gap-2">
           {SINTOMAS_GI.map(s => (
             <button key={s} type="button"
@@ -118,7 +118,7 @@ export default function ClinicalTab({ patient }) {
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border
                 ${(form.sintomasGI || []).includes(s)
                   ? 'bg-warning/15 text-warning border-warning/30'
-                  : 'bg-navy-800/50 text-white/40 border-navy-700/50 hover:text-white/70 hover:border-navy-600'
+                  : 'bg-[var(--surface-muted)] text-[#1d1d1f]/40 border-[var(--border-soft)] hover:text-[#1d1d1f]/70 hover:border-[var(--border-soft)]'
                 }`}>
               {(form.sintomasGI || []).includes(s) && '⚠ '}{s}
             </button>
@@ -128,7 +128,7 @@ export default function ClinicalTab({ patient }) {
 
       {/* ── Objetivos del paciente ── */}
       <div className="space-y-3">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2">Objetivos del Tratamiento Nutricional</h3>
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Objetivos del Tratamiento Nutricional</h3>
         <div className="flex flex-wrap gap-2">
           {OBJETIVOS_PACIENTE.map(o => <ChipToggle key={o} campo="objetivos" valor={o} />)}
         </div>
@@ -136,7 +136,7 @@ export default function ClinicalTab({ patient }) {
 
       {/* ── Notas clínicas privadas ── */}
       <div className="space-y-3">
-        <h3 className="section-title text-base border-b border-navy-700/60 pb-2 flex items-center gap-2">
+        <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2 flex items-center gap-2">
           <Lock size={14} className="text-gold" />
           Notas Clínicas Privadas
           <span className="badge badge-gold text-2xs">Solo visible para ti</span>
@@ -150,9 +150,9 @@ export default function ClinicalTab({ patient }) {
       </div>
 
       {/* Guardar */}
-      <div className="flex justify-end pt-4 border-t border-navy-700/50">
+      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
         <button type="submit" disabled={saving} className="btn btn-primary gap-2">
-          {saving ? <><div className="w-4 h-4 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" />Guardando...</>
+          {saving ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
             : saved ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
             : <><Save size={15} />Guardar clínica</>
           }

@@ -4,7 +4,7 @@ import api from '../../services/api';
 
 const SECTION = ({ title, children }) => (
   <div className="space-y-4">
-    <h3 className="section-title text-base border-b border-navy-700/60 pb-2">{title}</h3>
+    <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">{title}</h3>
     {children}
   </div>
 );
@@ -81,13 +81,13 @@ export default function GeneralDataTab({ patient, onUpdate }) {
     <form onSubmit={handleSave} className="space-y-8">
       {/* Foto de perfil */}
       <div className="flex items-center gap-5">
-        <div className="w-20 h-20 rounded-2xl bg-navy-800 border-2 border-dashed border-navy-600 flex flex-col items-center justify-center cursor-pointer hover:border-emerald/40 transition-colors group">
-          <Camera size={20} className="text-white/20 group-hover:text-emerald/50 transition-colors" />
-          <span className="text-2xs text-white/20 mt-1">Foto</span>
+        <div className="w-20 h-20 rounded-2xl bg-[var(--surface-muted)] border-2 border-dashed border-[var(--border-soft)] flex flex-col items-center justify-center cursor-pointer hover:border-emerald/40 transition-colors group">
+          <Camera size={20} className="text-[#1d1d1f]/20 group-hover:text-emerald/50 transition-colors" />
+          <span className="text-2xs text-[#1d1d1f]/20 mt-1">Foto</span>
         </div>
         <div>
-          <div className="text-sm font-semibold text-white mb-0.5">Foto del paciente</div>
-          <div className="text-xs text-white/30">PNG, JPG hasta 5 MB</div>
+          <div className="text-sm font-semibold text-[#1d1d1f] mb-0.5">Foto del paciente</div>
+          <div className="text-xs text-[#1d1d1f]/30">PNG, JPG hasta 5 MB</div>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default function GeneralDataTab({ patient, onUpdate }) {
             <input type="date" className="input" value={form.dob} onChange={e => set('dob', e.target.value)} required />
           </Field>
           <Field label="Edad calculada">
-            <div className="input bg-navy-900/50 cursor-default text-white/50 font-mono">
+            <div className="input bg-white/94 cursor-default text-[#1d1d1f]/50 font-mono">
               {calcEdad() ? `${calcEdad()} años` : '—'}
             </div>
           </Field>
@@ -150,11 +150,11 @@ export default function GeneralDataTab({ patient, onUpdate }) {
                 className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all duration-200
                   ${form[f.key]
                     ? 'bg-emerald/10 border-emerald/30 text-emerald'
-                    : 'bg-navy-800/50 border-navy-700/50 text-white/50 hover:border-navy-600'
+                    : 'bg-[var(--surface-muted)] border-[var(--border-soft)] text-[#1d1d1f]/50 hover:border-[var(--border-soft)]'
                   }`}>
                 <input type="checkbox" className="hidden" checked={form[f.key]} onChange={e => set(f.key, e.target.checked)} />
                 <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border
-                  ${form[f.key] ? 'bg-emerald border-emerald' : 'border-navy-600'}`}>
+                  ${form[f.key] ? 'bg-emerald border-emerald' : 'border-[var(--border-soft)]'}`}>
                   {form[f.key] && <svg className="w-2.5 h-2.5 text-navy-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
                 </div>
                 <span className="text-xs font-semibold">{f.label}</span>
@@ -219,11 +219,11 @@ export default function GeneralDataTab({ patient, onUpdate }) {
       </SECTION>
 
       {/* Botón guardar */}
-      <div className="flex justify-end pt-4 border-t border-navy-700/50">
+      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
         <button type="submit" disabled={saving} id="save-general-btn"
           className="btn btn-primary gap-2">
           {saving
-            ? <><div className="w-4 h-4 border-2 border-navy-950/30 border-t-navy-950 rounded-full animate-spin" />Guardando...</>
+            ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
             : saved
             ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
             : <><Save size={15} />Guardar cambios</>
