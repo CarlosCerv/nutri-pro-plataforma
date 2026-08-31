@@ -1,8 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-  <rect width="64" height="64" rx="15" fill="#FBFBFD"/>
-  <rect x="0.5" y="0.5" width="63" height="63" rx="14.5" stroke="#D2D2D7"/>
-  <g transform="translate(8 9) scale(2)" fill="none" stroke="#1D1D1F" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 6.528V3a1 1 0 0 1 1-1h0"/>
-    <path d="M18.237 21A15 15 0 0 0 22 11a6 6 0 0 0-10-4.472A6 6 0 0 0 2 11a15.1 15.1 0 0 0 3.763 10 3 3 0 0 0 3.648.648 5.5 5.5 0 0 1 5.178 0A3 3 0 0 0 18.237 21"/>
-  </g>
+<!--
+  Marca NutriPro: monograma "N" geometrico.
+
+  Especificado en .claude/skills/apple-style-frontend/SKILL.md, seccion Marca.
+  Trazo blanco de 13 sobre azulejo #0071E3 con radio 22.5% (28.8 de 128).
+  Los remates redondos son parte de la especificacion: sin ellos el trazo se
+  ve cortado en seco a tamaños pequeños.
+
+  Esta es la variante con esquinas redondeadas, para uso dentro de la interfaz
+  y como favicon. Para los iconos que el sistema operativo enmascara por su
+  cuenta (apple-touch-icon, PWA) se usa brand-icon-square.svg, a sangre: si se
+  les deja la esquina transparente, iOS la compone sobre negro.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" aria-hidden="true">
+  <rect width="128" height="128" rx="28.8" fill="#0071E3"/>
+  <path d="M 42 90 L 42 38 L 86 90 L 86 38"
+        stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

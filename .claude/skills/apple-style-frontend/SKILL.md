@@ -72,7 +72,9 @@ Sistema de diseño de NutriPro, inspirado en apple.com. Esta skill es la fuente 
 
 ## Marca
 
-- Logo/ícono de app: monograma "N" geométrico (ver `logo/n-mark.svg` si existe en el repo; si no, créalo con el path `M 42 90 L 42 38 L 86 90 L 86 38` en blanco, `stroke-width: 13`, `stroke-linecap/linejoin: round`, sobre tile `#0071E3` con `border-radius: 22.5%`).
+- Logo/ícono de app: monograma "N" geométrico. **Ya existe en el repo, no lo recrees**: `frontend/public/brand-icon.svg` (azulejo con esquinas redondeadas, para la interfaz y el favicon) y `frontend/public/brand-icon-square.svg` (a sangre). Ambos usan el path `M 42 90 L 42 38 L 86 90 L 86 38` en blanco sobre `#0071E3`, con `stroke-width: 13`, `stroke-linecap/linejoin: round`, en un viewBox de 128 y radio 22.5% (28.8).
+- **Dos variantes, y no son intercambiables**: los iconos que el sistema operativo enmascara por su cuenta —`apple-touch-icon`, iconos PWA— se generan de la variante a sangre. Un PNG con la esquina transparente lo compone iOS sobre negro, y en Android la máscara adaptativa recorta encima de un icono ya recortado. `frontend/scripts/build-favicon.mjs` genera los cuatro archivos desde las dos fuentes; corre `npm run icons:build` si tocas el mark.
+- Si cambias el ícono, sube el `?v=N` de `index.html` y de `components/Logo.jsx`: sin eso los navegadores siguen sirviendo el anterior desde caché.
 - Wordmark: "NutriPro", `-apple-system` peso 700, tracking -0.4px, "Nutri" en `--accent`, "Pro" en `--ink`.
 
 ## Cuándo NO aplica

@@ -21,11 +21,11 @@ const Logo = ({ size = 'md', showText = true, tone = 'default', subtitle = 'Plat
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       <img
-        src="/brand-icon.svg?v=6"
+        src="/brand-icon.svg?v=7"
         width={px}
         height={px}
         alt=""
-        className="rounded-[22.5%] ring-1 ring-black/[0.06]"
+        className="rounded-[22.5%]"
         decoding="async"
       />
       {showText && (

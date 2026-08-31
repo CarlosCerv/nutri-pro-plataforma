@@ -9,25 +9,35 @@ import pngToIco from 'png-to-ico';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
-const svgPath = path.join(root, 'public', 'brand-icon.svg');
+const publicDir = path.join(root, 'public');
 
-const svg = fs.readFileSync(svgPath);
-const buf48 = await sharp(svg).resize(48, 48).png().toBuffer();
-const buf32 = await sharp(svg).resize(32, 32).png().toBuffer();
-const buf16 = await sharp(svg).resize(16, 16).png().toBuffer();
+/**
+ * Dos fuentes, no una.
+ *
+ * `brand-icon.svg` trae el azulejo con esquinas redondeadas y sirve para la
+ * interfaz y el favicon. `brand-icon-square.svg` va a sangre y alimenta los
+ * iconos que el sistema operativo enmascara por su cuenta: iOS compone sobre
+ * negro cualquier esquina transparente del apple-touch-icon, y Android
+ * recorta los iconos PWA con su propia forma.
+ */
+const rounded = fs.readFileSync(path.join(publicDir, 'brand-icon.svg'));
+const square = fs.readFileSync(path.join(publicDir, 'brand-icon-square.svg'));
 
-const ico = await pngToIco([buf16, buf32, buf48]);
-fs.writeFileSync(path.join(root, 'public', 'favicon.ico'), ico);
-console.log('Wrote public/favicon.ico');
+const render = (svg, size) => sharp(svg, { density: 384 }).resize(size, size).png().toBuffer();
 
-const touch = await sharp(svg).resize(180, 180).png().toBuffer();
-fs.writeFileSync(path.join(root, 'public', 'apple-touch-icon.png'), touch);
-console.log('Wrote public/apple-touch-icon.png');
+const write = (name, buffer) => {
+  fs.writeFileSync(path.join(publicDir, name), buffer);
+  console.log(`Wrote public/${name}`);
+};
 
-const pwa192 = await sharp(svg).resize(192, 192).png().toBuffer();
-fs.writeFileSync(path.join(root, 'public', 'pwa-192.png'), pwa192);
-console.log('Wrote public/pwa-192.png');
+// Favicon: tres tamaños en un solo .ico, desde la variante redondeada.
+const ico = await pngToIco([
+  await render(rounded, 16),
+  await render(rounded, 32),
+  await render(rounded, 48),
+]);
+write('favicon.ico', ico);
 
-const pwa512 = await sharp(svg).resize(512, 512).png().toBuffer();
-fs.writeFileSync(path.join(root, 'public', 'pwa-512.png'), pwa512);
-console.log('Wrote public/pwa-512.png');
+write('apple-touch-icon.png', await render(square, 180));
+write('pwa-192.png', await render(square, 192));
+write('pwa-512.png', await render(square, 512));
