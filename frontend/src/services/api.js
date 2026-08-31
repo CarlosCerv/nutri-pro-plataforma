@@ -130,6 +130,13 @@ export const paymentsAPI = {
 export const dashboardAPI = {
     getStats: () => api.get('/dashboard/stats'),
     getPopulation: () => api.get('/dashboard/population'),
+    getTurno: () => api.get('/dashboard/turno'),
+    getRetention: () => api.get('/dashboard/retention'),
+};
+
+// Food Exchange API (sustitutos sugeridos por equivalencia nutricional)
+export const foodExchangeAPI = {
+    getEquivalents: (foodId, patientFilters) => api.post('/food-exchange/equivalents', { foodId, patientFilters }),
 };
 
 export default api;

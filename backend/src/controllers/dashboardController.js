@@ -258,6 +258,118 @@ export const getRecentActivity = asyncHandler(async (req, res) => {
     });
 }, { message: 'Error al obtener la actividad reciente' });
 
+const ESTADO_LABEL = {
+    scheduled: 'pendiente',
+    completed: 'confirmada',
+    cancelled: 'cancelada',
+    no_show: 'cancelada',
+};
+
+const TIPO_LABEL = {
+    initial: 'Primera consulta',
+    follow_up: 'Seguimiento',
+    check_in: 'Control',
+    final: 'Cierre',
+};
+
+// @desc    Paciente en turno (hero "Hoy en Consulta") y siguientes citas del día
+// @route   GET /api/dashboard/turno
+// @access  Private
+export const getTurnoActual = asyncHandler(async (req, res) => {
+    const now = new Date();
+    const inicio = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const fin = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    const citasHoy = await Appointment.find({
+        nutritionist: req.user.id,
+        date: { $gte: inicio, $lt: fin },
+        status: 'scheduled',
+    })
+        .populate('patient', 'firstName lastName phone photoUrl alergias intolerancias patologias')
+        .sort({ date: 1, time: 1 });
+
+    if (citasHoy.length === 0) {
+        return res.status(200).json({ success: true, data: { actual: null, siguientes: [] } });
+    }
+
+    // "En turno" es la primera cita cuya hora no ha pasado; si todas ya
+    // pasaron, la última del día sigue siendo la que se está atendiendo.
+    const conHora = citasHoy
+        .map((c) => {
+            const [h, m] = (c.time || '00:00').split(':').map(Number);
+            const dt = new Date(c.date);
+            dt.setHours(h || 0, m || 0, 0, 0);
+            return { doc: c, dt };
+        })
+        .sort((a, b) => a.dt - b.dt);
+
+    const idx = conHora.findIndex((c) => c.dt >= now);
+    const actualIdx = idx === -1 ? conHora.length - 1 : idx;
+
+    const mapCita = ({ doc, dt }) => ({
+        id: doc._id,
+        patientId: doc.patient?._id || null,
+        nombre: doc.patient
+            ? `${doc.patient.firstName} ${doc.patient.lastName}`
+            : [doc.guestDetails?.firstName, doc.guestDetails?.lastName].filter(Boolean).join(' ') || 'Invitado',
+        hora: doc.time || dt.toTimeString().slice(0, 5),
+        tipo: TIPO_LABEL[doc.type] || 'Consulta',
+        estado: ESTADO_LABEL[doc.status] || 'pendiente',
+        photoUrl: doc.patient?.photoUrl || null,
+        alergias: doc.patient?.alergias || '',
+        intolerancias: doc.patient?.intolerancias || '',
+        patologias: doc.patient?.patologias || [],
+    });
+
+    res.status(200).json({
+        success: true,
+        data: {
+            actual: mapCita(conHora[actualIdx]),
+            siguientes: conHora.filter((_, i) => i !== actualIdx).map(mapCita),
+        },
+    });
+}, { message: 'Error al obtener el turno actual' });
+
+// @desc    Pacientes activos sin cita en los últimos 30 días
+// @route   GET /api/dashboard/retention
+// @access  Private
+export const getRetentionRadar = asyncHandler(async (req, res) => {
+    const nutritionistId = new mongoose.Types.ObjectId(req.user.id);
+
+    const ultimaCitaPorPaciente = await Appointment.aggregate([
+        { $match: { nutritionist: nutritionistId, patient: { $ne: null } } },
+        { $group: { _id: '$patient', ultima: { $max: '$date' } } },
+    ]);
+    const mapaUltima = new Map(ultimaCitaPorPaciente.map((u) => [String(u._id), u.ultima]));
+
+    const activos = await Patient.find({ nutritionist: nutritionistId, isActive: true })
+        .select('firstName lastName phone createdAt')
+        .lean();
+
+    const enRiesgo = activos
+        .map((p) => {
+            // Sin citas registradas: se cuenta desde el alta del expediente.
+            const ultima = mapaUltima.get(String(p._id)) || p.createdAt;
+            const dias = Math.floor((Date.now() - new Date(ultima).getTime()) / 86400000);
+            return { ...p, ultima, dias };
+        })
+        .filter((p) => p.dias > 30)
+        .sort((a, b) => b.dias - a.dias)
+        .slice(0, 12);
+
+    res.status(200).json({
+        success: true,
+        count: enRiesgo.length,
+        data: enRiesgo.map((p) => ({
+            id: p._id,
+            nombre: `${p.firstName} ${p.lastName}`,
+            telefono: p.phone || '',
+            diasSinCita: p.dias,
+            ultimaVisita: p.ultima,
+        })),
+    });
+}, { message: 'Error al obtener el radar de retención' });
+
 /** "hace 3 h", "hace 2 días" — el frontend solo pinta el texto. */
 function tiempoRelativo(fecha) {
     const minutos = Math.floor((Date.now() - new Date(fecha).getTime()) / 60000);

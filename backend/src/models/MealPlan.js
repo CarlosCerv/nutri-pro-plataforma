@@ -1,5 +1,36 @@
 import mongoose from 'mongoose';
 
+const foodEntrySchema = {
+    item: String, // Legacy: food name as string
+    foodRef: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Food'
+    },
+    quantity: String,
+    quantityGrams: Number,
+    calories: Number,
+    protein: Number,
+    carbohydrates: Number,
+    fats: Number,
+};
+
+const mealSlotSchema = {
+    time: String,
+    foods: [foodEntrySchema],
+    notes: String,
+};
+
+const dayMealsSchema = () => ({
+    breakfast: mealSlotSchema,
+    morningSnack: mealSlotSchema,
+    lunch: mealSlotSchema,
+    afternoonSnack: mealSlotSchema,
+    dinner: mealSlotSchema,
+    eveningSnack: mealSlotSchema,
+});
+
+const DAY_KEYS = ['lun', 'mar', 'mie', 'jue', 'vie', 'sab', 'dom'];
+
 const mealPlanSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -159,6 +190,18 @@ const mealPlanSchema = new mongoose.Schema({
             notes: String,
         },
     },
+
+    // Plan por día de la semana (Creador Híbrido de Dietas).
+    //
+    // `meals` arriba se conserva tal cual para no romper el PDF de
+    // exportación ni PatientMealPlansTab, que solo leen el plan a nivel raíz:
+    // en el guardado, `meals` recibe una copia del día "lun" (o del primer
+    // día con alimentos), así un plan de 7 días sigue exportándose como antes.
+    // `days` es la fuente real para el editor multi-día.
+    days: [{
+        key: { type: String, enum: DAY_KEYS, required: true },
+        meals: dayMealsSchema(),
+    }],
 
     // Nutritional information
     nutrition: {

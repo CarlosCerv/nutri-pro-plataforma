@@ -16,6 +16,7 @@ import clinicalNotesRoutes from './routes/clinicalNotes.routes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
 import cronRoutes from './routes/cron.routes.js';
+import foodExchangeRoutes from './routes/foodExchange.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -94,6 +95,7 @@ app.use('/api/clinical-notes', clinicalNotesRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/cron', cronRoutes);
+app.use('/api/food-exchange', foodExchangeRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  AreaChart, Area, PieChart, Pie, Cell,
+  AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { Users, Salad, Clock, ChevronRight, FileText, Plus } from 'lucide-react';
@@ -76,7 +76,6 @@ const SectionHeader = ({ title, subtitle, action, actionTo }) => (
  */
 const FUENTES = [
   ['weight', '/api/dashboard/weight-data'],
-  ['pathology', '/api/dashboard/pathology-data'],
   ['macro', '/api/dashboard/macro-data'],
   ['appointments', '/api/appointments/today'],
   ['activity', '/api/dashboard/activity'],
@@ -84,7 +83,6 @@ const FUENTES = [
 
 export default function DashboardInsights() {
   const [weightData, setWeightData] = useState([]);
-  const [pathologyData, setPathologyData] = useState([]);
   const [macroData, setMacroData] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -111,7 +109,6 @@ export default function DashboardInsights() {
       });
 
       setWeightData(datos.weight || []);
-      setPathologyData(conColor(datos.pathology || []));
       setMacroData(conColor(datos.macro || []));
       setAppointments(datos.appointments || []);
       setActivity(datos.activity || []);
@@ -135,10 +132,7 @@ export default function DashboardInsights() {
   if (loading) {
     return (
       <>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 card"><div className="skeleton h-[280px] w-full rounded-2xl" /></div>
-          <Card><div className="skeleton h-[280px] w-full rounded-2xl" /></Card>
-        </div>
+        <div className="card"><div className="skeleton h-[280px] w-full rounded-2xl" /></div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card><div className="skeleton h-[220px] w-full rounded-2xl" /></Card>
           <div className="lg:col-span-2 card"><div className="skeleton h-[220px] w-full rounded-2xl" /></div>
@@ -150,9 +144,8 @@ export default function DashboardInsights() {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 card">
-          {fallos.weight ? (
+      <div className="card">
+        {fallos.weight ? (
             <ErrorState message={fallos.weight} onRetry={reintentar} className="min-h-[280px]" />
           ) : weightData.length > 0 ? (
             <>
@@ -178,42 +171,6 @@ export default function DashboardInsights() {
               <p>No hay datos de peso disponibles</p>
             </div>
           )}
-        </div>
-
-        <Card>
-          {fallos.pathology ? (
-            <ErrorState message={fallos.pathology} onRetry={reintentar} className="min-h-[280px]" />
-          ) : pathologyData.length > 0 ? (
-            <>
-              <SectionHeader title="Patologías" subtitle="Distribución de pacientes" />
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie data={pathologyData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" paddingAngle={3}>
-                    {pathologyData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} opacity={0.85} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [`${value}%`, '']} contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-s)', padding: '8px 12px', color: 'var(--ink)' }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-1.5 mt-2">
-                {pathologyData.slice(0, 4).map((pathology) => (
-                  <div key={pathology.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: pathology.color }} />
-                      <span className="text-xs text-[var(--ink-secondary)] truncate">{pathology.name}</span>
-                    </div>
-                    <span className="text-xs font-mono text-[var(--ink-secondary)]">{pathology.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="min-h-[280px] flex items-center justify-center text-[var(--ink-secondary)]">
-              <p>Sin datos</p>
-            </div>
-          )}
-        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

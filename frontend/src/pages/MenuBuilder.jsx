@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   DndContext,
@@ -6,135 +6,69 @@ import {
   KeyboardSensor,
   PointerSensor,
   closestCenter,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import {
-  ArrowLeft, GripVertical, Save, Trash2, Search, Loader, AlertCircle,
-} from 'lucide-react';
-import { mealPlansAPI, foodsAPI } from '../services/api';
+import { ArrowLeft, Save, Loader, AlertCircle } from 'lucide-react';
+import { mealPlansAPI, foodsAPI, patientsAPI, dietTemplatesAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
 import { Button, Card } from '../design-system/components';
+import {
+  DAYS,
+  newUid,
+  macrosForGrams,
+  emptyDaysState,
+  mealsDocumentToSlots,
+  daySlotsToMealsPayload,
+  computeDayTotals,
+  representativeDayKey,
+  computeWeekNutrition,
+} from '../lib/mealPlanSlots';
+import { DEFAULT_META, metaDesdeExpediente } from '../lib/dietGoal';
+import StickyMacroBar from '../components/MenuBuilder/StickyMacroBar';
+import MealSlotCard from '../components/MenuBuilder/MealSlotCard';
+import FoodBrowserPanel from '../components/MenuBuilder/FoodBrowserPanel';
+import SubstitutesModal from '../components/MenuBuilder/SubstitutesModal';
+import MetaModal from '../components/MenuBuilder/MetaModal';
 
-/**
- * Alimento arrastrable del panel lateral.
- *
- * El estado vacío de cada tiempo de comida decía "Arrastra alimentos desde la
- * derecha" desde el principio, pero el arrastre nunca existió: toda la
- * interacción era por botones. `@dnd-kit` estaba instalado y había dos
- * componentes de drag & drop en el repositorio que ninguna ruta alcanzaba.
- *
- * Los botones "+ tiempo" se conservan a propósito: son la vía accesible por
- * teclado y en pantallas táctiles pequeñas, donde arrastrar es incómodo.
- */
-function AlimentoArrastrable({ food, children }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `food:${food._id}`,
-    data: { food },
+function insertFoodAt(daySlots, slotKey, index, food) {
+  const item = {
+    uid: newUid(),
+    foodRef: food._id,
+    foodCategory: food.category,
+    foodName: food.name,
+    unitName: 'g',
+    quantityLabel: null,
+    ...macrosForGrams(food, 100),
+  };
+  return daySlots.map((s) => {
+    if (s.slotKey !== slotKey) return s;
+    const items = [...s.items];
+    items.splice(index, 0, item);
+    return { ...s, items };
   });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`rounded-lg border border-[var(--border-soft)] p-2 transition-opacity duration-micro ${
-        isDragging ? 'opacity-40' : ''
-      }`}
-    >
-      <div className="flex items-start gap-1.5">
-        <button
-          type="button"
-          className="-ml-1 mt-0.5 cursor-grab touch-none rounded p-0.5 text-[var(--ink-secondary)] hover:text-[var(--ink)] active:cursor-grabbing"
-          aria-label={`Arrastrar ${food.name}`}
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical size={14} />
-        </button>
-        <div className="min-w-0 flex-1">{children}</div>
-      </div>
-    </div>
-  );
 }
 
-/** Tiempo de comida que acepta alimentos soltados encima. */
-function TiempoSoltable({ slotKey, children }) {
-  const { setNodeRef, isOver } = useDroppable({ id: `slot:${slotKey}` });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`card overflow-hidden transition-colors duration-micro ${
-        isOver ? 'border-[var(--accent)] bg-[var(--accent-soft)]' : ''
-      }`}
-    >
-      {children}
-    </div>
-  );
-}
-
-const SLOT_META = [
-  { key: 'breakfast', label: 'Desayuno' },
-  { key: 'morningSnack', label: 'Colación AM' },
-  { key: 'lunch', label: 'Comida' },
-  { key: 'afternoonSnack', label: 'Colación PM' },
-  { key: 'dinner', label: 'Cena' },
-  { key: 'eveningSnack', label: 'Colación nocturna' },
-];
-
-/** Valores por 100 g según modelo Food (nutrition.*). */
-function nutritionPer100g(food) {
-  const n = food?.nutrition || {};
-  return {
-    energy: Number(n.energy) || 0,
-    protein: Number(n.protein) || 0,
-    carbohydrates: Number(n.carbohydrates) || 0,
-    fats: Number(n.fat) || 0,
-    fiber: Number(n.fiber) || 0,
-  };
-}
-
-function macrosForGrams(food, grams) {
-  const g = Math.max(0, Number(grams) || 0);
-  const r = g / 100;
-  const n = nutritionPer100g(food);
-  return {
-    quantityGrams: g,
-    calories: Math.round(n.energy * r),
-    protein: Math.round(n.protein * r * 10) / 10,
-    carbohydrates: Math.round(n.carbohydrates * r * 10) / 10,
-    fats: Math.round(n.fats * r * 10) / 10,
-    fiber: Math.round(n.fiber * r * 10) / 10,
-  };
-}
-
-function mealsDocumentToSlots(meals) {
-  if (!meals || typeof meals !== 'object') {
-    return SLOT_META.map((s) => ({ slotKey: s.key, slotLabel: s.label, items: [] }));
-  }
-  return SLOT_META.map((s) => {
-    const block = meals[s.key];
-    const arr = Array.isArray(block?.foods)
-      ? block.foods
-      : Array.isArray(block)
-        ? block
-        : [];
-    const items = arr.map((f) => {
-      const ref = f.foodRef?._id || f.foodRef || f.food;
-      const name = f.item || f.foodName || f.foodRef?.name || 'Alimento';
-      return {
-        foodRef: ref,
-        foodName: name,
-        quantityGrams: f.quantityGrams ?? 100,
-        calories: f.calories ?? 0,
-        protein: f.protein ?? 0,
-        carbohydrates: f.carbohydrates ?? 0,
-        fats: f.fats ?? 0,
-        fiber: f.fiber ?? 0,
-      };
-    });
-    return { slotKey: s.key, slotLabel: s.label, items };
+function moveItemInDay(daySlots, uid, targetSlotKey, targetIndex) {
+  const sourceSlot = daySlots.find((s) => s.items.some((it) => it.uid === uid));
+  if (!sourceSlot) return daySlots;
+  const item = sourceSlot.items.find((it) => it.uid === uid);
+  return daySlots.map((s) => {
+    if (s.slotKey === sourceSlot.slotKey && s.slotKey === targetSlotKey) {
+      const without = s.items.filter((it) => it.uid !== uid);
+      const idx = Math.min(targetIndex, without.length);
+      without.splice(idx, 0, item);
+      return { ...s, items: without };
+    }
+    if (s.slotKey === sourceSlot.slotKey) {
+      return { ...s, items: s.items.filter((it) => it.uid !== uid) };
+    }
+    if (s.slotKey === targetSlotKey) {
+      const items = [...s.items];
+      items.splice(Math.min(targetIndex, items.length), 0, item);
+      return { ...s, items };
+    }
+    return s;
   });
 }
 
@@ -143,14 +77,20 @@ export default function MenuBuilder() {
   const [searchParams] = useSearchParams();
   const pacienteId = searchParams.get('paciente');
   const plantilla = searchParams.get('plantilla') === '1';
+  const templateId = searchParams.get('templateId');
 
   const mealPlanId = routePlanId && routePlanId !== 'nueva' ? routePlanId : null;
   const linkedPatientId = pacienteId || null;
 
   const [nombre, setNombre] = useState('');
-  const [slots, setSlots] = useState(() =>
-    SLOT_META.map((s) => ({ slotKey: s.key, slotLabel: s.label, items: [] }))
-  );
+  const [daysState, setDaysState] = useState(emptyDaysState);
+  const [activeDay, setActiveDay] = useState('lun');
+  const [portionMode, setPortionMode] = useState('grams');
+  const [meta, setMeta] = useState(DEFAULT_META);
+  const [metaModalOpen, setMetaModalOpen] = useState(false);
+  const [substitutesItem, setSubstitutesItem] = useState(null);
+
+  const [patient, setPatient] = useState(null);
   const [foods, setFoods] = useState([]);
   const [foodsLoading, setFoodsLoading] = useState(true);
   const [foodSearch, setFoodSearch] = useState('');
@@ -158,7 +98,7 @@ export default function MenuBuilder() {
   const [loadingPlan, setLoadingPlan] = useState(!!mealPlanId);
   const [loadError, setLoadError] = useState('');
   const [saveError, setSaveError] = useState('');
-  const [arrastrando, setArrastrando] = useState(null);
+  const [activeDragLabel, setActiveDragLabel] = useState(null);
   const navigate = useNavigate();
 
   // El sensor de puntero exige 6 px de desplazamiento antes de iniciar un
@@ -186,126 +126,231 @@ export default function MenuBuilder() {
     loadFoods();
   }, [loadFoods]);
 
+  // Paciente vinculado: da contexto de alergias en pantalla y alimenta el
+  // cálculo de la meta (Mifflin-St Jeor) con su peso/talla/edad reales.
   useEffect(() => {
-    if (!mealPlanId) {
-      setLoadingPlan(false);
-      setLoadError('');
-      return;
-    }
-    let cancelled = false;
+    if (!linkedPatientId) return undefined;
+    let cancelado = false;
+    (async () => {
+      try {
+        const res = await patientsAPI.getOne(linkedPatientId);
+        const p = res.data?.data || res.data;
+        if (!cancelado && p) {
+          setPatient(p);
+          setMeta(metaDesdeExpediente(p));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelado = true;
+    };
+  }, [linkedPatientId]);
+
+  // Un plan existente manda sobre una plantilla: `templateId` solo siembra
+  // un plan nuevo, nunca sustituye uno que ya se está editando.
+  useEffect(() => {
+    if (mealPlanId) return undefined;
+    setLoadingPlan(false);
+    setLoadError('');
+    if (!templateId) return undefined;
+
+    let cancelado = false;
+    (async () => {
+      try {
+        const res = await dietTemplatesAPI.getOne(templateId);
+        const tpl = res.data?.data || res.data;
+        if (cancelado || !tpl) return;
+        setNombre(tpl.name || '');
+        setDaysState((prev) => ({ ...prev, lun: mealsDocumentToSlots(tpl.defaultMeals) }));
+        if (tpl.targetCalories) {
+          setMeta({
+            kcal: tpl.targetCalories,
+            protein: tpl.targetMacros?.protein || DEFAULT_META.protein,
+            carbohydrates: tpl.targetMacros?.carbohydrates || DEFAULT_META.carbohydrates,
+            fats: tpl.targetMacros?.fats || DEFAULT_META.fats,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelado = true;
+    };
+  }, [mealPlanId, templateId]);
+
+  useEffect(() => {
+    if (!mealPlanId) return undefined;
+    let cancelado = false;
     (async () => {
       setLoadingPlan(true);
       setLoadError('');
       try {
         const res = await mealPlansAPI.getOne(mealPlanId);
         const plan = res.data?.data || res.data;
-        if (cancelled || !plan) return;
+        if (cancelado || !plan) return;
         setNombre(plan.name || '');
-        setSlots(mealsDocumentToSlots(plan.meals));
+        if (Array.isArray(plan.days) && plan.days.length > 0) {
+          setDaysState((prev) => {
+            const next = { ...prev };
+            plan.days.forEach((d) => {
+              if (d.key) next[d.key] = mealsDocumentToSlots(d.meals);
+            });
+            return next;
+          });
+        } else {
+          // Plan anterior al editor multi-día: su único menú se coloca en
+          // "lun" y el resto de la semana arranca vacía.
+          setDaysState((prev) => ({ ...prev, lun: mealsDocumentToSlots(plan.meals) }));
+        }
       } catch (e) {
         console.error(e);
-        if (!cancelled) setLoadError('No se pudo cargar la dieta.');
+        if (!cancelado) setLoadError('No se pudo cargar la dieta.');
       } finally {
-        if (!cancelled) setLoadingPlan(false);
+        if (!cancelado) setLoadingPlan(false);
       }
     })();
     return () => {
-      cancelled = true;
+      cancelado = true;
     };
   }, [mealPlanId]);
 
-  const filteredFoods = foods.filter((f) =>
-    (f.name || '').toLowerCase().includes(foodSearch.toLowerCase())
+  const updateActiveDay = useCallback(
+    (updater) => {
+      setDaysState((prev) => ({ ...prev, [activeDay]: updater(prev[activeDay]) }));
+    },
+    [activeDay]
   );
 
-  const addFoodToSlot = (slotKey, food) => {
-    const base = macrosForGrams(food, 100);
-    setSlots((prev) =>
-      prev.map((s) => {
-        if (s.slotKey !== slotKey) return s;
-        const next = [
-          ...s.items,
-          {
-            foodRef: food._id,
-            foodName: food.name,
-            ...base,
-          },
-        ];
-        return { ...s, items: next };
-      })
-    );
-  };
+  const addFoodToActiveDay = useCallback(
+    (slotKey, food) => {
+      updateActiveDay((slots) =>
+        insertFoodAt(slots, slotKey, slots.find((s) => s.slotKey === slotKey).items.length, food)
+      );
+    },
+    [updateActiveDay]
+  );
 
-  const removeItem = (slotKey, index) => {
-    setSlots((prev) =>
-      prev.map((s) =>
-        s.slotKey === slotKey
-          ? { ...s, items: s.items.filter((_, i) => i !== index) }
-          : s
-      )
-    );
-  };
+  const updateItemInActiveDay = useCallback(
+    (uid, patch) => {
+      updateActiveDay((slots) =>
+        slots.map((s) => ({
+          ...s,
+          items: s.items.map((it) => (it.uid === uid ? { ...it, ...patch } : it)),
+        }))
+      );
+    },
+    [updateActiveDay]
+  );
 
-  const updateItemGrams = (slotKey, index, grams) => {
-    const g = Math.max(0, Number(grams) || 0);
-    setSlots((prev) =>
-      prev.map((s) => {
-        if (s.slotKey !== slotKey) return s;
-        const items = s.items.map((it, i) => {
-          if (i !== index) return it;
-          const food = foods.find((x) => String(x._id) === String(it.foodRef));
-          if (!food) {
-            return { ...it, quantityGrams: g };
-          }
-          const m = macrosForGrams(food, g);
-          return { ...it, ...m };
+  const removeItemInActiveDay = useCallback(
+    (uid) => {
+      updateActiveDay((slots) => slots.map((s) => ({ ...s, items: s.items.filter((it) => it.uid !== uid) })));
+    },
+    [updateActiveDay]
+  );
+
+  const handleCopyDay = useCallback(
+    (targetKeys) => {
+      setDaysState((prev) => {
+        const source = prev[activeDay];
+        const next = { ...prev };
+        targetKeys.forEach((key) => {
+          next[key] = source.map((s) => ({ ...s, items: s.items.map((it) => ({ ...it, uid: newUid() })) }));
         });
-        return { ...s, items };
-      })
-    );
-  };
-
-  const mealsPayload = () => {
-    const o = {};
-    slots.forEach((s) => {
-      o[s.slotKey] = {
-        foods: s.items.map((it) => ({
-          item: it.foodName,
-          foodRef: it.foodRef,
-          quantityGrams: it.quantityGrams ?? 100,
-          calories: it.calories ?? 0,
-          protein: it.protein ?? 0,
-          carbohydrates: it.carbohydrates ?? 0,
-          fats: it.fats ?? 0,
-        })),
-      };
-    });
-    return o;
-  };
-
-  const computeTotals = () => {
-    let totalCalories = 0;
-    let protein = 0;
-    let carbohydrates = 0;
-    let fats = 0;
-    let fiber = 0;
-    slots.forEach((s) => {
-      s.items.forEach((it) => {
-        totalCalories += Number(it.calories) || 0;
-        protein += Number(it.protein) || 0;
-        carbohydrates += Number(it.carbohydrates) || 0;
-        fats += Number(it.fats) || 0;
-        fiber += Number(it.fiber) || 0;
+        return next;
       });
-    });
-    return {
-      totalCalories: Math.round(totalCalories),
-      protein: Math.round(protein * 10) / 10,
-      carbohydrates: Math.round(carbohydrates * 10) / 10,
-      fats: Math.round(fats * 10) / 10,
-      fiber: Math.round(fiber * 10) / 10,
-    };
-  };
+    },
+    [activeDay]
+  );
+
+  const handleSelectSubstitute = useCallback(
+    (candidate) => {
+      if (!substitutesItem) return;
+      const macros = macrosForGrams({ nutrition: candidate.nutrition }, substitutesItem.quantityGrams);
+      updateItemInActiveDay(substitutesItem.uid, {
+        foodRef: candidate.id,
+        foodName: candidate.name,
+        foodCategory: candidate.category,
+        quantityLabel: null,
+        unitName: 'g',
+        ...macros,
+      });
+      setSubstitutesItem(null);
+    },
+    [substitutesItem, updateItemInActiveDay]
+  );
+
+  const handleDragStart = useCallback(
+    ({ active }) => {
+      const activeId = String(active.id);
+      if (activeId.startsWith('food:')) {
+        setActiveDragLabel(active.data.current?.food?.name || null);
+      } else if (activeId.startsWith('item:')) {
+        const uid = activeId.slice(5);
+        const item = daysState[activeDay].flatMap((s) => s.items).find((it) => it.uid === uid);
+        setActiveDragLabel(item?.foodName || null);
+      }
+    },
+    [daysState, activeDay]
+  );
+
+  const handleDragEnd = useCallback(
+    ({ active, over }) => {
+      setActiveDragLabel(null);
+      if (!over) return;
+      const activeId = String(active.id);
+      const overId = String(over.id);
+
+      if (activeId.startsWith('food:')) {
+        const food = active.data.current?.food;
+        if (!food) return;
+        updateActiveDay((slots) => {
+          let targetSlotKey;
+          let targetIndex;
+          if (overId.startsWith('slot:')) {
+            targetSlotKey = overId.slice(5);
+            targetIndex = slots.find((s) => s.slotKey === targetSlotKey).items.length;
+          } else if (overId.startsWith('item:')) {
+            const overUid = overId.slice(5);
+            const slot = slots.find((s) => s.items.some((it) => it.uid === overUid));
+            if (!slot) return slots;
+            targetSlotKey = slot.slotKey;
+            targetIndex = slot.items.findIndex((it) => it.uid === overUid);
+          } else {
+            return slots;
+          }
+          return insertFoodAt(slots, targetSlotKey, targetIndex, food);
+        });
+        return;
+      }
+
+      if (activeId.startsWith('item:')) {
+        const uid = activeId.slice(5);
+        updateActiveDay((slots) => {
+          let targetSlotKey;
+          let targetIndex;
+          if (overId.startsWith('slot:')) {
+            targetSlotKey = overId.slice(5);
+            targetIndex = slots.find((s) => s.slotKey === targetSlotKey).items.length;
+          } else if (overId.startsWith('item:')) {
+            const overUid = overId.slice(5);
+            if (overUid === uid) return slots;
+            const slot = slots.find((s) => s.items.some((it) => it.uid === overUid));
+            if (!slot) return slots;
+            targetSlotKey = slot.slotKey;
+            targetIndex = slot.items.findIndex((it) => it.uid === overUid);
+          } else {
+            return slots;
+          }
+          return moveItemInDay(slots, uid, targetSlotKey, targetIndex);
+        });
+      }
+    },
+    [updateActiveDay]
+  );
 
   const handleSave = async () => {
     if (!nombre.trim()) {
@@ -315,12 +360,13 @@ export default function MenuBuilder() {
     setSaving(true);
     setSaveError('');
     try {
-      const nutrition = computeTotals();
-      const meals = mealsPayload();
+      const days = DAYS.map((d) => ({ key: d.key, meals: daySlotsToMealsPayload(daysState[d.key]) }));
+      const repKey = representativeDayKey(daysState);
       const body = {
         name: nombre.trim(),
-        meals,
-        nutrition,
+        days,
+        meals: daySlotsToMealsPayload(daysState[repKey]),
+        nutrition: computeWeekNutrition(daysState),
         isTemplate: plantilla || !linkedPatientId,
       };
       if (linkedPatientId) body.patient = linkedPatientId;
@@ -341,13 +387,8 @@ export default function MenuBuilder() {
     }
   };
 
-  const onDragEnd = ({ active, over }) => {
-    setArrastrando(null);
-    if (!over) return;
-    const slotKey = String(over.id).replace(/^slot:/, '');
-    const food = active.data.current?.food;
-    if (food && slotKey) addFoodToSlot(slotKey, food);
-  };
+  const activeSlots = daysState[activeDay];
+  const totals = useMemo(() => computeDayTotals(activeSlots), [activeSlots]);
 
   if (loadingPlan) {
     return (
@@ -374,10 +415,7 @@ export default function MenuBuilder() {
         <Button as={Link} variant="ghost" size="sm" to="/dietas" className="w-fit gap-2 text-[var(--ink-muted)]">
           <ArrowLeft size={18} /> Volver
         </Button>
-        <Button size="sm"
-          type="button"
-          onClick={handleSave}
-          disabled={saving} className="gap-2">
+        <Button size="sm" type="button" onClick={handleSave} disabled={saving} className="gap-2">
           {saving ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
           Guardar dieta
         </Button>
@@ -396,130 +434,90 @@ export default function MenuBuilder() {
         </div>
       ) : null}
 
+      <Card className="p-5">
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
+          Nombre del plan
+        </label>
+        <input
+          type="text"
+          className="input w-full"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Ej. Plan control glucémico"
+        />
+        {patient && (
+          <p className="mt-2 text-xs text-[var(--ink-secondary)]">
+            Asociado a {patient.firstName} {patient.lastName}.
+            {(patient.alergias || patient.patologias?.length > 0) && ' Revisa sus alertas antes de armar el plan.'}
+          </p>
+        )}
+      </Card>
+
+      <StickyMacroBar
+        activeDay={activeDay}
+        onChangeDay={setActiveDay}
+        portionMode={portionMode}
+        onChangePortionMode={setPortionMode}
+        totals={totals}
+        meta={meta}
+        onOpenMeta={() => setMetaModalOpen(true)}
+        onCopyDay={handleCopyDay}
+      />
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragStart={({ active }) => setArrastrando(active.data.current?.food || null)}
-        onDragCancel={() => setArrastrando(null)}
-        onDragEnd={onDragEnd}
+        onDragStart={handleDragStart}
+        onDragCancel={() => setActiveDragLabel(null)}
+        onDragEnd={handleDragEnd}
       >
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
-          <Card className="p-5">
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
-              Nombre del plan
-            </label>
-            <input
-              type="text"
-              className="input w-full"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder="Ej. Plan control glucémico"
-            />
-            {linkedPatientId && (
-              <p className="mt-2 text-xs text-[var(--ink-secondary)]">
-                Asociado al paciente (ID en URL). Puedes abrir el paciente desde Pacientes.
-              </p>
-            )}
-          </Card>
-
-          {slots.map((slot) => (
-            <TiempoSoltable key={slot.slotKey} slotKey={slot.slotKey}>
-              <div className="border-b border-[var(--border-soft)] bg-[var(--surface-alt)] px-5 py-3">
-                <h3 className="text-sm font-semibold text-[var(--ink)]">{slot.slotLabel}</h3>
-              </div>
-              <div className="divide-y divide-[var(--border-soft)]">
-                {slot.items.length === 0 ? (
-                  <p className="px-5 py-6 text-sm text-[var(--ink-secondary)]">
-                    Arrastra alimentos desde la derecha, o usa los botones «+ {slot.slotLabel}» del buscador.
-                  </p>
-                ) : (
-                  slot.items.map((item, idx) => (
-                    <div key={`${slot.slotKey}-${idx}`} className="flex flex-wrap items-center gap-3 px-5 py-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-[var(--ink)]">{item.foodName}</p>
-                        <p className="text-xs text-[var(--ink-secondary)]">
-                          {item.calories} kcal · P {item.protein}g · HC {item.carbohydrates}g · G {item.fats}g
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          className="input w-24 py-1.5 text-sm"
-                          value={item.quantityGrams ?? ''}
-                          onChange={(e) => updateItemGrams(slot.slotKey, idx, e.target.value)}
-                        />
-                        <span className="text-xs text-[var(--ink-secondary)]">g</span>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(slot.slotKey, idx)}
-                          className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[rgba(255,59,48,0.08)] hover:text-[var(--danger)]"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </TiempoSoltable>
-          ))}
-        </div>
-
-        <div className="lg:col-span-1">
-          <Card className="sticky top-24 p-5">
-            <h3 className="mb-3 text-sm font-semibold text-[var(--ink)]">Alimentos</h3>
-            <div className="relative mb-3">
-              <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]" />
-              <input
-                type="text"
-                className="input w-full py-2 pl-9 text-sm"
-                placeholder="Buscar…"
-                value={foodSearch}
-                onChange={(e) => setFoodSearch(e.target.value)}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-4">
+            {activeSlots.map((slot) => (
+              <MealSlotCard
+                key={slot.slotKey}
+                slot={slot}
+                foods={foods}
+                portionMode={portionMode}
+                onAddFood={(food) => addFoodToActiveDay(slot.slotKey, food)}
+                onUpdateItem={updateItemInActiveDay}
+                onRemoveItem={removeItemInActiveDay}
+                onOpenSubstitutes={setSubstitutesItem}
               />
-            </div>
-            {foodsLoading ? (
-              <div className="flex items-center gap-2 py-8 text-sm text-[var(--ink-muted)]">
-                <Loader className="animate-spin" size={18} /> Cargando…
-              </div>
-            ) : (
-              <div className="max-h-[60vh] space-y-1 overflow-y-auto pr-1">
-                {filteredFoods.slice(0, 120).map((food) => (
-                  <AlimentoArrastrable key={food._id} food={food}>
-                    <p className="truncate text-sm font-medium text-[var(--ink)]">{food.name}</p>
-                    <p className="text-xs text-[var(--ink-secondary)]">
-                      {nutritionPer100g(food).energy} kcal / 100g
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {slots.map((s) => (
-                        <button
-                          key={s.slotKey}
-                          type="button"
-                          onClick={() => addFoodToSlot(s.slotKey, food)}
-                          className="rounded-md border border-[var(--border-soft)] bg-[var(--surface-alt)] px-2 py-0.5 text-[10px] font-medium text-[var(--ink-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
-                        >
-                          + {s.slotLabel}
-                        </button>
-                      ))}
-                    </div>
-                  </AlimentoArrastrable>
-                ))}
-              </div>
-            )}
-          </Card>
-        </div>
-      </div>
-
-      <DragOverlay dropAnimation={null}>
-        {arrastrando ? (
-          <div className="rounded-[var(--radius-m)] border border-[var(--accent)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--ink)] shadow-card">
-            {arrastrando.name}
+            ))}
           </div>
-        ) : null}
-      </DragOverlay>
+
+          <div className="lg:col-span-1">
+            <FoodBrowserPanel
+              foods={foods}
+              loading={foodsLoading}
+              search={foodSearch}
+              onSearchChange={setFoodSearch}
+              onQuickAdd={addFoodToActiveDay}
+            />
+          </div>
+        </div>
+
+        <DragOverlay dropAnimation={null}>
+          {activeDragLabel ? (
+            <div className="rounded-[var(--radius-m)] border border-[var(--accent)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--ink)] shadow-card">
+              {activeDragLabel}
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
+
+      <MetaModal
+        open={metaModalOpen}
+        meta={meta}
+        onClose={() => setMetaModalOpen(false)}
+        onSave={(next) => {
+          setMeta(next);
+          setMetaModalOpen(false);
+        }}
+      />
+
+      <SubstitutesModal item={substitutesItem} onClose={() => setSubstitutesItem(null)} onSelect={handleSelectSubstitute} />
     </div>
   );
 }

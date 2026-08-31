@@ -30,22 +30,5 @@ Para revivir el router: devolver los dos archivos a `routes/` y
 en `app.js`, y decidir qué implementación manda. Si el objetivo es exponer la
 API a terceros, la del servidor; si es alimentar la interfaz, no hace falta.
 
-## `/api/food-exchange`
-
-`foodExchange.routes.js` y `foodExchange.controller.js`. Exponía
-`POST /equivalents`, `GET /by-category/:category` y `POST /batch` sobre el
-catálogo de `Food`.
-
-Su única pantalla era `FoodExchangeModal.jsx`, que llevaba tiempo en el
-repositorio sin que nadie la importara y se borró en `d36d8f8`. El código
-del modal está en el historial de git si se quiere recuperar como punto de
-partida.
-
-**Este es el más probable de los dos que vuelva.** El intercambio de
-alimentos es funcionalidad clínica corriente: permite sustituir un alimento
-por otro equivalente en aportes al armar un plan. Lo que falta no es backend
-—está hecho— sino enlazarlo desde el constructor de dietas (`MenuBuilder.jsx`).
-
-Para revivirlo: devolver los dos archivos, restaurar el `import` y el
-`app.use('/api/food-exchange', …)`, volver a declarar `foodExchangeAPI` en
-`frontend/src/services/api.js`, y construir la interfaz que lo consuma.
+`/api/food-exchange` volvió a `routes/`/`controllers/` y se enlazó desde el
+botón "Sustitutos sugeridos" de `MenuBuilder.jsx` — ya no vive aquí.
