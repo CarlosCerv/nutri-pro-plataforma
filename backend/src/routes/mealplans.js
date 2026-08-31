@@ -7,6 +7,7 @@ import {
     deleteMealPlan,
 } from '../controllers/mealPlanController.js';
 import { protect } from '../middleware/auth.js';
+import { mealPlanValidators } from '../middleware/validators.js';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.use(protect);
 
 router.route('/')
     .get(getMealPlans)
-    .post(createMealPlan);
+    .post(mealPlanValidators, createMealPlan);
 
 router.route('/:id')
     .get(getMealPlan)

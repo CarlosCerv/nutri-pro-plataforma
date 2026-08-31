@@ -12,6 +12,7 @@ import {
     getLabResults,
 } from '../controllers/patientController.js';
 import { protect } from '../middleware/auth.js';
+import { patientValidators, patientUpdateValidators } from '../middleware/validators.js';
 
 const router = express.Router();
 
@@ -20,14 +21,14 @@ router.use(protect);
 
 router.route('/')
     .get(getPatients)
-    .post(createPatient);
+    .post(patientValidators, createPatient);
 
 // Export route must come before /:id to avoid conflicts
 router.get('/export', exportPatients);
 
 router.route('/:id')
     .get(getPatient)
-    .put(updatePatient)
+    .put(patientUpdateValidators, updatePatient)
     .delete(deletePatient);
 
 router.post('/:id/upload', upload.single('document'), uploadDocument);

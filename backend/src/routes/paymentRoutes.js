@@ -7,6 +7,7 @@ import {
     getPaymentSummary
 } from '../controllers/paymentController.js';
 import { protect } from '../middleware/auth.js';
+import { paymentValidators } from '../middleware/validators.js';
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.get('/summary', getPaymentSummary);
 
 router.route('/')
     .get(getPayments)
-    .post(createPayment);
+    .post(paymentValidators, createPayment);
 
 router.route('/:id')
     .put(updatePayment)

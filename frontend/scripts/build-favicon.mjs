@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
-import toIco from 'to-ico';
+// png-to-ico en vez de to-ico: este último lleva años sin mantenimiento y
+// arrastraba jimp, request, minimist y mkdirp, que entre los cuatro eran la
+// mayor parte de las vulnerabilidades críticas del proyecto.
+import pngToIco from 'png-to-ico';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
@@ -13,7 +16,7 @@ const buf48 = await sharp(svg).resize(48, 48).png().toBuffer();
 const buf32 = await sharp(svg).resize(32, 32).png().toBuffer();
 const buf16 = await sharp(svg).resize(16, 16).png().toBuffer();
 
-const ico = await toIco([buf48, buf32, buf16]);
+const ico = await pngToIco([buf16, buf32, buf48]);
 fs.writeFileSync(path.join(root, 'public', 'favicon.ico'), ico);
 console.log('Wrote public/favicon.ico');
 

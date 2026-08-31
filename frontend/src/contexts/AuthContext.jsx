@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -17,7 +17,52 @@ export const AuthProvider = ({ children }) => {
         const savedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
-    const [loading] = useState(false);
+
+    // Hay sesión guardada mientras se verifica contra el servidor, así que la
+    // aplicación arranca en estado de carga y no parpadea hacia /login.
+    const [loading, setLoading] = useState(() =>
+        Boolean(localStorage.getItem('token') || sessionStorage.getItem('token'))
+    );
+
+    /**
+     * Verifica la sesión guardada contra el servidor al arrancar.
+     *
+     * Antes se confiaba ciegamente en lo que hubiera en localStorage: con un
+     * token caducado o revocado, la aplicación se pintaba entera como si el
+     * usuario estuviera dentro y solo fallaba al primer fetch, mostrando
+     * pantallas vacías sin explicación.
+     */
+    useEffect(() => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (!token) {
+            setLoading(false);
+            return undefined;
+        }
+
+        let cancelado = false;
+        (async () => {
+            try {
+                const res = await authAPI.getMe();
+                const actual = res.data?.data?.user || res.data?.data;
+                if (cancelado || !actual) return;
+                setUser(actual);
+                const almacen = localStorage.getItem('token') ? localStorage : sessionStorage;
+                almacen.setItem('user', JSON.stringify(actual));
+            } catch (err) {
+                // Un 401 ya limpia el almacenamiento en el interceptor de
+                // services/api.js. Un fallo de red no debe cerrar la sesión:
+                // se sigue con el usuario guardado y la app lo reintenta en la
+                // siguiente petición.
+                if (!cancelado && err.response?.status === 401) setUser(null);
+            } finally {
+                if (!cancelado) setLoading(false);
+            }
+        })();
+
+        return () => {
+            cancelado = true;
+        };
+    }, []);
 
     const login = async (email, password, rememberMe = false) => {
         try {

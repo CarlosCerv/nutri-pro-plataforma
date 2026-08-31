@@ -8,6 +8,7 @@ import {
     getTodayAppointments,
 } from '../controllers/appointmentController.js';
 import { protect } from '../middleware/auth.js';
+import { appointmentValidators } from '../middleware/validators.js';
 
 const router = express.Router();
 
@@ -16,14 +17,14 @@ router.use(protect);
 
 router.route('/')
     .get(getAppointments)
-    .post(createAppointment);
+    .post(appointmentValidators, createAppointment);
 
 // Debe ir antes de /:id para que "today" no se lea como un ObjectId.
 router.get('/today', getTodayAppointments);
 
 router.route('/:id')
     .get(getAppointment)
-    .put(updateAppointment)
+    .put(appointmentValidators, updateAppointment)
     .delete(deleteAppointment);
 
 export default router;

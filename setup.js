@@ -5,6 +5,7 @@
  * Automatiza la instalación y configuración inicial
  */
 
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -38,9 +39,16 @@ TWILIO_PHONE_NUMBER=
 const DEFAULT_FRONTEND_ENV = `VITE_API_URL=http://localhost:5000/api
 `;
 
+/**
+ * Secreto para firmar los JWT.
+ *
+ * Se genera con `crypto.randomBytes`, no con `Math.random`: este último no es
+ * criptográficamente seguro y su salida es predecible a partir del estado del
+ * generador, lo que permitiría falsificar tokens de sesión. Antes producía
+ * además solo ~26 caracteres de base36 (~67 bits); ahora son 32 bytes.
+ */
 function generateRandomSecret() {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15);
+  return crypto.randomBytes(32).toString('hex');
 }
 
 function createEnvFile(filePath, content, fileName) {

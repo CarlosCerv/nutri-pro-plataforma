@@ -12,18 +12,25 @@ export const checkAndSendReminders = async () => {
     try {
 
 
-        // Calculate the time window: 23 to 25 hours from now
-        // This gives us a 2-hour window to catch appointments ~24 hours away
+        // Ventana de 0 a 36 horas.
+        //
+        // Antes era de 23 a 25 h, lo que exigía correr el cron cada hora para
+        // no dejar huecos — y el plan Hobby de Vercel no permite más de una
+        // ejecución diaria, así que en la práctica los recordatorios no se
+        // enviaban. Con una ventana de 36 h y una ejecución diaria, toda cita
+        // queda cubierta al menos una vez con un aviso de entre 12 y 36 horas
+        // de anticipación.
+        //
+        // Ampliar la ventana es seguro porque el flag `reminderSent` del
+        // modelo Appointment impide reenviar: una cita nunca recibe dos
+        // recordatorios aunque caiga en dos ejecuciones consecutivas.
         const now = new Date();
-        const windowStart = new Date(now.getTime() + 23 * 60 * 60 * 1000); // 23 hours from now
-        const windowEnd = new Date(now.getTime() + 25 * 60 * 60 * 1000);   // 25 hours from now
+        const windowStart = now;
+        const windowEnd = new Date(now.getTime() + 36 * 60 * 60 * 1000);
 
 
 
-        // Find appointments that:
-        // 1. Are scheduled within the next 24 hours (±1 hour)
-        // 2. Haven't had a reminder sent yet
-        // 3. Are not cancelled or completed
+        // Citas dentro de la ventana, sin recordatorio enviado y no canceladas.
         const appointments = await Appointment.find({
             date: {
                 $gte: windowStart,
