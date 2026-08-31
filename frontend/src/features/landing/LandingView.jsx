@@ -6,12 +6,14 @@ import BentoGrid from './components/BentoGrid';
 import ComparisonTable from './components/ComparisonTable';
 import RoiCalculator from './components/RoiCalculator';
 import PricingSection from './components/PricingSection';
+import FaqSection from './components/FaqSection';
 import LandingFooter from './components/LandingFooter';
+import MobileStickyCta from './components/MobileStickyCta';
 
 /**
  * Componente principal de la Landing Page Oficial de NutriPro.
  * Estructurado de forma 100% autocontenida y aislada en `src/features/landing/`,
- * cumpliendo con el sistema de diseño del proyecto.
+ * optimizado para Mobile-First, CRO y diseño Apple-Style Frontend.
  */
 export default function LandingView({ onCtaClick }) {
   useEffect(() => {
@@ -26,7 +28,7 @@ export default function LandingView({ onCtaClick }) {
 
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--ink)] font-sans antialiased selection:bg-[var(--accent-soft)] selection:text-[var(--accent)]">
-      {/* Barra de navegación fija */}
+      {/* Barra de navegación fija con soporte safe-area-inset-top */}
       <LandingNavbar onCtaClick={onCtaClick} />
 
       {/* Contenido principal */}
@@ -36,10 +38,14 @@ export default function LandingView({ onCtaClick }) {
         <ComparisonTable />
         <RoiCalculator onCtaClick={onCtaClick} />
         <PricingSection onPlanSelect={onCtaClick} />
+        <FaqSection onCtaClick={onCtaClick} />
       </main>
 
-      {/* Pie de página */}
+      {/* Pie de página con soporte safe-area-inset-bottom */}
       <LandingFooter />
+
+      {/* Barra flotante fija inferior para dispositivos móviles (< 768px) */}
+      <MobileStickyCta onCtaClick={onCtaClick} />
     </div>
   );
 }

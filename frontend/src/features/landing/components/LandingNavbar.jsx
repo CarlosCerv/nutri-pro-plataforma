@@ -5,8 +5,10 @@ import { Link } from 'react-router-dom';
 
 /**
  * Barra de navegación superior fija para la Landing Page de NutriPro.
- * Aplica el efecto de vidrio esmerilado (glassmorphism), con
- * navegación anclada suave y botones de acción tipo píldora.
+ * Diseñada para Mobile-First:
+ * - Soporte para safe-area-inset-top en dispositivos móviles
+ * - Touch targets accesibles de mínimo 44x44px
+ * - Glassmorphism con backdrop-blur
  */
 export default function LandingNavbar({ onCtaClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,15 +37,15 @@ export default function LandingNavbar({ onCtaClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[var(--border-soft)]/60 bg-[rgba(255,255,255,0.82)] backdrop-blur-xl transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full border-b border-[var(--border-soft)]/60 bg-[rgba(255,255,255,0.85)] backdrop-blur-xl transition-all duration-300 pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Marca / Logo */}
+        {/* Marca / Logo con touch target cómodo */}
         <Link
           to="/"
-          className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded-lg p-1"
+          className="flex items-center gap-2.5 min-h-[44px] min-w-[44px] transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3] rounded-xl p-1"
           aria-label="NutriPro Inicio"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[var(--accent)] shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#0071E3] shadow-sm">
             <svg
               viewBox="0 0 128 128"
               className="h-5 w-5 text-white fill-none stroke-current"
@@ -52,19 +54,19 @@ export default function LandingNavbar({ onCtaClick }) {
               <path d="M 42 90 L 42 38 L 86 90 L 86 38" />
             </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight text-[var(--ink)]">
-            <span className="text-[var(--accent)]">Nutri</span>Pro
+          <span className="text-xl font-bold tracking-tight text-[#1D1D1F]">
+            <span className="text-[#0071E3]">Nutri</span>Pro
           </span>
         </Link>
 
         {/* Enlaces de Navegación de Escritorio */}
-        <nav className="hidden md:flex items-center gap-8" aria-label="Navegación principal">
+        <nav className="hidden md:flex items-center gap-7" aria-label="Navegación principal">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={(e) => handleLinkClick(e, link.href)}
-              className="text-[14px] font-medium text-[var(--ink-secondary)] hover:text-[var(--ink)] transition-colors duration-200"
+              className="text-[14px] font-medium text-[#424245] hover:text-[#1D1D1F] transition-colors duration-200 py-2"
             >
               {link.label}
             </a>
@@ -75,26 +77,26 @@ export default function LandingNavbar({ onCtaClick }) {
         <div className="hidden md:flex items-center gap-3">
           <Link
             to="/login"
-            className="text-[14px] font-medium text-[var(--ink-muted)] hover:text-[var(--ink)] px-4 py-2 rounded-full transition-colors duration-200"
+            className="text-[14px] font-medium text-[#424245] hover:text-[#1D1D1F] px-4 py-2.5 rounded-full transition-colors duration-200 min-h-[44px] inline-flex items-center justify-center"
           >
             Iniciar Sesión
           </Link>
           <Link
             to="/register"
             onClick={onCtaClick}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0071E3] hover:bg-[#0077ED] px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3] focus-visible:ring-offset-2"
           >
             <Sparkles className="h-4 w-4" />
             <span>Prueba Gratis 14 Días</span>
           </Link>
         </div>
 
-        {/* Botón Menú Móvil */}
+        {/* Botón Menú Móvil con área táctil mínima de 44x44px */}
         <div className="flex md:hidden">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="inline-flex items-center justify-center p-2 rounded-full text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-alt)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full text-[#424245] hover:text-[#1D1D1F] hover:bg-[var(--surface-alt)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3] cursor-pointer"
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
           >
@@ -106,13 +108,13 @@ export default function LandingNavbar({ onCtaClick }) {
       {/* Menú Desplegable Móvil */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-[var(--border-soft)] bg-[var(--surface)] px-4 pt-3 pb-6 space-y-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
-          <nav className="flex flex-col space-y-2">
+          <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleLinkClick(e, link.href)}
-                className="px-3 py-2.5 rounded-lg text-[15px] font-medium text-[var(--ink)] hover:bg-[var(--surface-alt)] transition-colors"
+                className="flex items-center px-3 min-h-[44px] rounded-xl text-[15px] font-medium text-[#1D1D1F] hover:bg-[var(--surface-alt)] transition-colors"
               >
                 {link.label}
               </a>
@@ -121,7 +123,7 @@ export default function LandingNavbar({ onCtaClick }) {
           <div className="pt-3 border-t border-[var(--border-soft)] flex flex-col gap-2.5">
             <Link
               to="/login"
-              className="w-full text-center py-2.5 text-[15px] font-medium text-[var(--ink-muted)] rounded-full hover:bg-[var(--surface-alt)]"
+              className="w-full text-center min-h-[44px] inline-flex items-center justify-center text-[15px] font-medium text-[#424245] rounded-full hover:bg-[var(--surface-alt)]"
             >
               Iniciar Sesión
             </Link>
@@ -131,7 +133,7 @@ export default function LandingNavbar({ onCtaClick }) {
                 setMobileMenuOpen(false);
                 if (onCtaClick) onCtaClick();
               }}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] py-3 text-[15px] font-semibold text-white shadow-sm hover:bg-[var(--accent-hover)]"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#0071E3] hover:bg-[#0077ED] min-h-[48px] text-[15px] font-semibold text-white shadow-sm active:scale-[0.98]"
             >
               <span>Comenzar Prueba Gratis</span>
               <ArrowRight className="h-4 w-4" />
