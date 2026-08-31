@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import Card from '../design-system/components/Card';
+import { Button } from '../design-system/components';
 
 const DashboardInsights = lazy(() => import('../components/Dashboard/DashboardInsights'));
 
@@ -91,12 +92,12 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link to="/pacientes/nuevo" className="btn btn-outline btn-sm gap-1.5">
+          <Button as={Link} variant="outline" size="sm" to="/pacientes/nuevo" className="gap-1.5">
             <Plus size={14} /> Paciente
-          </Link>
-          <Link to="/dietas/nueva" className="btn btn-primary btn-sm gap-1.5">
+          </Button>
+          <Button as={Link} size="sm" to="/dietas/nueva" className="gap-1.5">
             <Plus size={14} /> Nueva Dieta
-          </Link>
+          </Button>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import Button from '../design-system/components/Button.jsx';
 import Combobox from '../design-system/components/Combobox.jsx';
 import FormSection from '../design-system/components/FormSection.jsx';
 import { LoadingState } from '../design-system/components/StateViews.jsx';
-import { Card } from '../design-system/components';
+import { Card, Input, Textarea } from '../design-system/components';
 
 /**
  * Alta y edición de paciente.
@@ -58,17 +58,6 @@ const FORM_VACIO = {
 };
 
 const numero = (v) => (v === '' || v === null || v === undefined ? undefined : parseFloat(v));
-
-const Campo = ({ label, htmlFor, required, unit, children }) => (
-  <div className="form-group">
-    <label className="label" htmlFor={htmlFor}>
-      {label}
-      {unit ? <span className="normal-case text-[var(--ink-secondary)]"> ({unit})</span> : null}
-      {required ? <span className="text-[var(--danger)]"> *</span> : null}
-    </label>
-    {children}
-  </div>
-);
 
 export default function NewPatient() {
   const navigate = useNavigate();
@@ -196,21 +185,11 @@ export default function NewPatient() {
   const identificacion = (
     <FormSection title="Identificación" description="Con esto basta para crear el expediente.">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Campo label="Nombre" htmlFor="p-nombre" required>
-          <input id="p-nombre" className="input" required value={form.firstName} onChange={(e) => set('firstName', e.target.value)} placeholder="Ej. Carlos" disabled={loading} />
-        </Campo>
-        <Campo label="Apellido" htmlFor="p-apellido" required>
-          <input id="p-apellido" className="input" required value={form.lastName} onChange={(e) => set('lastName', e.target.value)} placeholder="Ej. Cervantes" disabled={loading} />
-        </Campo>
-        <Campo label="Correo" htmlFor="p-email">
-          <input id="p-email" type="email" className="input" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="carlos@ejemplo.com" disabled={loading} />
-        </Campo>
-        <Campo label="Teléfono" htmlFor="p-tel">
-          <input id="p-tel" type="tel" className="input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+52 …" disabled={loading} />
-        </Campo>
-        <Campo label="Fecha de nacimiento" htmlFor="p-dob">
-          <input id="p-dob" type="date" className="input" value={form.dateOfBirth} onChange={(e) => set('dateOfBirth', e.target.value)} disabled={loading} />
-        </Campo>
+        <Input id="p-nombre" label="Nombre" required value={form.firstName} onChange={(e) => set('firstName', e.target.value)} placeholder="Ej. Carlos" disabled={loading} />
+        <Input id="p-apellido" label="Apellido" required value={form.lastName} onChange={(e) => set('lastName', e.target.value)} placeholder="Ej. Cervantes" disabled={loading} />
+        <Input id="p-email" label="Correo" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="carlos@ejemplo.com" disabled={loading} />
+        <Input id="p-tel" label="Teléfono" type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+52 …" disabled={loading} />
+        <Input id="p-dob" label="Fecha de nacimiento" type="date" value={form.dateOfBirth} onChange={(e) => set('dateOfBirth', e.target.value)} disabled={loading} />
         <Combobox name="gender" label="Género" options={GENEROS} value={form.gender} onChange={onSelect} placeholder="Seleccionar…" disabled={loading} />
       </div>
     </FormSection>
@@ -220,30 +199,14 @@ export default function NewPatient() {
     <>
       <FormSection title="Medidas iniciales" description="Opcional. Las mediciones de seguimiento se capturan después, en la pestaña Evolución del expediente.">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Campo label="Peso" htmlFor="p-peso" unit="kg">
-            <input id="p-peso" type="number" step="0.1" min="0" className="input" value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="70.5" disabled={loading} />
-          </Campo>
-          <Campo label="Talla" htmlFor="p-talla" unit="cm">
-            <input id="p-talla" type="number" step="0.1" min="0" className="input" value={form.height} onChange={(e) => set('height', e.target.value)} placeholder="175" disabled={loading} />
-          </Campo>
-          <Campo label="Grasa" htmlFor="p-grasa" unit="%">
-            <input id="p-grasa" type="number" step="0.1" min="0" className="input" value={form.fatPercentage} onChange={(e) => set('fatPercentage', e.target.value)} disabled={loading} />
-          </Campo>
-          <Campo label="Masa muscular" htmlFor="p-musculo" unit="kg">
-            <input id="p-musculo" type="number" step="0.1" min="0" className="input" value={form.muscleMass} onChange={(e) => set('muscleMass', e.target.value)} disabled={loading} />
-          </Campo>
-          <Campo label="Agua" htmlFor="p-agua" unit="%">
-            <input id="p-agua" type="number" step="0.1" min="0" className="input" value={form.waterPercentage} onChange={(e) => set('waterPercentage', e.target.value)} disabled={loading} />
-          </Campo>
-          <Campo label="Grasa visceral" htmlFor="p-visceral">
-            <input id="p-visceral" type="number" step="0.1" min="0" className="input" value={form.visceralFat} onChange={(e) => set('visceralFat', e.target.value)} disabled={loading} />
-          </Campo>
-          <Campo label="Masa ósea" htmlFor="p-osea" unit="kg">
-            <input id="p-osea" type="number" step="0.1" min="0" className="input" value={form.boneMass} onChange={(e) => set('boneMass', e.target.value)} disabled={loading} />
-          </Campo>
-          <Campo label="Edad metabólica" htmlFor="p-edadmet" unit="años">
-            <input id="p-edadmet" type="number" min="0" className="input" value={form.metabolicAge} onChange={(e) => set('metabolicAge', e.target.value)} disabled={loading} />
-          </Campo>
+          <Input id="p-peso" label="Peso (kg)" type="number" step="0.1" min="0" value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="70.5" disabled={loading} />
+          <Input id="p-talla" label="Talla (cm)" type="number" step="0.1" min="0" value={form.height} onChange={(e) => set('height', e.target.value)} placeholder="175" disabled={loading} />
+          <Input id="p-grasa" label="Grasa (%)" type="number" step="0.1" min="0" value={form.fatPercentage} onChange={(e) => set('fatPercentage', e.target.value)} disabled={loading} />
+          <Input id="p-musculo" label="Masa muscular (kg)" type="number" step="0.1" min="0" value={form.muscleMass} onChange={(e) => set('muscleMass', e.target.value)} disabled={loading} />
+          <Input id="p-agua" label="Agua (%)" type="number" step="0.1" min="0" value={form.waterPercentage} onChange={(e) => set('waterPercentage', e.target.value)} disabled={loading} />
+          <Input id="p-visceral" label="Grasa visceral" type="number" step="0.1" min="0" value={form.visceralFat} onChange={(e) => set('visceralFat', e.target.value)} disabled={loading} />
+          <Input id="p-osea" label="Masa ósea (kg)" type="number" step="0.1" min="0" value={form.boneMass} onChange={(e) => set('boneMass', e.target.value)} disabled={loading} />
+          <Input id="p-edadmet" label="Edad metabólica (años)" type="number" min="0" value={form.metabolicAge} onChange={(e) => set('metabolicAge', e.target.value)} disabled={loading} />
         </div>
       </FormSection>
 
@@ -256,18 +219,10 @@ export default function NewPatient() {
 
       <FormSection title="Antecedentes">
         <div className="grid gap-4">
-          <Campo label="Antecedentes personales" htmlFor="p-cond">
-            <textarea id="p-cond" rows="2" className="input" value={form.conditions} onChange={(e) => set('conditions', e.target.value)} placeholder="Enfermedades crónicas, cirugías, alergias… (separadas por comas)" disabled={loading} />
-          </Campo>
-          <Campo label="Antecedentes familiares" htmlFor="p-fam">
-            <textarea id="p-fam" rows="2" className="input" value={form.familyHistory} onChange={(e) => set('familyHistory', e.target.value)} placeholder="Diabetes, hipertensión, cáncer en la familia…" disabled={loading} />
-          </Campo>
-          <Campo label="Hábitos alimentarios" htmlFor="p-habitos">
-            <textarea id="p-habitos" rows="2" className="input" value={form.eatingHabits} onChange={(e) => set('eatingHabits', e.target.value)} disabled={loading} />
-          </Campo>
-          <Campo label="Notas" htmlFor="p-notas">
-            <textarea id="p-notas" rows="2" className="input" value={form.notes} onChange={(e) => set('notes', e.target.value)} disabled={loading} />
-          </Campo>
+          <Textarea id="p-cond" label="Antecedentes personales" rows="2" value={form.conditions} onChange={(e) => set('conditions', e.target.value)} placeholder="Enfermedades crónicas, cirugías, alergias… (separadas por comas)" disabled={loading} />
+          <Textarea id="p-fam" label="Antecedentes familiares" rows="2" value={form.familyHistory} onChange={(e) => set('familyHistory', e.target.value)} placeholder="Diabetes, hipertensión, cáncer en la familia…" disabled={loading} />
+          <Textarea id="p-habitos" label="Hábitos alimentarios" rows="2" value={form.eatingHabits} onChange={(e) => set('eatingHabits', e.target.value)} disabled={loading} />
+          <Textarea id="p-notas" label="Notas" rows="2" value={form.notes} onChange={(e) => set('notes', e.target.value)} disabled={loading} />
         </div>
       </FormSection>
     </>
@@ -275,9 +230,9 @@ export default function NewPatient() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 animate-fade-up">
-      <Link to={esEdicion ? `/pacientes/${id}` : '/pacientes'} className="btn btn-ghost btn-sm gap-2">
+      <Button as={Link} variant="ghost" size="sm" to={esEdicion ? `/pacientes/${id}` : '/pacientes'} className="gap-2">
         <ArrowLeft size={16} /> Volver
-      </Link>
+      </Button>
 
       {!esEdicion ? (
         <ol className="flex items-center gap-3 text-sm" aria-label="Progreso del alta">

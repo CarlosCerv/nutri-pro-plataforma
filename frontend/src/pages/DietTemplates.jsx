@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Layers, Copy, Edit3, Trash2, FileBadge, ArrowRight } from 'lucide-react';
 import api from '../services/api';
-import { Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components';
 
 export default function DietTemplates() {
   const [templates, setTemplates] = useState([]);
@@ -32,9 +32,9 @@ export default function DietTemplates() {
         <p className="text-sm text-[var(--ink-muted)]">
           Plantillas base y SMAE preconfiguradas para acelerar el armado de un plan.
         </p>
-        <Link to="/dietas/nueva?template=new" className="btn btn-primary btn-sm gap-2">
+        <Button as={Link} size="sm" to="/dietas/nueva?template=new" className="gap-2">
           <Layers size={16} /> Crear plantilla
-        </Link>
+        </Button>
       </div>
 
       <div className="relative w-full max-w-md">
@@ -59,9 +59,9 @@ export default function DietTemplates() {
           <FileBadge size={32} className="mx-auto text-[var(--ink-secondary)] mb-3" />
           <div className="text-[var(--ink-secondary)] font-semibold mb-1">Sin plantillas disponibles</div>
           <div className="text-[var(--ink-secondary)] text-xs mb-4">Crea tu primera plantilla para comenzar.</div>
-          <Link to="/dietas/nueva?template=new" className="btn btn-primary btn-sm gap-2">
+          <Button as={Link} size="sm" to="/dietas/nueva?template=new" className="gap-2">
             <Layers size={14} /> Crear Plantilla
-          </Link>
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import { X } from 'lucide-react';
+import Button from './Button.jsx';
 
 const SIZE_CLASS = {
   sm: 'max-w-sm',
@@ -57,9 +58,9 @@ const Modal = ({
         {title && (
           <div className="modal-header">
             <h3>{title}</h3>
-            <button type="button" className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Cerrar">
+            <Button variant="ghost" type="button" onClick={onClose} aria-label="Cerrar" iconOnly>
               <X size={20} />
-            </button>
+            </Button>
           </div>
         )}
         <div className="modal-body">{children}</div>

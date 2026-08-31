@@ -3,6 +3,7 @@ import { Menu, Plus } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { getPageMeta } from '../../lib/pageMeta';
 import GlobalSearch from './GlobalSearch.jsx';
+import Button from './Button.jsx';
 
 const QUICK_ACTIONS = [
   { label: 'Nuevo paciente', to: '/pacientes/nuevo' },
@@ -57,16 +58,14 @@ export default function Topbar({ onMenuToggle }) {
           </div>
 
           <div className="relative shrink-0 self-start pt-0.5">
-            <button
+            <Button size="sm"
               type="button"
               onClick={() => setQuickOpen(!quickOpen)}
-              className="btn btn-primary btn-sm min-h-11 px-3 md:inline-flex gap-1.5"
               aria-expanded={quickOpen}
-              aria-haspopup="menu"
-            >
+              aria-haspopup="menu" className="min-h-11 px-3 md:inline-flex gap-1.5">
               <Plus size={16} strokeWidth={1.75} />
               <span className="hidden sm:inline">Nuevo</span>
-            </button>
+            </Button>
             {quickOpen && (
               <>
                 <div

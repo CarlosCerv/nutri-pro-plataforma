@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { getApiErrorMessage } from '../../lib/apiError';
 import { ErrorState } from '../../design-system/components/StateViews';
-import { Card } from '../../design-system/components';
+import { Button, Card } from '../../design-system/components';
 
 const ESTADO_COLORS = { confirmada: 'badge-success', pendiente: 'badge-warning', cancelada: 'badge-danger' };
 
@@ -270,9 +270,9 @@ export default function DashboardInsights() {
           ) : (
             <div className="min-h-[220px] flex items-center justify-center flex-col gap-2">
               <p className="text-[var(--ink-secondary)]">Sin citas programadas</p>
-              <Link to="/agenda/nueva" className="btn btn-sm btn-primary gap-1">
+              <Button as={Link} size="sm" to="/agenda/nueva" className="gap-1">
                 <Plus size={13} /> Agendar cita
-              </Link>
+              </Button>
             </div>
           )}
           <Link to="/agenda/nueva" className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[var(--border-soft)] text-xs text-[var(--ink-secondary)] hover:text-[var(--accent-hover)] hover:border-[var(--accent-border)] transition-all duration-200">

@@ -3,6 +3,7 @@ import { ACTIVITY_FACTORS } from '../../lib/calculations/tmb';
 import api from '../../services/api';
 import useSaveState from '../../hooks/useSaveState';
 import SaveBar from '../../design-system/components/SaveBar.jsx';
+import { Button } from '../../design-system/components';
 
 const ACTIVIDADES_MET = [
   { nombre: 'Caminar (paso normal)',    met: 3.5  },
@@ -122,9 +123,9 @@ export default function PhysicalActivityTab({ patient }) {
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-2xs text-[var(--ink-secondary)]">min</span>
           </div>
-          <button type="button" onClick={addActividad} className="btn btn-outline btn-sm flex-shrink-0">
+          <Button variant="outline" size="sm" type="button" onClick={addActividad} className="flex-shrink-0">
             + Agregar
-          </button>
+          </Button>
         </div>
 
         {/* Lista de actividades */}

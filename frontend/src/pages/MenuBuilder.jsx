@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { mealPlansAPI, foodsAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
-import { Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components';
 
 /**
  * Alimento arrastrable del panel lateral.
@@ -363,7 +363,7 @@ export default function MenuBuilder() {
       <div className="mx-auto max-w-lg rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] p-8 text-center">
         <AlertCircle className="mx-auto mb-3 text-[var(--danger)]" size={40} />
         <p className="text-[var(--ink-muted)]">{loadError}</p>
-        <Link to="/dietas" className="btn btn-primary mt-4">Volver a dietas</Link>
+        <Button as={Link} to="/dietas" className="mt-4">Volver a dietas</Button>
       </div>
     );
   }
@@ -371,18 +371,16 @@ export default function MenuBuilder() {
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link to="/dietas" className="btn btn-ghost btn-sm w-fit gap-2 text-[var(--ink-muted)]">
+        <Button as={Link} variant="ghost" size="sm" to="/dietas" className="w-fit gap-2 text-[var(--ink-muted)]">
           <ArrowLeft size={18} /> Volver
-        </Link>
-        <button
+        </Button>
+        <Button size="sm"
           type="button"
           onClick={handleSave}
-          disabled={saving}
-          className="btn btn-primary btn-sm gap-2"
-        >
+          disabled={saving} className="gap-2">
           {saving ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
           Guardar dieta
-        </button>
+        </Button>
       </div>
 
       {/* El fallo al guardar se muestra en la página, no con `alert()`: el

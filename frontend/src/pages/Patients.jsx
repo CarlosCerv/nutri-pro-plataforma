@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { calcularIMC, clasificarIMC } from '../lib/calculations/imc';
-import { Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components';
 
 const FILTROS = ['Todos', 'Activos', 'Sin dieta', 'Con alerta'];
 
@@ -107,10 +107,10 @@ export default function Patients() {
         <p className="text-sm text-[var(--ink-muted)]">
           {patients.length} {patients.length === 1 ? 'paciente registrado' : 'pacientes registrados'}
         </p>
-        <Link to="/pacientes/nuevo" className="btn btn-primary gap-2 self-start sm:self-auto">
+        <Button as={Link} to="/pacientes/nuevo" className="gap-2 self-start sm:self-auto">
           <Plus size={16} />
           Nuevo paciente
-        </Link>
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -183,9 +183,9 @@ export default function Patients() {
                   </div>
                 </div>
                 {!search && (
-                  <Link to="/pacientes/nuevo" className="btn btn-primary btn-sm gap-1.5 mt-2">
+                  <Button as={Link} size="sm" to="/pacientes/nuevo" className="gap-1.5 mt-2">
                     <Plus size={13} /> Nuevo paciente
-                  </Link>
+                  </Button>
                 )}
               </div>
             ) : (

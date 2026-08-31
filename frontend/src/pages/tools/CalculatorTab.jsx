@@ -15,7 +15,7 @@ import { calcularIMC, clasificarIMC, calcularICC, clasificarICC } from '../../li
 import Combobox from '../../design-system/components/Combobox.jsx';
 import StatTile from '../../design-system/components/StatTile.jsx';
 import { EmptyState } from '../../design-system/components/StateViews.jsx';
-import { Card } from '../../design-system/components';
+import { Card, Input } from '../../design-system/components';
 
 /**
  * Calculadora nutricional.
@@ -46,16 +46,6 @@ const OBJETIVOS = [
 ];
 
 const TONO_IMC = { info: 'accent', normal: 'success', warning: 'warning', danger: 'danger' };
-
-const Campo = ({ label, unit, children }) => (
-  <div className="form-group">
-    <label className="label flex items-center gap-1.5">
-      {label}
-      {unit ? <span className="normal-case text-[var(--ink-secondary)]">({unit})</span> : null}
-    </label>
-    {children}
-  </div>
-);
 
 export default function CalculatorTab() {
   const [form, setForm] = useState({
@@ -114,15 +104,9 @@ export default function CalculatorTab() {
         </h2>
 
         <div className="grid grid-cols-2 gap-3">
-          <Campo label="Peso" unit="kg">
-            <input type="number" step="0.1" min="0" className="input" value={form.peso} onChange={(e) => set('peso', e.target.value)} placeholder="70" />
-          </Campo>
-          <Campo label="Talla" unit="cm">
-            <input type="number" step="0.1" min="0" className="input" value={form.talla} onChange={(e) => set('talla', e.target.value)} placeholder="175" />
-          </Campo>
-          <Campo label="Edad" unit="años">
-            <input type="number" min="0" className="input" value={form.edad} onChange={(e) => set('edad', e.target.value)} placeholder="30" />
-          </Campo>
+          <Input label="Peso (kg)" type="number" step="0.1" min="0" value={form.peso} onChange={(e) => set('peso', e.target.value)} placeholder="70" />
+          <Input label="Talla (cm)" type="number" step="0.1" min="0" value={form.talla} onChange={(e) => set('talla', e.target.value)} placeholder="175" />
+          <Input label="Edad (años)" type="number" min="0" value={form.edad} onChange={(e) => set('edad', e.target.value)} placeholder="30" />
           <Combobox
             name="sexo"
             label="Sexo"
@@ -130,15 +114,9 @@ export default function CalculatorTab() {
             value={form.sexo}
             onChange={onSelect}
           />
-          <Campo label="Cintura" unit="cm">
-            <input type="number" step="0.1" min="0" className="input" value={form.cintura} onChange={(e) => set('cintura', e.target.value)} placeholder="82" />
-          </Campo>
-          <Campo label="Cadera" unit="cm">
-            <input type="number" step="0.1" min="0" className="input" value={form.cadera} onChange={(e) => set('cadera', e.target.value)} placeholder="98" />
-          </Campo>
-          <Campo label="Masa magra" unit="kg">
-            <input type="number" step="0.1" min="0" className="input" value={form.masaMagra} onChange={(e) => set('masaMagra', e.target.value)} placeholder="Opcional" />
-          </Campo>
+          <Input label="Cintura (cm)" type="number" step="0.1" min="0" value={form.cintura} onChange={(e) => set('cintura', e.target.value)} placeholder="82" />
+          <Input label="Cadera (cm)" type="number" step="0.1" min="0" value={form.cadera} onChange={(e) => set('cadera', e.target.value)} placeholder="98" />
+          <Input label="Masa magra (kg)" type="number" step="0.1" min="0" value={form.masaMagra} onChange={(e) => set('masaMagra', e.target.value)} placeholder="Opcional" />
         </div>
 
         <Combobox

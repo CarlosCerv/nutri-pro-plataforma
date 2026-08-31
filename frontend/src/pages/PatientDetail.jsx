@@ -10,7 +10,7 @@ import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
 import { useToast } from '../contexts/ToastContext';
 import { patientsAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
-import { Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components';
 
 const GeneralDataTab = lazy(() => import('./patient-tabs/GeneralDataTab'));
 const EvolucionTab = lazy(() => import('./patient-tabs/EvolucionTab'));
@@ -129,13 +129,13 @@ export default function PatientDetail() {
         </div>
         <div className="text-sm text-[var(--ink-muted)]">{error}</div>
         <div className="flex gap-2">
-          <button type="button" onClick={fetchPatient} className="btn btn-primary btn-sm gap-2">
+          <Button size="sm" type="button" onClick={fetchPatient} className="gap-2">
             <RefreshCw size={14} />
             Reintentar
-          </button>
-          <Link to="/pacientes" className="btn btn-outline btn-sm">
+          </Button>
+          <Button as={Link} variant="outline" size="sm" to="/pacientes">
             Volver a pacientes
-          </Link>
+          </Button>
         </div>
       </div>
     );
@@ -148,9 +148,9 @@ export default function PatientDetail() {
           <User size={28} />
         </div>
         <div className="text-sm text-[var(--ink-muted)]">Paciente no encontrado</div>
-        <Link to="/pacientes" className="btn btn-outline btn-sm">
+        <Button as={Link} variant="outline" size="sm" to="/pacientes">
           ← Volver
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -261,27 +261,25 @@ export default function PatientDetail() {
           </div>
 
           <div className="flex flex-wrap gap-2 sm:flex-col sm:justify-start">
-            <Link to={`/pacientes/${id}/editar`} className="btn btn-ghost btn-sm gap-1.5">
+            <Button as={Link} variant="ghost" size="sm" to={`/pacientes/${id}/editar`} className="gap-1.5">
               <Edit3 size={13} strokeWidth={1.75} /> Editar
-            </Link>
-            <Link to={`/dietas/nueva?paciente=${id}`} className="btn btn-outline btn-sm gap-1.5">
+            </Button>
+            <Button as={Link} variant="outline" size="sm" to={`/dietas/nueva?paciente=${id}`} className="gap-1.5">
               <Salad size={13} strokeWidth={1.75} /> Nueva dieta
-            </Link>
+            </Button>
             {/* La exportación a PDF vive en la pestaña de dietas, junto al plan
                 que se exporta (hooks/usePDFExport.js). Antes este botón no
                 tenía onClick y no hacía absolutamente nada. */}
-            <Link to={`/pacientes/${id}/dietas`} className="btn btn-secondary btn-sm gap-1.5">
+            <Button as={Link} variant="secondary" size="sm" to={`/pacientes/${id}/dietas`} className="gap-1.5">
               <Download size={13} strokeWidth={1.75} /> Exportar PDF
-            </Link>
+            </Button>
             {/* `patientsAPI.delete` existía sin que ninguna pantalla lo
                 expusiera: no había forma de dar de baja a un paciente. */}
-            <button
+            <Button variant="ghost" size="sm"
               type="button"
-              onClick={() => setConfirmarBorrado(true)}
-              className="btn btn-ghost btn-sm gap-1.5 text-[var(--danger)] hover:bg-[rgba(196,30,22,0.08)]"
-            >
+              onClick={() => setConfirmarBorrado(true)} className="gap-1.5 text-[var(--danger)] hover:bg-[rgba(196,30,22,0.08)]">
               <Trash2 size={13} strokeWidth={1.75} /> Eliminar
-            </button>
+            </Button>
           </div>
         </div>
       </Card>

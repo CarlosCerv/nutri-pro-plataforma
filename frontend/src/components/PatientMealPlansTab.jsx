@@ -6,6 +6,7 @@ import { UtensilsCrossed, Download, Loader, Eye } from 'lucide-react';
 import PDFMealPlan from './PDFMealPlan';
 import usePDFExport from '../hooks/usePDFExport';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from '../design-system/components';
 
 const PatientMealPlansTab = ({ patientId, patient }) => {
   const navigate = useNavigate();
@@ -125,20 +126,16 @@ const PatientMealPlansTab = ({ patientId, patient }) => {
               )}
 
               <div className="meal-plan-actions">
-                <button
+                <Button variant="outline"
                   type="button"
-                  className="btn btn-outline"
-                  onClick={() => navigate(`/dietas/${plan._id}/editar`)}
-                >
+                  onClick={() => navigate(`/dietas/${plan._id}/editar`)}>
                   <Eye size={18} />
                   Editar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="btn btn-primary"
                   onClick={() => handleExportPDF(plan)}
-                  disabled={isGenerating}
-                >
+                  disabled={isGenerating}>
                   {isGenerating ? (
                     <>
                       <Loader className="spinner" size={18} />
@@ -150,7 +147,7 @@ const PatientMealPlansTab = ({ patientId, patient }) => {
                       Exportar PDF
                     </>
                   )}
-                </button>
+                </Button>
               </div>
 
               <div className="meal-plan-meta">

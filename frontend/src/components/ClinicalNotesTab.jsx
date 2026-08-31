@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import clinicalNotesService from '../services/clinicalNotesService';
 import { Plus, Save, X, ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components';
 
 const ClinicalNotesTab = ({ patientId }) => {
     const [notes, setNotes] = useState([]);
@@ -53,9 +53,9 @@ const ClinicalNotesTab = ({ patientId }) => {
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h3>Historial Clínico (SOAP)</h3>
                 {!isAdding && (
-                    <button className="btn btn-primary" onClick={() => setIsAdding(true)}>
+                    <Button onClick={() => setIsAdding(true)}>
                         <Plus size={18} /> Nueva Nota
-                    </button>
+                    </Button>
                 )}
             </div>
 
@@ -105,12 +105,12 @@ const ClinicalNotesTab = ({ patientId }) => {
                             />
                         </div>
                         <div className="form-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button type="submit" className="btn btn-primary">
+                            <Button type="submit">
                                 <Save size={18} /> Guardar Nota
-                            </button>
-                            <button type="button" className="btn btn-outline" onClick={() => setIsAdding(false)}>
+                            </Button>
+                            <Button variant="outline" type="button" onClick={() => setIsAdding(false)}>
                                 <X size={18} /> Cancelar
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </Card>

@@ -10,7 +10,7 @@ import { getApiErrorMessage } from '../lib/apiError';
 import PDFMealPlan from '../components/PDFMealPlan';
 import usePDFExport from '../hooks/usePDFExport';
 import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
-import { Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components';
 
 export default function MealPlans() {
   const { user } = useAuth();
@@ -98,9 +98,9 @@ export default function MealPlans() {
           Planes guardados en tu cuenta.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Link to="/dietas/nueva" className="btn btn-primary btn-sm gap-2">
+          <Button as={Link} size="sm" to="/dietas/nueva" className="gap-2">
             <Plus size={16} /> Nueva dieta
-          </Link>
+          </Button>
         </div>
       </div>
 

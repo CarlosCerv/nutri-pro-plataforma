@@ -7,6 +7,7 @@ import { Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import Combobox from '../design-system/components/Combobox.jsx';
 import './NewAppointment.css';
+import { Button } from '../design-system/components';
 
 const NewAppointment = () => {
     const navigate = useNavigate();
@@ -223,18 +224,17 @@ const NewAppointment = () => {
                 </div>
 
                 <div className="form-footer-actions">
-                    <button
+                    <Button
                         type="button"
-                        className="btn-v2-secondary"
                         onClick={() => navigate('/agenda')}
+                        variant="secondary"
                         disabled={loading}
                     >
                         Cancelar
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="submit"
-                        className="btn-v2-primary"
-                        disabled={loading}
+                        loading={loading}
                     >
                         {loading ? (
                             <>
@@ -247,7 +247,7 @@ const NewAppointment = () => {
                                 <span>Guardar Cita</span>
                             </>
                         )}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>

@@ -372,44 +372,6 @@ input:checked+.slider:before {
     gap: var(--space-4);
 }
 
-.btn-v2-primary,
-.btn-v2-secondary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0.75rem 1.75rem;
-    border-radius: var(--radius-m);
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-v2-primary {
-    background: var(--accent);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2);
-}
-
-.btn-v2-primary:hover {
-    background: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(219, 39, 119, 0.3);
-}
-
-.btn-v2-secondary {
-    background: white;
-    color: var(--gray-600);
-    border: 1.5px solid var(--gray-200);
-}
-
-.btn-v2-secondary:hover {
-    border-color: var(--gray-400);
-    color: var(--gray-900);
-    background: var(--gray-50);
-}
-
 .spinner {
     animation: spin 1s linear infinite;
 }
@@ -451,12 +413,7 @@ input:checked+.slider:before {
         padding: var(--space-4);
     }
 
-    .btn-v2-primary,
-    .btn-v2-secondary {
-        width: 100%;
-        justify-content: center;
     }
-}
 
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out;
