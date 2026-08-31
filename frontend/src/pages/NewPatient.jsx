@@ -8,6 +8,7 @@ import Button from '../design-system/components/Button.jsx';
 import Combobox from '../design-system/components/Combobox.jsx';
 import FormSection from '../design-system/components/FormSection.jsx';
 import { LoadingState } from '../design-system/components/StateViews.jsx';
+import { Card } from '../design-system/components';
 
 /**
  * Alta y edición de paciente.
@@ -313,7 +314,7 @@ export default function NewPatient() {
       ) : null}
 
       {esEdicion ? (
-        <form onSubmit={enviarPaso1} className="card space-y-8">
+        <Card as="form" onSubmit={enviarPaso1} className="space-y-8">
           {identificacion}
           {datosClinicos}
           <div className="flex justify-end gap-2 border-t border-[var(--border-soft)] pt-4">
@@ -321,9 +322,9 @@ export default function NewPatient() {
               Guardar cambios
             </Button>
           </div>
-        </form>
+        </Card>
       ) : paso === 1 ? (
-        <form onSubmit={enviarPaso1} className="card space-y-8">
+        <Card as="form" onSubmit={enviarPaso1} className="space-y-8">
           {identificacion}
           <div className="flex justify-end border-t border-[var(--border-soft)] pt-4">
             <Button type="submit" loading={loading} disabled={!form.firstName || !form.lastName} className="gap-2">
@@ -331,9 +332,9 @@ export default function NewPatient() {
               <ArrowRight size={15} />
             </Button>
           </div>
-        </form>
+        </Card>
       ) : (
-        <form onSubmit={enviarPaso2} className="card space-y-8">
+        <Card as="form" onSubmit={enviarPaso2} className="space-y-8">
           {datosClinicos}
           <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border-soft)] pt-4">
             <Button variant="outline" onClick={() => navigate(`/pacientes/${pacienteId}`)} disabled={loading}>
@@ -343,7 +344,7 @@ export default function NewPatient() {
               Guardar datos clínicos
             </Button>
           </div>
-        </form>
+        </Card>
       )}
     </div>
   );

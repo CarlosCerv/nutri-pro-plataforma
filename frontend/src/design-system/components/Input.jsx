@@ -67,6 +67,11 @@ export const Select = forwardRef(function Select(props, ref) {
 });
 Select.propTypes = { ...fieldPropTypes, children: PropTypes.node };
 
+export const Textarea = forwardRef(function Textarea({ rows = 3, ...props }, ref) {
+  return <FormField ref={ref} as="textarea" rows={rows} {...props} />;
+});
+Textarea.propTypes = { ...fieldPropTypes, rows: PropTypes.oneOfType([PropTypes.number, PropTypes.string]) };
+
 const Input = forwardRef(function Input(props, ref) {
   return <FormField ref={ref} as="input" {...props} />;
 });

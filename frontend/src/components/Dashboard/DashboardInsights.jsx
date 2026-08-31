@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { getApiErrorMessage } from '../../lib/apiError';
 import { ErrorState } from '../../design-system/components/StateViews';
+import { Card } from '../../design-system/components';
 
 const ESTADO_COLORS = { confirmada: 'badge-success', pendiente: 'badge-warning', cancelada: 'badge-danger' };
 
@@ -136,13 +137,13 @@ export default function DashboardInsights() {
       <>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 card"><div className="skeleton h-[280px] w-full rounded-2xl" /></div>
-          <div className="card"><div className="skeleton h-[280px] w-full rounded-2xl" /></div>
+          <Card><div className="skeleton h-[280px] w-full rounded-2xl" /></Card>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="card"><div className="skeleton h-[220px] w-full rounded-2xl" /></div>
+          <Card><div className="skeleton h-[220px] w-full rounded-2xl" /></Card>
           <div className="lg:col-span-2 card"><div className="skeleton h-[220px] w-full rounded-2xl" /></div>
         </div>
-        <div className="card"><div className="skeleton h-[240px] w-full rounded-2xl" /></div>
+        <Card><div className="skeleton h-[240px] w-full rounded-2xl" /></Card>
       </>
     );
   }
@@ -179,7 +180,7 @@ export default function DashboardInsights() {
           )}
         </div>
 
-        <div className="card">
+        <Card>
           {fallos.pathology ? (
             <ErrorState message={fallos.pathology} onRetry={reintentar} className="min-h-[280px]" />
           ) : pathologyData.length > 0 ? (
@@ -212,11 +213,11 @@ export default function DashboardInsights() {
               <p>Sin datos</p>
             </div>
           )}
-        </div>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card">
+        <Card>
           {fallos.macro ? (
             <ErrorState message={fallos.macro} onRetry={reintentar} className="min-h-[220px]" />
           ) : macroData.length > 0 ? (
@@ -241,7 +242,7 @@ export default function DashboardInsights() {
               <p>Sin datos</p>
             </div>
           )}
-        </div>
+        </Card>
 
         <div className="lg:col-span-2 card">
           {fallos.appointments ? (
@@ -280,7 +281,7 @@ export default function DashboardInsights() {
         </div>
       </div>
 
-      <div className="card">
+      <Card>
         {fallos.activity ? (
           <ErrorState message={fallos.activity} onRetry={reintentar} className="min-h-[240px]" />
         ) : activity.length > 0 ? (
@@ -310,7 +311,7 @@ export default function DashboardInsights() {
             <p>Sin actividad reciente</p>
           </div>
         )}
-      </div>
+      </Card>
     </>
   );
 }

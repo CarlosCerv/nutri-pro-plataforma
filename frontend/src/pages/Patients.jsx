@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { calcularIMC, clasificarIMC } from '../lib/calculations/imc';
+import { Card } from '../design-system/components';
 
 const FILTROS = ['Todos', 'Activos', 'Sin dieta', 'Con alerta'];
 
@@ -119,10 +120,10 @@ export default function Patients() {
           { label: 'Nuevos este mes', value: nuevosEsteMes, color: 'var(--accent)' },
           { label: 'Con alerta', value: patients.filter(tieneAlerta).length, color: 'var(--danger)' },
         ].map(s => (
-          <div key={s.label} className="card p-4 !hover:shadow-none">
+          <Card key={s.label} className="p-4 !hover:shadow-none">
             <div className="font-mono text-2xl font-medium" style={{ color: s.color }}>{s.value}</div>
             <div className="text-xs text-[var(--ink-secondary)] mt-0.5">{s.label}</div>
-          </div>
+          </Card>
         ))}
       </div>
 
@@ -151,7 +152,7 @@ export default function Patients() {
         </div>
       </div>
 
-      <div className="card !p-0 overflow-hidden border border-[var(--border-soft)] bg-[var(--surface)]">
+      <Card className="!p-0 overflow-hidden border border-[var(--border-soft)] bg-[var(--surface)]">
         <div className="overflow-x-auto">
           <div className="min-w-[680px]">
             <div
@@ -258,7 +259,7 @@ export default function Patients() {
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
       {filtered.length > 0 && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">

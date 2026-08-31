@@ -7,6 +7,7 @@ import { dashboardAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
 import StatTile from '../design-system/components/StatTile.jsx';
 import { EmptyState, ErrorState, LoadingState } from '../design-system/components/StateViews.jsx';
+import { Card } from '../design-system/components';
 
 /**
  * Estadísticas de la población atendida.
@@ -114,7 +115,7 @@ export default function PopulationReports() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <section className="card">
+        <Card as="section">
           <h2 className="section-title mb-4">Distribución de IMC</h2>
           {datos.conImc === 0 ? (
             <EmptyState title="Sin mediciones de IMC" description="Captura peso y talla en el expediente para poblar esta gráfica." />
@@ -129,9 +130,9 @@ export default function PopulationReports() {
               </BarChart>
             </ResponsiveContainer>
           )}
-        </section>
+        </Card>
 
-        <section className="card">
+        <Card as="section">
           <h2 className="section-title mb-4">Evolución del peso promedio</h2>
           {evolucion.length === 0 ? (
             <EmptyState title="Sin serie histórica" description="Las mediciones de composición corporal alimentan esta gráfica." />
@@ -146,10 +147,10 @@ export default function PopulationReports() {
               </LineChart>
             </ResponsiveContainer>
           )}
-        </section>
+        </Card>
       </div>
 
-      <section className="card">
+      <Card as="section">
         <h2 className="section-title mb-4">Prevalencia de patologías</h2>
         {datos.prevalencias.length === 0 ? (
           <EmptyState
@@ -176,7 +177,7 @@ export default function PopulationReports() {
             ))}
           </div>
         )}
-      </section>
+      </Card>
     </div>
   );
 }

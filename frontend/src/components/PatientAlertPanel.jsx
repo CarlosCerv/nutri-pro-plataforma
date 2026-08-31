@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertTriangle, CalendarClock, Pill, Salad } from 'lucide-react';
 import { appointmentsAPI } from '../services/api';
+import { Card } from '../design-system/components';
 
 /**
  * Panel de datos críticos del paciente, visible en todas las pestañas.
@@ -71,7 +72,7 @@ export default function PatientAlertPanel({ patient }) {
   const sinDatos = !alergias && !intolerancias && !medicamentos && patologias.length === 0;
 
   return (
-    <aside className="card space-y-3" aria-label="Datos críticos del paciente">
+    <Card as="aside" aria-label="Datos críticos del paciente" className="space-y-3">
       <h2 className="section-title">En la consulta</h2>
 
       {alergias || intolerancias ? (
@@ -136,6 +137,6 @@ export default function PatientAlertPanel({ patient }) {
           Sin alergias, patologías ni medicamentos registrados. Se capturan en la pestaña Clínica.
         </p>
       ) : null}
-    </aside>
+    </Card>
   );
 }

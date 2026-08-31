@@ -6,6 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import Card from '../design-system/components/Card';
 
 const DashboardInsights = lazy(() => import('../components/Dashboard/DashboardInsights'));
 
@@ -120,13 +121,13 @@ export default function Dashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="lg:col-span-2 card"><div className="skeleton h-[280px] w-full rounded-2xl" /></div>
-              <div className="card"><div className="skeleton h-[280px] w-full rounded-2xl" /></div>
+              <Card><div className="skeleton h-[280px] w-full rounded-2xl" /></Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <div className="card"><div className="skeleton h-[220px] w-full rounded-2xl" /></div>
+              <Card><div className="skeleton h-[220px] w-full rounded-2xl" /></Card>
               <div className="lg:col-span-2 card"><div className="skeleton h-[220px] w-full rounded-2xl" /></div>
             </div>
-            <div className="card"><div className="skeleton h-[240px] w-full rounded-2xl" /></div>
+            <Card><div className="skeleton h-[240px] w-full rounded-2xl" /></Card>
           </div>
         }
       >

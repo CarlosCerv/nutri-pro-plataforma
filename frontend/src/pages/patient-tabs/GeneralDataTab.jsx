@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Input, Select, Textarea } from '../../design-system/components';
 import { Camera, User, MapPin, Phone, Mail, Calendar, CreditCard } from 'lucide-react';
 import api from '../../services/api';
 import useSaveState from '../../hooks/useSaveState';
@@ -7,13 +8,6 @@ import SaveBar from '../../design-system/components/SaveBar.jsx';
 const SECTION = ({ title, children }) => (
   <div className="space-y-4">
     <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">{title}</h3>
-    {children}
-  </div>
-);
-
-const Field = ({ label, required, children }) => (
-  <div className="form-group">
-    <label className="label">{label}{required && <span className="text-danger ml-1">*</span>}</label>
     {children}
   </div>
 );
@@ -88,44 +82,29 @@ export default function GeneralDataTab({ patient, onUpdate }) {
       {/* ── Datos personales ── */}
       <SECTION title="Datos Personales">
         <Row cols={2}>
-          <Field label="Nombre(s)" required>
-            <input className="input" value={form.firstName} onChange={e => set('firstName', e.target.value)} placeholder="María" required />
-          </Field>
-          <Field label="Apellidos" required>
-            <input className="input" value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="González" required />
-          </Field>
+          <Input label="Nombre(s)" required value={form.firstName} onChange={e => set('firstName', e.target.value)} placeholder="María" required />
+          <Input label="Apellidos" required value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="González" required />
         </Row>
         <Row cols={3}>
-          <Field label="Fecha de nacimiento" required>
-            <input type="date" className="input" value={form.dob} onChange={e => set('dob', e.target.value)} required />
-          </Field>
-          <Field label="Edad calculada">
-            <div className="input bg-white/94 cursor-default text-[var(--ink-secondary)] font-mono">
+          <Input label="Fecha de nacimiento" required type="date" value={form.dob} onChange={e => set('dob', e.target.value)} />
+          <div className="form-group">
+            <span className="label">Edad calculada</span>
+            <output className="input block cursor-default text-[var(--ink-secondary)] font-mono">
               {calcEdad() ? `${calcEdad()} años` : '—'}
-            </div>
-          </Field>
-          <Field label="Sexo biológico" required>
-            <select className="select" value={form.sex} onChange={e => set('sex', e.target.value)}>
+            </output>
+          </div>
+          <Select label="Sexo biológico" required value={form.sex} onChange={e => set('sex', e.target.value)}>
               <option value="F">Femenino</option>
               <option value="M">Masculino</option>
-            </select>
-          </Field>
+            </Select>
         </Row>
         <Row cols={2}>
-          <Field label="CURP">
-            <input className="input" value={form.curp} onChange={e => set('curp', e.target.value.toUpperCase())} placeholder="GOAM900615MJCNRR01" maxLength={18} />
-          </Field>
-          <Field label="Teléfono">
-            <input className="input" type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="3310001111" />
-          </Field>
+          <Input label="CURP" value={form.curp} onChange={e => set('curp', e.target.value.toUpperCase())} placeholder="GOAM900615MJCNRR01" maxLength={18} />
+          <Input label="Teléfono" type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="3310001111" />
         </Row>
         <Row cols={2}>
-          <Field label="Correo electrónico">
-            <input className="input" type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="paciente@email.com" />
-          </Field>
-          <Field label="Dirección">
-            <input className="input" value={form.address} onChange={e => set('address', e.target.value)} placeholder="Calle, Colonia, Ciudad" />
-          </Field>
+          <Input label="Correo electrónico" type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="paciente@email.com" />
+          <Input label="Dirección" value={form.address} onChange={e => set('address', e.target.value)} placeholder="Calle, Colonia, Ciudad" />
         </Row>
       </SECTION>
 
@@ -157,58 +136,45 @@ export default function GeneralDataTab({ patient, onUpdate }) {
           </div>
         </div>
         <Row cols={2}>
-          <Field label="Antecedentes personales patológicos">
-            <textarea className="input min-h-[80px] resize-none" value={form.antPersonales} onChange={e => set('antPersonales', e.target.value)} placeholder="Enfermedades previas..." />
-          </Field>
-          <Field label="Cirugías previas">
-            <textarea className="input min-h-[80px] resize-none" value={form.cirugiasPrevias} onChange={e => set('cirugiasPrevias', e.target.value)} placeholder="Tipo de cirugía, año..." />
-          </Field>
+          <Textarea label="Antecedentes personales patológicos" className="min-h-[80px] resize-none" value={form.antPersonales} onChange={e => set('antPersonales', e.target.value)} placeholder="Enfermedades previas..." />
+          <Textarea label="Cirugías previas" className="min-h-[80px] resize-none" value={form.cirugiasPrevias} onChange={e => set('cirugiasPrevias', e.target.value)} placeholder="Tipo de cirugía, año..." />
         </Row>
         <Row cols={2}>
-          <Field label="Alergias alimentarias">
-            <input className="input" value={form.alergias} onChange={e => set('alergias', e.target.value)} placeholder="Mariscos, nueces, lácteos..." />
-          </Field>
-          <Field label="Intolerancias confirmadas">
-            <input className="input" value={form.intolerancias} onChange={e => set('intolerancias', e.target.value)} placeholder="Lactosa, gluten..." />
-          </Field>
+          <Input label="Alergias alimentarias" value={form.alergias} onChange={e => set('alergias', e.target.value)} placeholder="Mariscos, nueces, lácteos..." />
+          <Input label="Intolerancias confirmadas" value={form.intolerancias} onChange={e => set('intolerancias', e.target.value)} placeholder="Lactosa, gluten..." />
         </Row>
-        <Field label="Medicamentos actuales">
-          <textarea className="input min-h-[70px] resize-none" value={form.medicamentos} onChange={e => set('medicamentos', e.target.value)} placeholder="Nombre del medicamento, dosis, frecuencia..." />
-        </Field>
+        <Textarea label="Medicamentos actuales" className="min-h-[70px] resize-none" value={form.medicamentos} onChange={e => set('medicamentos', e.target.value)} placeholder="Nombre del medicamento, dosis, frecuencia..." />
       </SECTION>
 
       {/* ── Estilo de vida ── */}
       <SECTION title="Estilo de Vida">
         <Row cols={3}>
-          <Field label="Horas de sueño/noche">
-            <input type="number" className="input" min={0} max={24} step={0.5} value={form.horasSueno} onChange={e => set('horasSueno', e.target.value)} placeholder="7" />
-          </Field>
-          <Field label={`Nivel de estrés (${form.nivelEstres}/10)`}>
+          <Input label="Horas de sueño/noche" type="number" min={0} max={24} step={0.5} value={form.horasSueno} onChange={e => set('horasSueno', e.target.value)} placeholder="7" />
+          <div className="form-group">
+            <label className="label" htmlFor="nivel-estres">Nivel de estrés</label>
             <div className="flex items-center gap-3 mt-1">
-              <input type="range" min={1} max={10} value={form.nivelEstres}
+              <input
+                id="nivel-estres"
+                type="range"
+                min={1}
+                max={10}
+                value={form.nivelEstres}
                 onChange={e => set('nivelEstres', Number(e.target.value))}
-                className="flex-1 accent-[var(--accent)]" />
-              <span className="font-mono text-sm text-[var(--accent)] w-4">{form.nivelEstres}</span>
+                className="flex-1 accent-[var(--accent)]"
+              />
+              <output className="font-mono text-sm text-[var(--accent)] w-8 text-right">{form.nivelEstres}/10</output>
             </div>
-          </Field>
-          <Field label="Horas laborales/día">
-            <input type="number" className="input" min={0} max={24} value={form.horasLaboral} onChange={e => set('horasLaboral', e.target.value)} placeholder="8" />
-          </Field>
+          </div>
+          <Input label="Horas laborales/día" type="number" min={0} max={24} value={form.horasLaboral} onChange={e => set('horasLaboral', e.target.value)} placeholder="8" />
         </Row>
-        <Field label="Ocupación">
-          <input className="input" value={form.ocupacion} onChange={e => set('ocupacion', e.target.value)} placeholder="Enfermera, oficinista, docente..." />
-        </Field>
+        <Input label="Ocupación" value={form.ocupacion} onChange={e => set('ocupacion', e.target.value)} placeholder="Enfermera, oficinista, docente..." />
       </SECTION>
 
       {/* ── Hábitos tóxicos ── */}
       <SECTION title="Hábitos Tóxicos">
         <Row cols={2}>
-          <Field label="Tabaquismo (cigarrillos/día, 0 = no fuma)">
-            <input type="number" className="input" min={0} max={100} value={form.tabaquismo} onChange={e => set('tabaquismo', e.target.value)} />
-          </Field>
-          <Field label="Alcoholismo (copas/semana, 0 = no consume)">
-            <input type="number" className="input" min={0} max={100} value={form.alcoholismo} onChange={e => set('alcoholismo', e.target.value)} />
-          </Field>
+          <Input label="Tabaquismo (cigarrillos/día, 0 = no fuma)" type="number" min={0} max={100} value={form.tabaquismo} onChange={e => set('tabaquismo', e.target.value)} />
+          <Input label="Alcoholismo (copas/semana, 0 = no consume)" type="number" min={0} max={100} value={form.alcoholismo} onChange={e => set('alcoholismo', e.target.value)} />
         </Row>
       </SECTION>
 

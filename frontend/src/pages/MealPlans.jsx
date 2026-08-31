@@ -10,6 +10,7 @@ import { getApiErrorMessage } from '../lib/apiError';
 import PDFMealPlan from '../components/PDFMealPlan';
 import usePDFExport from '../hooks/usePDFExport';
 import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
+import { Card } from '../design-system/components';
 
 export default function MealPlans() {
   const { user } = useAuth();
@@ -133,7 +134,7 @@ export default function MealPlans() {
           </div>
         ) : (
           filtered.map((dieta) => (
-            <div key={dieta._id} className="card flex h-full flex-col p-5">
+            <Card key={dieta._id} className="flex h-full flex-col p-5">
               <div className="mb-3 flex items-start justify-between gap-2">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--surface-alt)] text-[var(--accent)]">
                   <Salad size={20} />
@@ -207,7 +208,7 @@ export default function MealPlans() {
                   Editar
                 </Link>
               </div>
-            </div>
+            </Card>
           ))
         )}
       </div>

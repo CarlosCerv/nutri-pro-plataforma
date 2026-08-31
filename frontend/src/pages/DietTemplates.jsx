@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Layers, Copy, Edit3, Trash2, FileBadge, ArrowRight } from 'lucide-react';
 import api from '../services/api';
+import { Card } from '../design-system/components';
 
 export default function DietTemplates() {
   const [templates, setTemplates] = useState([]);
@@ -50,7 +51,7 @@ export default function DietTemplates() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="card h-48 bg-gradient-to-br from-[var(--surface-alt)] to-[var(--surface-strong)] animate-pulse" />
+            <Card key={i} className="h-48 bg-gradient-to-br from-[var(--surface-alt)] to-[var(--surface-strong)] animate-pulse" />
           ))}
         </div>
       ) : templates.length === 0 ? (
@@ -65,7 +66,7 @@ export default function DietTemplates() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map(t => (
-            <div key={t._id} className="card p-5 group flex flex-col h-full border-t-4" style={{ borderTopColor: t.color }}>
+            <Card key={t._id} style={{ borderTopColor: t.color }} className="p-5 group flex flex-col h-full border-t-4">
               <div className="flex justify-between items-start mb-3">
                 <span className="badge font-semibold" style={{ backgroundColor: `${t.color}20`, color: t.color }}>
                   {t.tipo}
@@ -100,7 +101,7 @@ export default function DietTemplates() {
                   <ArrowRight size={16} />
                 </Link>
               </div>
-            </div>
+            </Card>
           ))}
           {filtered.length === 0 && search && (
             <div className="col-span-full py-12 text-center border-2 border-dashed border-[var(--border-soft)] rounded-3xl">

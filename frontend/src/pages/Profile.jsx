@@ -6,6 +6,7 @@ import Tabs from '../design-system/components/Tabs.jsx';
 import FormSection from '../design-system/components/FormSection.jsx';
 import SaveBar from '../design-system/components/SaveBar.jsx';
 import useSaveState from '../hooks/useSaveState';
+import { Card } from '../design-system/components';
 
 /**
  * Cuenta y ajustes.
@@ -64,7 +65,7 @@ export default function Profile() {
       <Tabs items={TABS} value={tab} onChange={setTab} ariaLabel="Secciones de la cuenta" />
 
       {tab === 'perfil' ? (
-        <form onSubmit={guardarPerfil} className="card space-y-6">
+        <Card as="form" onSubmit={guardarPerfil} className="space-y-6">
           <FormSection title="Datos profesionales" description="Aparecen en los reportes que exportas a PDF.">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="form-group">
@@ -126,9 +127,9 @@ export default function Profile() {
             error={guardadoPerfil.error}
             label="Guardar cambios"
           />
-        </form>
+        </Card>
       ) : (
-        <form onSubmit={guardarPassword} className="card space-y-6">
+        <Card as="form" onSubmit={guardarPassword} className="space-y-6">
           <FormSection title="Cambiar contraseña" description="Mínimo 6 caracteres. Cerrarás sesión en otros dispositivos la próxima vez que expire su token.">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="form-group">
@@ -176,7 +177,7 @@ export default function Profile() {
             savedLabel="Contraseña actualizada"
             disabled={password.nueva.length < 6 || noCoincide}
           />
-        </form>
+        </Card>
       )}
     </div>
   );

@@ -5,6 +5,7 @@ import { RANGOS_LAB, semaforoLab } from '../../lib/calculations/idr';
 import api from '../../services/api';
 import useSaveState from '../../hooks/useSaveState';
 import SaveBar from '../../design-system/components/SaveBar.jsx';
+import { Card } from '../../design-system/components';
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
@@ -230,7 +231,7 @@ export default function LaboratoryTab({ patient }) {
       {histLab.length > 0 && (
         <div className="space-y-3">
           <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Evolución de Laboratorio</h3>
-          <div className="card !p-4">
+          <Card className="!p-4">
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={histLab} margin={{ top: 5, right: 5, bottom: 0, left: -15 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -243,7 +244,7 @@ export default function LaboratoryTab({ patient }) {
                 <Line type="monotone" dataKey="trigliceridos_mg" name="Triglicéridos" stroke="var(--chart-red)" strokeWidth={2} dot={{ r: 3, fill: 'var(--chart-red)', strokeWidth: 0 }} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </Card>
         </div>
       )}
 

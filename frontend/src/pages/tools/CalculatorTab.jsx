@@ -15,6 +15,7 @@ import { calcularIMC, clasificarIMC, calcularICC, clasificarICC } from '../../li
 import Combobox from '../../design-system/components/Combobox.jsx';
 import StatTile from '../../design-system/components/StatTile.jsx';
 import { EmptyState } from '../../design-system/components/StateViews.jsx';
+import { Card } from '../../design-system/components';
 
 /**
  * Calculadora nutricional.
@@ -106,7 +107,7 @@ export default function CalculatorTab() {
 
   return (
     <div className="grid gap-4 xl:grid-cols-[380px_1fr]">
-      <section className="card space-y-5">
+      <Card as="section" className="space-y-5">
         <h2 className="section-title flex items-center gap-2">
           <Calculator size={16} className="text-[var(--accent)]" />
           Datos del paciente
@@ -165,7 +166,7 @@ export default function CalculatorTab() {
           value={form.preset}
           onChange={onSelect}
         />
-      </section>
+      </Card>
 
       <div className="space-y-4">
         {!resultado ? (
@@ -183,7 +184,7 @@ export default function CalculatorTab() {
               <StatTile label="Meta calórica" value={Math.round(resultado.vet)} unit="kcal" tone="accent" hint={`${GOAL_ADJUSTMENTS[form.objetivo] >= 0 ? '+' : ''}${GOAL_ADJUSTMENTS[form.objetivo]} kcal`} />
             </div>
 
-            <section className="card">
+            <Card as="section">
               <h2 className="section-title mb-4">Macronutrientes de la meta</h2>
               <div className="grid gap-3 sm:grid-cols-3">
                 <StatTile label="Proteínas" value={resultado.macros.proteinas_g} unit="g" tone="success" />
@@ -194,10 +195,10 @@ export default function CalculatorTab() {
                 <Info size={13} className="mt-0.5 shrink-0" />
                 Reparto energético a 4 kcal/g en proteína y carbohidrato, y 9 kcal/g en lípidos.
               </p>
-            </section>
+            </Card>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <section className="card">
+              <Card as="section">
                 <h2 className="section-title mb-4">Tasa metabólica por fórmula</h2>
                 <div className="table-wrapper">
                   <table className="table">
@@ -222,9 +223,9 @@ export default function CalculatorTab() {
                     </tbody>
                   </table>
                 </div>
-              </section>
+              </Card>
 
-              <section className="card space-y-3">
+              <Card as="section" className="space-y-3">
                 <h2 className="section-title">Otros indicadores</h2>
                 <dl className="space-y-2 text-sm">
                   <div className="flex items-baseline justify-between gap-3">
@@ -246,7 +247,7 @@ export default function CalculatorTab() {
                     <dd className="font-mono text-[var(--ink)]">{(resultado.agua / 1000).toFixed(1)} L/día</dd>
                   </div>
                 </dl>
-              </section>
+              </Card>
             </div>
           </>
         )}

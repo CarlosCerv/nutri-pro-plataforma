@@ -10,6 +10,7 @@ import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
 import { useToast } from '../contexts/ToastContext';
 import { patientsAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
+import { Card } from '../design-system/components';
 
 const GeneralDataTab = lazy(() => import('./patient-tabs/GeneralDataTab'));
 const EvolucionTab = lazy(() => import('./patient-tabs/EvolucionTab'));
@@ -106,7 +107,7 @@ export default function PatientDetail() {
     return (
       <div className="space-y-6 animate-fade-up">
         <div className="skeleton h-8 w-48 rounded-xl" />
-        <div className="card space-y-4">
+        <Card className="space-y-4">
           <div className="flex gap-4">
             <div className="skeleton w-20 h-20 rounded-2xl" />
             <div className="space-y-2 flex-1">
@@ -115,7 +116,7 @@ export default function PatientDetail() {
               <div className="skeleton h-4 w-64 rounded-lg" />
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -199,7 +200,7 @@ export default function PatientDetail() {
         <span className="text-[var(--ink-muted)]">{nombre}</span>
       </div>
 
-      <div className="card">
+      <Card>
         <div className="flex flex-col sm:flex-row gap-5">
           <div className="flex-shrink-0">
             <div
@@ -283,7 +284,7 @@ export default function PatientDetail() {
             </button>
           </div>
         </div>
-      </div>
+      </Card>
 
       <div className="overflow-x-auto no-scrollbar">
         <div className="tabs-nav min-w-max">
@@ -314,11 +315,11 @@ export default function PatientDetail() {
         <div key={activeTab} className="min-w-0 animate-fade-up">
           <Suspense
             fallback={
-              <div className="card space-y-3">
+              <Card className="space-y-3">
                 <div className="skeleton h-6 w-40 rounded-lg" />
                 <div className="skeleton h-24 w-full rounded-2xl" />
                 <div className="skeleton h-24 w-full rounded-2xl" />
-              </div>
+              </Card>
             }
           >
             {activeTab === 'dietas' ? (

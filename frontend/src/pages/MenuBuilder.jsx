@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { mealPlansAPI, foodsAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
+import { Card } from '../design-system/components';
 
 /**
  * Alimento arrastrable del panel lateral.
@@ -406,7 +407,7 @@ export default function MenuBuilder() {
       >
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
-          <div className="card p-5">
+          <Card className="p-5">
             <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
               Nombre del plan
             </label>
@@ -422,7 +423,7 @@ export default function MenuBuilder() {
                 Asociado al paciente (ID en URL). Puedes abrir el paciente desde Pacientes.
               </p>
             )}
-          </div>
+          </Card>
 
           {slots.map((slot) => (
             <TiempoSoltable key={slot.slotKey} slotKey={slot.slotKey}>
@@ -469,7 +470,7 @@ export default function MenuBuilder() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="card sticky top-24 p-5">
+          <Card className="sticky top-24 p-5">
             <h3 className="mb-3 text-sm font-semibold text-[var(--ink)]">Alimentos</h3>
             <div className="relative mb-3">
               <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]" />
@@ -509,7 +510,7 @@ export default function MenuBuilder() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
       </div>
 

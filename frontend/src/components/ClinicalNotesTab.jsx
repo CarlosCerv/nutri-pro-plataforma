@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import clinicalNotesService from '../services/clinicalNotesService';
 import { Plus, Save, X, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { Card } from '../design-system/components';
 
 const ClinicalNotesTab = ({ patientId }) => {
     const [notes, setNotes] = useState([]);
@@ -59,7 +60,7 @@ const ClinicalNotesTab = ({ patientId }) => {
             </div>
 
             {isAdding && (
-                <div className="card note-form-card" style={{ marginBottom: '2rem', border: '1px solid var(--border-soft)' }}>
+                <Card className="note-form-card" style={{ marginBottom: '2rem', border: '1px solid var(--border-soft)' }}>
                     <form onSubmit={handleCreateNote}>
                         <div className="form-group">
                             <label><strong>S</strong> - Subjetivo (Síntomas, reporte del paciente)</label>
@@ -112,7 +113,7 @@ const ClinicalNotesTab = ({ patientId }) => {
                             </button>
                         </div>
                     </form>
-                </div>
+                </Card>
             )}
 
             <div className="notes-list">
@@ -125,7 +126,7 @@ const ClinicalNotesTab = ({ patientId }) => {
                     </div>
                 ) : (
                     notes.map(note => (
-                        <div key={note._id} className="card note-card" style={{ marginBottom: '1rem', cursor: 'pointer' }} onClick={() => toggleNote(note._id)}>
+                        <Card key={note._id} style={{ marginBottom: '1rem', cursor: 'pointer' }} onClick={() => toggleNote(note._id)} className="note-card">
                             <div className="note-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
                                     <h4 style={{ margin: 0, color: 'var(--ink)' }}>
@@ -160,7 +161,7 @@ const ClinicalNotesTab = ({ patientId }) => {
                                     </div>
                                 </div>
                             )}
-                        </div>
+                        </Card>
                     ))
                 )}
             </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button, Card, Input } from '../../design-system/components';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar,
@@ -10,24 +11,6 @@ import { calcularTodosMetodos } from '../../lib/calculations/bodyFat';
 import { toBodyCompositionPayload, toHistorySeries } from '../../lib/bodyComposition';
 import useSaveState from '../../hooks/useSaveState';
 import SaveBar from '../../design-system/components/SaveBar.jsx';
-
-const Field = ({ label, unit, children, hint }) => (
-  <div className="form-group">
-    <label className="label flex items-center gap-1.5">
-      {label}
-      {unit && <span className="text-[var(--ink-secondary)] normal-case">({unit})</span>}
-      {hint && (
-        <div className="group relative">
-          <Info size={12} className="text-[var(--ink-secondary)] cursor-help" />
-          <div className="absolute bottom-5 left-0 z-10 w-48 px-2.5 py-1.5 bg-[var(--surface-alt)] border border-[var(--border-soft)] rounded-lg text-2xs text-[var(--ink-secondary)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-card">
-            {hint}
-          </div>
-        </div>
-      )}
-    </label>
-    {children}
-  </div>
-);
 
 const Row = ({ cols = 2, children }) => (
   <div className={`grid grid-cols-1 sm:grid-cols-${cols} gap-4`}>{children}</div>
@@ -153,42 +136,33 @@ export default function MeasurementsTab({ patient }) {
       {/* Fecha de consulta */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <label className="label mb-0">Fecha de consulta:</label>
-          <input type="date" className="input !w-auto py-1.5" value={form.fecha}
-            onChange={e => set('fecha', e.target.value)} />
+          <label className="label mb-0" htmlFor="fecha-consulta">Fecha de consulta:</label>
+          <input
+            id="fecha-consulta"
+            type="date"
+            className="input !w-auto py-1.5"
+            value={form.fecha}
+            onChange={e => set('fecha', e.target.value)}
+          />
         </div>
-        <button type="button" className="btn btn-ghost btn-sm gap-1.5 text-[var(--accent)]">
+        <Button type="button" variant="ghost" size="sm" className="gap-1.5 text-[var(--accent)]">
           <Plus size={13} /> Nueva consulta
-        </button>
+        </Button>
       </div>
 
       {/* ── Medidas básicas ── */}
       <div className="space-y-4">
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Medidas Básicas</h3>
         <Row cols={4}>
-          <Field label="Peso" unit="kg">
-            <input type="number" step="0.1" className="input" value={form.peso} onChange={e => set('peso', e.target.value)} placeholder="72.4" />
-          </Field>
-          <Field label="Estatura" unit="cm">
-            <input type="number" step="0.1" className="input" value={form.talla} onChange={e => set('talla', e.target.value)} placeholder="165" />
-          </Field>
-          <Field label="C. Cintura" unit="cm">
-            <input type="number" step="0.1" className="input" value={form.cintura} onChange={e => set('cintura', e.target.value)} placeholder="80" />
-          </Field>
-          <Field label="C. Cadera" unit="cm">
-            <input type="number" step="0.1" className="input" value={form.cadera} onChange={e => set('cadera', e.target.value)} placeholder="96" />
-          </Field>
+          <Input label="Peso (kg)" type="number" step="0.1" value={form.peso} onChange={e => set('peso', e.target.value)} placeholder="72.4" />
+          <Input label="Estatura (cm)" type="number" step="0.1" value={form.talla} onChange={e => set('talla', e.target.value)} placeholder="165" />
+          <Input label="C. Cintura (cm)" type="number" step="0.1" value={form.cintura} onChange={e => set('cintura', e.target.value)} placeholder="80" />
+          <Input label="C. Cadera (cm)" type="number" step="0.1" value={form.cadera} onChange={e => set('cadera', e.target.value)} placeholder="96" />
         </Row>
         <Row cols={3}>
-          <Field label="Muñeca" unit="cm" hint="Para determinar complexión (Frisancho)">
-            <input type="number" step="0.1" className="input" value={form.muneca} onChange={e => set('muneca', e.target.value)} placeholder="16" />
-          </Field>
-          <Field label="P.A. Sistólica" unit="mmHg">
-            <input type="number" className="input" value={form.pa_sis} onChange={e => set('pa_sis', e.target.value)} placeholder="120" />
-          </Field>
-          <Field label="P.A. Diastólica" unit="mmHg">
-            <input type="number" className="input" value={form.pa_dia} onChange={e => set('pa_dia', e.target.value)} placeholder="80" />
-          </Field>
+          <Input label="Muñeca (cm)" helperText="Para determinar complexión (Frisancho)" type="number" step="0.1" value={form.muneca} onChange={e => set('muneca', e.target.value)} placeholder="16" />
+          <Input label="P.A. Sistólica (mmHg)" type="number" value={form.pa_sis} onChange={e => set('pa_sis', e.target.value)} placeholder="120" />
+          <Input label="P.A. Diastólica (mmHg)" type="number" value={form.pa_dia} onChange={e => set('pa_dia', e.target.value)} placeholder="80" />
         </Row>
 
         {/* IMC visual */}
@@ -244,11 +218,18 @@ export default function MeasurementsTab({ patient }) {
             { key: 'pecho',        label: 'Pecho (♂)'    },
             { key: 'axilar',       label: 'Axilar'       },
           ].map(p => (
-            <div key={p.key} className="form-group">
-              <label className="label text-2xs">{p.label}</label>
-              <input type="number" step="0.1" min="0" className="input py-2 text-center font-mono"
-                value={form[p.key]} onChange={e => set(p.key, e.target.value)} placeholder="—" />
-            </div>
+            <Input
+              key={p.key}
+              label={p.label}
+              type="number"
+              step="0.1"
+              min="0"
+              className="py-2 text-center font-mono"
+              containerClassName="[&>.label]:text-2xs"
+              value={form[p.key]}
+              onChange={e => set(p.key, e.target.value)}
+              placeholder="—"
+            />
           ))}
         </div>
 
@@ -300,11 +281,18 @@ export default function MeasurementsTab({ patient }) {
             { key: 'torax',      label: 'Tórax'            },
             { key: 'abdomen',    label: 'Abdomen'          },
           ].map(p => (
-            <div key={p.key} className="form-group">
-              <label className="label text-2xs">{p.label}</label>
-              <input type="number" step="0.1" min="0" className="input py-2 text-center font-mono"
-                value={form[p.key]} onChange={e => set(p.key, e.target.value)} placeholder="—" />
-            </div>
+            <Input
+              key={p.key}
+              label={p.label}
+              type="number"
+              step="0.1"
+              min="0"
+              className="py-2 text-center font-mono"
+              containerClassName="[&>.label]:text-2xs"
+              value={form[p.key]}
+              onChange={e => set(p.key, e.target.value)}
+              placeholder="—"
+            />
           ))}
         </div>
       </div>
@@ -315,7 +303,7 @@ export default function MeasurementsTab({ patient }) {
           <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Evolución Histórica</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Peso */}
-            <div className="card !p-4">
+            <Card className="!p-4">
               <div className="text-xs font-semibold text-[var(--ink-secondary)] mb-3">Peso (kg)</div>
               <ResponsiveContainer width="100%" height={140}>
                 <LineChart data={historico}>
@@ -326,9 +314,9 @@ export default function MeasurementsTab({ patient }) {
                   <Line type="monotone" dataKey="peso" name="kg" stroke="var(--chart-green)" strokeWidth={2} dot={{ fill: 'var(--success)', r: 4, strokeWidth: 0 }} />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
+            </Card>
             {/* % Grasa */}
-            <div className="card !p-4">
+            <Card className="!p-4">
               <div className="text-xs font-semibold text-[var(--ink-secondary)] mb-3">% Grasa Corporal</div>
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={historico}>
@@ -339,7 +327,7 @@ export default function MeasurementsTab({ patient }) {
                   <Bar dataKey="grasa" name="%" fill="var(--chart-orange)" radius={[4, 4, 0, 0]} opacity={0.8} />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </Card>
           </div>
         </div>
       )}
