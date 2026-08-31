@@ -36,19 +36,12 @@ export function getPageMeta(pathname) {
     return withTrail([{ label: 'Pacientes', to: '/pacientes' }], 'Editar paciente', null);
   }
 
-  const patientTab = path.match(
-    /^\/pacientes\/([^/]+)\/(mediciones|habitos|clinica|laboratorio|actividad|dietas|seguimiento|psiconutricion)$/
-  );
+  const patientTab = path.match(/^\/pacientes\/([^/]+)\/(evolucion|clinica|dietas)$/);
   if (patientTab) {
     const tabLabels = {
-      mediciones: 'Mediciones',
-      habitos: 'Hábitos alimentarios',
+      evolucion: 'Evolución',
       clinica: 'Clínica',
-      laboratorio: 'Laboratorio',
-      actividad: 'Actividad física',
       dietas: 'Dietas del paciente',
-      seguimiento: 'Seguimiento',
-      psiconutricion: 'Psiconutrición',
     };
     const tab = patientTab[2];
     return withTrail(

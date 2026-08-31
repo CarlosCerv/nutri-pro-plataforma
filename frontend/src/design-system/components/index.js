@@ -11,5 +11,6 @@ export { default as Tabs } from './Tabs.jsx';
 export { default as StatTile } from './StatTile.jsx';
 export { default as FormSection } from './FormSection.jsx';
 export { default as DataTable } from './DataTable.jsx';
+export { default as Disclosure } from './Disclosure.jsx';
 export { default as SaveBar } from './SaveBar.jsx';
 export { EmptyState, ErrorState, LoadingState, Skeleton } from './StateViews.jsx';

@@ -116,20 +116,27 @@ function App() {
             <Route path="/pacientes" element={<ProtectedPage element={<Patients />} />} />
             <Route path="/pacientes/nuevo" element={<ProtectedPage element={<NewPatient />} />} />
             <Route path="/pacientes/:id/editar" element={<ProtectedPage element={<NewPatient />} />} />
-            <Route path="/pacientes/:id/mediciones" element={<ProtectedPage element={<PatientDetail />} />} />
-            <Route path="/pacientes/:id/habitos" element={<ProtectedPage element={<PatientDetail />} />} />
+            <Route path="/pacientes/:id/evolucion" element={<ProtectedPage element={<PatientDetail />} />} />
             <Route path="/pacientes/:id/clinica" element={<ProtectedPage element={<PatientDetail />} />} />
-            <Route path="/pacientes/:id/laboratorio" element={<ProtectedPage element={<PatientDetail />} />} />
-            <Route path="/pacientes/:id/actividad" element={<ProtectedPage element={<PatientDetail />} />} />
             <Route path="/pacientes/:id/dietas" element={<ProtectedPage element={<PatientDetail />} />} />
-            <Route
-              path="/pacientes/:id/seguimiento"
-              element={<ProtectedPage element={<RedirectToPatientTab tab="clinica" />} />}
-            />
-            <Route
-              path="/pacientes/:id/psiconutricion"
-              element={<ProtectedPage element={<RedirectToPatientTab tab="habitos" />} />}
-            />
+
+            {/* Pestañas fusionadas: mediciones, laboratorio y actividad viven
+                ahora en "Evolución"; hábitos vive en "Clínica". Se redirigen
+                para no romper enlaces al expediente de un paciente. */}
+            {[
+              ['mediciones', 'evolucion'],
+              ['laboratorio', 'evolucion'],
+              ['actividad', 'evolucion'],
+              ['seguimiento', 'evolucion'],
+              ['habitos', 'clinica'],
+              ['psiconutricion', 'clinica'],
+            ].map(([vieja, nueva]) => (
+              <Route
+                key={vieja}
+                path={`/pacientes/:id/${vieja}`}
+                element={<ProtectedPage element={<RedirectToPatientTab tab={nueva} />} />}
+              />
+            ))}
             <Route path="/pacientes/:id" element={<ProtectedPage element={<PatientDetail />} />} />
 
             {/* Agenda */}

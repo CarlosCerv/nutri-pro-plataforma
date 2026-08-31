@@ -2,26 +2,31 @@ import { Suspense, lazy, useState, useEffect, useCallback, useMemo } from 'react
 import { useParams, useNavigate, NavLink, useLocation, Link } from 'react-router-dom';
 import {
   ArrowLeft, Edit3, Download, Salad, AlertCircle, RefreshCw,
-  User, Activity, FlaskConical, Heart, Apple, Dumbbell,
+  User, Activity, Heart,
 } from 'lucide-react';
 import api from '../services/api';
+import PatientAlertPanel from '../components/PatientAlertPanel';
 import { getApiErrorMessage } from '../lib/apiError';
 
 const GeneralDataTab = lazy(() => import('./patient-tabs/GeneralDataTab'));
-const MeasurementsTab = lazy(() => import('./patient-tabs/MeasurementsTab'));
-const FoodHabitsTab = lazy(() => import('./patient-tabs/FoodHabitsTab'));
-const ClinicalTab = lazy(() => import('./patient-tabs/ClinicalTab'));
-const LaboratoryTab = lazy(() => import('./patient-tabs/LaboratoryTab'));
-const PhysicalActivityTab = lazy(() => import('./patient-tabs/PhysicalActivityTab'));
+const EvolucionTab = lazy(() => import('./patient-tabs/EvolucionTab'));
+const ClinicaTab = lazy(() => import('./patient-tabs/ClinicaTab'));
 const PatientMealPlansTab = lazy(() => import('../components/PatientMealPlansTab'));
 
+/**
+ * Cuatro pestañas, antes siete.
+ *
+ * Mediciones, Laboratorio y Actividad física se recorren en la misma consulta
+ * y se interpretan juntas, así que viven bajo "Evolución" en secciones
+ * plegables. Clínica, Hábitos y las notas de consulta describen el mismo
+ * cuadro y viven bajo "Clínica". "Dietas" se mantiene aparte porque es una
+ * lista de planes, no un formulario de captura, y es donde vive la
+ * exportación a PDF que sí funciona.
+ */
 const TABS = [
-  { id: 'general', label: 'General', icon: User, suffix: '' },
-  { id: 'mediciones', label: 'Mediciones', icon: Activity, suffix: 'mediciones' },
-  { id: 'habitos', label: 'Hábitos', icon: Apple, suffix: 'habitos' },
+  { id: 'general', label: 'Resumen', icon: User, suffix: '' },
+  { id: 'evolucion', label: 'Evolución', icon: Activity, suffix: 'evolucion' },
   { id: 'clinica', label: 'Clínica', icon: Heart, suffix: 'clinica' },
-  { id: 'laboratorio', label: 'Laboratorio', icon: FlaskConical, suffix: 'laboratorio' },
-  { id: 'actividad', label: 'Act. física', icon: Dumbbell, suffix: 'actividad' },
   { id: 'dietas', label: 'Dietas', icon: Salad, suffix: 'dietas' },
 ];
 
@@ -154,16 +159,14 @@ export default function PatientDetail() {
     .join('')
     .slice(0, 2)
     .toUpperCase();
-  const COLORS = ['var(--chart-green)', 'var(--chart-orange)', 'var(--chart-blue)', '#7C3AED'];
-  const avatarColor = COLORS[(patient.firstName?.charCodeAt(0) || 0) % COLORS.length];
+  // El avatar no codifica información clínica: superficie neutra, no una
+  // paleta de cuatro colores que el usuario podría leer como un estado.
+  const avatarColor = 'var(--surface-strong)';
 
   const TAB_COMPONENTS = {
     general: GeneralDataTab,
-    mediciones: MeasurementsTab,
-    habitos: FoodHabitsTab,
-    clinica: ClinicalTab,
-    laboratorio: LaboratoryTab,
-    actividad: PhysicalActivityTab,
+    evolucion: EvolucionTab,
+    clinica: ClinicaTab,
   };
   const ActiveTabComponent = TAB_COMPONENTS[activeTab] || GeneralDataTab;
 
@@ -279,22 +282,32 @@ export default function PatientDetail() {
         </div>
       </div>
 
-      <div key={activeTab} className="animate-fade-up">
-        <Suspense
-          fallback={
-            <div className="card space-y-3">
-              <div className="skeleton h-6 w-40 rounded-lg" />
-              <div className="skeleton h-24 w-full rounded-2xl" />
-              <div className="skeleton h-24 w-full rounded-2xl" />
-            </div>
-          }
-        >
-          {activeTab === 'dietas' ? (
-            <PatientMealPlansTab patientId={id} patient={patient} />
-          ) : (
-            <ActiveTabComponent patient={patient} onUpdate={setPatient} />
-          )}
-        </Suspense>
+      {/* El panel de datos críticos acompaña a todas las pestañas: alergias,
+          patologías y medicamentos pueden cambiar una decisión clínica en
+          cualquier momento de la consulta, y antes estaban enterrados dentro
+          de dos pestañas distintas. */}
+      <div className="grid gap-5 xl:grid-cols-[1fr_300px] xl:items-start">
+        <div key={activeTab} className="min-w-0 animate-fade-up">
+          <Suspense
+            fallback={
+              <div className="card space-y-3">
+                <div className="skeleton h-6 w-40 rounded-lg" />
+                <div className="skeleton h-24 w-full rounded-2xl" />
+                <div className="skeleton h-24 w-full rounded-2xl" />
+              </div>
+            }
+          >
+            {activeTab === 'dietas' ? (
+              <PatientMealPlansTab patientId={id} patient={patient} />
+            ) : (
+              <ActiveTabComponent patient={patient} onUpdate={setPatient} />
+            )}
+          </Suspense>
+        </div>
+
+        <div className="xl:sticky xl:top-24">
+          <PatientAlertPanel patient={patient} />
+        </div>
       </div>
     </div>
   );
