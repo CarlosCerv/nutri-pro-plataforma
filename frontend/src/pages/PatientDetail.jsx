@@ -248,9 +248,12 @@ export default function PatientDetail() {
             <Link to={`/dietas/nueva?paciente=${id}`} className="btn btn-outline btn-sm gap-1.5">
               <Salad size={13} strokeWidth={1.75} /> Nueva dieta
             </Link>
-            <button type="button" className="btn btn-secondary btn-sm gap-1.5">
-              <Download size={13} strokeWidth={1.75} /> PDF
-            </button>
+            {/* La exportación a PDF vive en la pestaña de dietas, junto al plan
+                que se exporta (hooks/usePDFExport.js). Antes este botón no
+                tenía onClick y no hacía absolutamente nada. */}
+            <Link to={`/pacientes/${id}/dietas`} className="btn btn-secondary btn-sm gap-1.5">
+              <Download size={13} strokeWidth={1.75} /> Exportar PDF
+            </Link>
           </div>
         </div>
       </div>

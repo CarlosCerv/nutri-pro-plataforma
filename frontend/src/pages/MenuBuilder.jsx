@@ -1,9 +1,77 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
-  ArrowLeft, Save, Trash2, Search, Loader, AlertCircle,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  ArrowLeft, GripVertical, Save, Trash2, Search, Loader, AlertCircle,
 } from 'lucide-react';
 import { mealPlansAPI, foodsAPI } from '../services/api';
+import { getApiErrorMessage } from '../lib/apiError';
+
+/**
+ * Alimento arrastrable del panel lateral.
+ *
+ * El estado vacío de cada tiempo de comida decía "Arrastra alimentos desde la
+ * derecha" desde el principio, pero el arrastre nunca existió: toda la
+ * interacción era por botones. `@dnd-kit` estaba instalado y había dos
+ * componentes de drag & drop en el repositorio que ninguna ruta alcanzaba.
+ *
+ * Los botones "+ tiempo" se conservan a propósito: son la vía accesible por
+ * teclado y en pantallas táctiles pequeñas, donde arrastrar es incómodo.
+ */
+function AlimentoArrastrable({ food, children }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `food:${food._id}`,
+    data: { food },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`rounded-lg border border-[var(--border-soft)] p-2 transition-opacity duration-micro ${
+        isDragging ? 'opacity-40' : ''
+      }`}
+    >
+      <div className="flex items-start gap-1.5">
+        <button
+          type="button"
+          className="-ml-1 mt-0.5 cursor-grab touch-none rounded p-0.5 text-[var(--ink-secondary)] hover:text-[var(--ink)] active:cursor-grabbing"
+          aria-label={`Arrastrar ${food.name}`}
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical size={14} />
+        </button>
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/** Tiempo de comida que acepta alimentos soltados encima. */
+function TiempoSoltable({ slotKey, children }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `slot:${slotKey}` });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`card overflow-hidden transition-colors duration-micro ${
+        isOver ? 'border-[var(--accent)] bg-[var(--accent-soft)]' : ''
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
 
 const SLOT_META = [
   { key: 'breakfast', label: 'Desayuno' },
@@ -88,6 +156,16 @@ export default function MenuBuilder() {
   const [saving, setSaving] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(!!mealPlanId);
   const [loadError, setLoadError] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const [arrastrando, setArrastrando] = useState(null);
+  const navigate = useNavigate();
+
+  // El sensor de puntero exige 6 px de desplazamiento antes de iniciar un
+  // arrastre, para que un clic en el asa no cuente como arrastre accidental.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor)
+  );
 
   const loadFoods = useCallback(async () => {
     setFoodsLoading(true);
@@ -230,10 +308,11 @@ export default function MenuBuilder() {
 
   const handleSave = async () => {
     if (!nombre.trim()) {
-      alert('Escribe un nombre para la dieta');
+      setSaveError('Escribe un nombre para la dieta.');
       return;
     }
     setSaving(true);
+    setSaveError('');
     try {
       const nutrition = computeTotals();
       const meals = mealsPayload();
@@ -250,14 +329,23 @@ export default function MenuBuilder() {
       } else {
         await mealPlansAPI.create(body);
       }
-      window.location.href = '/dietas';
+      // navigate() en vez de window.location.href: esto es una SPA y el
+      // asignar location recargaba la aplicación entera, perdiendo la sesión
+      // en memoria y volviendo a descargar todo el bundle.
+      navigate('/dietas');
     } catch (e) {
-      console.error(e);
-      const msg = e.response?.data?.message || e.message || 'Error al guardar';
-      alert(Array.isArray(msg) ? msg.join(', ') : msg);
+      setSaveError(getApiErrorMessage(e, 'No se pudo guardar la dieta.'));
     } finally {
       setSaving(false);
     }
+  };
+
+  const onDragEnd = ({ active, over }) => {
+    setArrastrando(null);
+    if (!over) return;
+    const slotKey = String(over.id).replace(/^slot:/, '');
+    const food = active.data.current?.food;
+    if (food && slotKey) addFoodToSlot(slotKey, food);
   };
 
   if (loadingPlan) {
@@ -296,6 +384,26 @@ export default function MenuBuilder() {
         </button>
       </div>
 
+      {/* El fallo al guardar se muestra en la página, no con `alert()`: el
+          diálogo del navegador bloquea la interfaz y se pierde al aceptarlo,
+          justo cuando el usuario necesita ver qué campo corregir. */}
+      {saveError ? (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-[var(--radius-m)] border border-[var(--danger)] bg-[rgba(196,30,22,0.06)] px-4 py-3 text-sm text-[var(--danger)]"
+        >
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          {saveError}
+        </div>
+      ) : null}
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={({ active }) => setArrastrando(active.data.current?.food || null)}
+        onDragCancel={() => setArrastrando(null)}
+        onDragEnd={onDragEnd}
+      >
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
           <div className="card p-5">
@@ -317,14 +425,14 @@ export default function MenuBuilder() {
           </div>
 
           {slots.map((slot) => (
-            <div key={slot.slotKey} className="card overflow-hidden">
-              <div className="border-b border-[var(--border-soft)] bg-[var(--surface-muted)] px-5 py-3">
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">{slot.slotLabel}</h3>
+            <TiempoSoltable key={slot.slotKey} slotKey={slot.slotKey}>
+              <div className="border-b border-[var(--border-soft)] bg-[var(--surface-alt)] px-5 py-3">
+                <h3 className="text-sm font-semibold text-[var(--ink)]">{slot.slotLabel}</h3>
               </div>
               <div className="divide-y divide-[var(--border-soft)]">
                 {slot.items.length === 0 ? (
-                  <p className="px-5 py-6 text-sm text-[var(--text-tertiary)]">
-                    Arrastra alimentos desde la derecha o usa el buscador.
+                  <p className="px-5 py-6 text-sm text-[var(--ink-secondary)]">
+                    Arrastra alimentos desde la derecha, o usa los botones «+ {slot.slotLabel}» del buscador.
                   </p>
                 ) : (
                   slot.items.map((item, idx) => (
@@ -356,7 +464,7 @@ export default function MenuBuilder() {
                   ))
                 )}
               </div>
-            </div>
+            </TiempoSoltable>
           ))}
         </div>
 
@@ -380,9 +488,9 @@ export default function MenuBuilder() {
             ) : (
               <div className="max-h-[60vh] space-y-1 overflow-y-auto pr-1">
                 {filteredFoods.slice(0, 120).map((food) => (
-                  <div key={food._id} className="rounded-lg border border-[var(--border-soft)] p-2">
-                    <p className="truncate text-sm font-medium text-[var(--text-primary)]">{food.name}</p>
-                    <p className="text-xs text-[var(--text-tertiary)]">
+                  <AlimentoArrastrable key={food._id} food={food}>
+                    <p className="truncate text-sm font-medium text-[var(--ink)]">{food.name}</p>
+                    <p className="text-xs text-[var(--ink-secondary)]">
                       {nutritionPer100g(food).energy} kcal / 100g
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -397,13 +505,22 @@ export default function MenuBuilder() {
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </AlimentoArrastrable>
                 ))}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      <DragOverlay dropAnimation={null}>
+        {arrastrando ? (
+          <div className="rounded-[var(--radius-m)] border border-[var(--accent)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--ink)] shadow-card">
+            {arrastrando.name}
+          </div>
+        ) : null}
+      </DragOverlay>
+      </DndContext>
     </div>
   );
 }

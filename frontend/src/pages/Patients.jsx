@@ -7,6 +7,17 @@ import api from '../services/api';
 
 const FILTROS = ['Todos', 'Activos', 'Sin dieta', 'Con alerta'];
 
+/**
+ * "Con alerta" son los pacientes con algo clínicamente relevante ya
+ * registrado: alguna patología, alergia o intolerancia. Antes este filtro
+ * caía en el `return true` por defecto, así que era indistinguible de
+ * "Todos" y el usuario no tenía forma de saberlo.
+ */
+const tieneAlerta = (p) =>
+  (p.patologias?.length || 0) > 0 ||
+  Boolean(p.alergias?.trim()) ||
+  Boolean(p.intolerancias?.trim());
+
 /** Misma cuadrícula en cabecera y filas (scroll horizontal en pantallas angostas). */
 const TABLE_GRID =
   'grid grid-cols-[minmax(200px,1fr)_108px_72px_96px_80px_32px] gap-x-3 items-center';
@@ -81,14 +92,16 @@ export default function Patients() {
     if (!matchSearch) return false;
     if (filtro === 'Activos')    return p.active !== false;
     if (filtro === 'Sin dieta')  return !p.hasDiet;
+    if (filtro === 'Con alerta') return tieneAlerta(p);
     return true;
   });
 
   const initials = (p) =>
     `${p.firstName?.[0] || ''}${p.lastName?.[0] || ''}`.toUpperCase();
 
-  const COLORS_CYCLE = ['#2ECC8E', '#E8C96A', '#3B82F6', '#A855F7', '#F97316', '#EF4444'];
-  const colorFor = (name) => COLORS_CYCLE[(name?.charCodeAt(0) || 0) % COLORS_CYCLE.length];
+  // Los avatares no codifican información: usan la superficie neutra del
+  // sistema en vez de una paleta propia de seis colores de marca.
+  const colorFor = () => 'var(--surface-strong)';
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -196,7 +209,7 @@ export default function Patients() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-[#1d1d1f]"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold text-[var(--ink-muted)]"
                         style={{ background: fg }}
                       >
                         {p.photoUrl
