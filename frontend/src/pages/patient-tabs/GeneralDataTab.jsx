@@ -82,8 +82,8 @@ export default function GeneralDataTab({ patient, onUpdate }) {
       {/* ── Datos personales ── */}
       <SECTION title="Datos Personales">
         <Row cols={2}>
-          <Input label="Nombre(s)" required value={form.firstName} onChange={e => set('firstName', e.target.value)} placeholder="María" required />
-          <Input label="Apellidos" required value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="González" required />
+          <Input label="Nombre(s)" required value={form.firstName} onChange={e => set('firstName', e.target.value)} placeholder="María" />
+          <Input label="Apellidos" required value={form.lastName} onChange={e => set('lastName', e.target.value)} placeholder="González" />
         </Row>
         <Row cols={3}>
           <Input label="Fecha de nacimiento" required type="date" value={form.dob} onChange={e => set('dob', e.target.value)} />
