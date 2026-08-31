@@ -15,7 +15,9 @@ const toLabSeries = (registros = []) =>
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .map((r) => {
       const d = new Date(r.date);
-      return { fecha: `${MESES[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`, ...(r.values || {}) };
+      // En UTC por el mismo motivo que en lib/bodyComposition.js: la fecha del
+      // formulario es `YYYY-MM-DD` y los getters locales la correrían un día.
+      return { fecha: `${MESES[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, '0')}`, ...(r.values || {}) };
     });
 
 // ── Grupos de análisis clínicos ──────────────────────────────────

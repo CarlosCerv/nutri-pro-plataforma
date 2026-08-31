@@ -109,8 +109,11 @@ export function toHistorySeries(records = []) {
         .sort((a, b) => new Date(a.date) - new Date(b.date))
         .map((r) => {
             const d = new Date(r.date);
+            // Se lee en UTC a proposito: el formulario envia la fecha como
+            // `YYYY-MM-DD`, que se parsea a medianoche UTC. Con los getters
+            // locales, cualquier zona al oeste de UTC pintaria el dia anterior.
             return {
-                fecha: `${MESES[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`,
+                fecha: `${MESES[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, '0')}`,
                 peso: r.measurements?.weight ?? null,
                 grasa: r.composition?.bodyFatPercentage ?? null,
                 imc: r.measurements?.bmi ?? null,

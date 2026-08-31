@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Las páginas y componentes siguen en .jsx con PropTypes; el tipado
+    // estricto cubre solo la lógica pura (cálculos, hooks, tipos de dominio).
+    // `checkJs` queda apagado a propósito: encenderlo convertiría este
+    // tsconfig en una migración de 40 pantallas, que es otro trabajo.
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": [
+    "src/types",
+    "src/lib",
+    "src/hooks",
+    "src/utils",
+    "src/__tests__"
+  ]
+}
