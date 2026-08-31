@@ -1,7 +1,7 @@
 # NutriPro — Contexto de la plataforma
 
 > Documento de contexto para conversar sobre mejoras. Describe lo que **hay hoy** en el repositorio, no lo que se planeó.
-> Generado el 2026-08-31 sobre el commit `3098536`.
+> Generado el 2026-08-31 sobre el commit `d36d8f8`.
 
 ---
 
@@ -94,7 +94,7 @@ Trece routers montados en `backend/src/app.js`. **Todos exigen JWT salvo `/auth/
 **Dos routers sin ningún consumidor.**
 
 - `/api/calculations/*` + `services/nutritionCalculator.js` están completos y **nadie los llama**: la interfaz calcula en cliente con `src/lib/calculations/`. Se mantuvieron por si alguna vez se expone la API a terceros.
-- `/api/food-exchange/*` (`/equivalents`, `/by-category/:category`, `/batch`) tampoco tiene consumidor. Su única pantalla, `FoodExchangeModal.jsx`, quedó huérfana. El intercambio de alimentos es funcionalidad clínica real que está a un `import` de distancia de funcionar.
+- `/api/food-exchange/*` (`/equivalents`, `/by-category/:category`, `/batch`) tampoco tiene consumidor, y desde `d36d8f8` ya no tiene ni pantalla: `FoodExchangeModal.jsx` se borró por huérfano. El intercambio de alimentos es funcionalidad clínica real, así que queda decidir si el router se retira o se le vuelve a construir una interfaz.
 
 ---
 
@@ -225,18 +225,15 @@ De ahí salieron tres piezas que conviene conocer: `lib/apiError.js` (traduce el
 
 ### Detectada en la última auditoría
 
-- **Tres componentes huérfanos, 882 líneas.** Están completos y funcionan; nadie los monta.
-
-  | Componente | JSX | CSS |
-  |---|---:|---:|
-  | `FoodExchangeModal` | 139 | 200 |
-  | `SavePlanModal` | 169 | 43 |
-  | `WeeklyCalendar` | 140 | 191 |
-
 - **Tres motores de cálculo, no dos.** `src/lib/calculations/` lo usan las páginas; `src/utils/calculations.ts` lo usa `useMealPlanner`; `/api/calculations/*` no lo usa nadie. Los dos primeros están vivos a la vez y pueden divergir entre sí — la fusión prevista no se hizo.
 - **El panel traga los errores.** `DashboardInsights.jsx:73-77` tiene cinco `.catch(() => ({ data: { data: [] } }))`. Un 500 se ve exactamente igual que «todavía no hay datos»: gráfica en blanco, sin aviso. Es el mismo patrón que se eliminó de las seis pestañas del expediente; sobrevivió aquí porque entonces los endpoints no existían y el `.catch` evitaba que la página reventara. Ya existen, así que dejó de ser un parche y pasó a ser una máscara.
-- **`/api/food-exchange` sin consumidor** (ver §4), consecuencia directa del modal huérfano.
+- **`/api/food-exchange` sin consumidor ni pantalla** (ver §4).
 - **`NewAppointment.css`**, 474 líneas, es el CSS por página más grande que sobrevive a la limpieza.
+
+### Resuelto
+
+- **Rutas de `/finanzas` y `/perfil`** montadas, y la prueba que debía cubrirlas reescrita para que lea el `<Routes>` real (`3098536`).
+- **Tres componentes huérfanos borrados** — `FoodExchangeModal`, `SavePlanModal` y `WeeklyCalendar`, 882 líneas entre JSX y CSS (`d36d8f8`). Quedan 4 archivos CSS en todo el front end, 1 776 líneas contando `index.css`.
 
 ### Comportamiento correcto, pero conviene saberlo
 
