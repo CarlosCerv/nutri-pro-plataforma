@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
  * - Titular con tipografía de alto contraste
  * - CTA principal de fricción cero con micro-copia
  * - Fila de prueba social con micro-avatares y valoración
- * - Mockup interactivo responsive con HUD nutricional
+ * - Mockup Adaptativo: En móvil (< lg) tarjeta enfocada iOS y en escritorio (>= lg) workspace completo.
  */
 export default function LandingHero({ onPrimaryCtaClick }) {
   return (
@@ -22,8 +22,8 @@ export default function LandingHero({ onPrimaryCtaClick }) {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
         {/* Badge de Autoridad Clínica */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-soft)] bg-[var(--surface)] px-4 py-1.5 text-xs font-semibold text-[var(--accent)] mb-6 shadow-2xs">
-          <ShieldCheck className="h-3.5 w-3.5 text-[var(--accent)] shrink-0" />
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-soft)] bg-[var(--surface)] px-4 py-1.5 text-xs font-semibold text-[#0071E3] mb-6 shadow-2xs">
+          <ShieldCheck className="h-3.5 w-3.5 text-[#0071E3] shrink-0" />
           <span>100% Compatible con SMAE • Normativa de Expediente Clínico</span>
         </div>
 
@@ -102,7 +102,7 @@ export default function LandingHero({ onPrimaryCtaClick }) {
                 <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-[#27C93F] inline-block border border-[#1AAB29]/50" />
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-medium text-[var(--ink-secondary)] bg-[var(--surface)] px-2.5 sm:px-4 py-1 rounded-full border border-[var(--border-soft)] shadow-2xs truncate max-w-[200px] sm:max-w-none">
-                <Utensils className="h-3.5 w-3.5 text-[var(--accent)] shrink-0" />
+                <Utensils className="h-3.5 w-3.5 text-[#0071E3] shrink-0" />
                 <span className="truncate">Constructor · Mariana Rivas (1,850 kcal)</span>
               </div>
               <div className="text-[11px] sm:text-xs text-[var(--ink-secondary)] flex items-center gap-1">
@@ -111,14 +111,73 @@ export default function LandingHero({ onPrimaryCtaClick }) {
               </div>
             </div>
 
-            {/* Contenido Visual del Mockup */}
-            <div className="p-3 sm:p-6 bg-[var(--surface)] rounded-b-[14px] text-left grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+            {/* ── Vista Móvil Enfocada (< lg): Tarjeta iOS de Alta Legibilidad ── */}
+            <div className="lg:hidden p-3.5 sm:p-5 bg-[var(--surface)] rounded-b-[14px] text-left space-y-3 sm:space-y-4">
+              {/* Encabezado del tiempo de comida activo */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#0071E3]" />
+                  <span className="text-sm font-bold text-[#1D1D1F]">Comida Principal</span>
+                  <span className="text-[10px] font-semibold bg-[#0071E3]/10 text-[#0071E3] px-2 py-0.5 rounded-full">
+                    02:30 PM
+                  </span>
+                </div>
+                <span className="text-sm font-bold text-[#0071E3]">680 kcal</span>
+              </div>
+
+              {/* Fila de alimento activo con selector táctil de porciones */}
+              <div className="p-3.5 rounded-[14px] bg-[var(--surface-cool)] border border-[#0071E3]/30 ring-1 ring-[#0071E3]/20 shadow-2xs space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs sm:text-sm font-bold text-[#1D1D1F] truncate">Pechuga de pollo asada</span>
+                    <span className="text-[11px] text-[#6E6E73]">150g • 248 kcal</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#0071E3]/15 text-[#0071E3] uppercase tracking-wide shrink-0">
+                    Proteína sin grasa
+                  </span>
+                </div>
+
+                {/* Selector de porciones táctil */}
+                <div className="flex items-center justify-between pt-2 border-t border-[var(--border-soft)]">
+                  <span className="text-xs font-medium text-[#424245]">Porción prescrita:</span>
+                  <div className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--border-soft)] rounded-full px-2 py-0.5 shadow-2xs">
+                    <span className="h-6 w-6 rounded-full flex items-center justify-center text-[#6E6E73] text-xs font-bold select-none">-</span>
+                    <span className="text-xs font-bold text-[#1D1D1F] px-1">150g</span>
+                    <span className="h-6 w-6 rounded-full flex items-center justify-center text-[#0071E3] text-xs font-bold select-none">+</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Segundo alimento acompañante */}
+              <div className="flex items-center justify-between p-3 rounded-[12px] bg-[var(--surface-alt)] border border-[var(--border-soft)]/60">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-[#1D1D1F]">Arroz integral & Aguacate Hass</span>
+                  <span className="text-[11px] text-[#6E6E73]">1/2 taza + 1/3 pza</span>
+                </div>
+                <span className="text-xs font-bold text-[#1D1D1F]">292 kcal</span>
+              </div>
+
+              {/* Barra flotante de macros legibles en móvil */}
+              <div className="p-3 rounded-[14px] bg-[var(--surface-cool)] border border-[var(--border-soft)] flex items-center justify-between gap-2 shadow-2xs">
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase font-bold text-[#6E6E73] tracking-wider">Macros en tiempo real</span>
+                  <span className="text-xs sm:text-sm font-bold text-[#1D1D1F]">P: 42g • G: 18g • C: 65g</span>
+                </div>
+                <span className="text-[11px] font-bold text-[#1B7F3A] bg-[#1B7F3A]/10 px-2.5 py-1 rounded-full flex items-center gap-1 shrink-0">
+                  <Activity className="h-3 w-3" />
+                  <span>SMAE Balanceado</span>
+                </span>
+              </div>
+            </div>
+
+            {/* ── Vista Completa de Escritorio (>= lg): Workspace Completo ── */}
+            <div className="hidden lg:grid p-6 bg-[var(--surface)] rounded-b-[14px] text-left grid-cols-12 gap-5">
               {/* Panel Izquierdo: Catálogo de Alimentos */}
-              <div className="lg:col-span-4 rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface-cool)] p-3.5 sm:p-4 flex flex-col justify-between">
+              <div className="col-span-4 rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface-cool)] p-4 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-secondary)]">Catálogo Clínico</span>
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-semibold text-[#0071E3] bg-[var(--accent-soft)] px-2 py-0.5 rounded-full">
                       SMAE 100% Oficial
                     </span>
                   </div>
@@ -131,10 +190,10 @@ export default function LandingHero({ onPrimaryCtaClick }) {
                     ].map((food, idx) => (
                       <div
                         key={idx}
-                        className="group flex items-center justify-between p-2 sm:p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-soft)] shadow-2xs hover:border-[var(--accent)] hover:shadow-xs transition-all cursor-grab"
+                        className="group flex items-center justify-between p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-soft)] shadow-2xs hover:border-[var(--accent)] hover:shadow-xs transition-all cursor-grab"
                       >
                         <div className="flex flex-col min-w-0 pr-2">
-                          <span className="text-xs font-semibold text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors truncate">
+                          <span className="text-xs font-semibold text-[var(--ink)] group-hover:text-[#0071E3] transition-colors truncate">
                             {food.name}
                           </span>
                           <span className="text-[11px] text-[var(--ink-secondary)]">{food.detail}</span>
@@ -149,20 +208,20 @@ export default function LandingHero({ onPrimaryCtaClick }) {
 
                 <div className="mt-3.5 pt-2.5 border-t border-[var(--border-soft)] flex items-center justify-between text-xs text-[var(--ink-secondary)]">
                   <span>Arrastra alimentos al plan</span>
-                  <Zap className="h-3.5 w-3.5 text-[var(--accent)]" />
+                  <Zap className="h-3.5 w-3.5 text-[#0071E3]" />
                 </div>
               </div>
 
               {/* Panel Central: Tiempos de Comida con Drag & Drop */}
-              <div className="lg:col-span-5 space-y-3">
+              <div className="col-span-5 space-y-3">
                 {/* Desayuno */}
-                <div className="rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface)] p-3 sm:p-3.5 shadow-2xs">
+                <div className="rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface)] p-3.5 shadow-2xs">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[var(--accent)] shrink-0" />
+                      <span className="h-2 w-2 rounded-full bg-[#0071E3] shrink-0" />
                       <span className="text-xs font-semibold text-[var(--ink)]">Desayuno (08:00 AM)</span>
                     </div>
-                    <span className="text-xs font-bold text-[var(--accent)]">465 kcal</span>
+                    <span className="text-xs font-bold text-[#0071E3]">465 kcal</span>
                   </div>
                   <div className="space-y-1.5 text-xs text-[var(--ink-muted)]">
                     <div className="flex justify-between bg-[var(--surface-alt)] px-2.5 py-1.5 rounded-md">
@@ -181,13 +240,13 @@ export default function LandingHero({ onPrimaryCtaClick }) {
                 </div>
 
                 {/* Comida / Almuerzo */}
-                <div className="rounded-[12px] border border-[var(--accent-border)] bg-[var(--accent-soft)]/20 p-3 sm:p-3.5 shadow-2xs">
+                <div className="rounded-[12px] border border-[var(--accent-border)] bg-[var(--accent-soft)]/20 p-3.5 shadow-2xs">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[var(--accent)] shrink-0" />
+                      <span className="h-2 w-2 rounded-full bg-[#0071E3] shrink-0" />
                       <span className="text-xs font-semibold text-[var(--ink)]">Comida Principal (02:30 PM)</span>
                     </div>
-                    <span className="text-xs font-bold text-[var(--accent)]">680 kcal</span>
+                    <span className="text-xs font-bold text-[#0071E3]">680 kcal</span>
                   </div>
                   <div className="space-y-1.5 text-xs text-[var(--ink-muted)]">
                     <div className="flex justify-between bg-[var(--surface)] px-2.5 py-1.5 rounded-md border border-[var(--border-soft)]/60">
@@ -203,10 +262,10 @@ export default function LandingHero({ onPrimaryCtaClick }) {
               </div>
 
               {/* Panel Derecho: Métricas en Tiempo Real */}
-              <div className="lg:col-span-3 rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface-alt)] p-3.5 sm:p-4 flex flex-col justify-between">
+              <div className="col-span-3 rounded-[12px] border border-[var(--border-soft)] bg-[var(--surface-alt)] p-4 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-1.5 mb-3 text-xs font-semibold text-[var(--ink)]">
-                    <Flame className="h-4 w-4 text-[var(--accent)]" />
+                    <Flame className="h-4 w-4 text-[#0071E3]" />
                     <span>Balance de Energía</span>
                   </div>
 
@@ -214,10 +273,10 @@ export default function LandingHero({ onPrimaryCtaClick }) {
                   <div className="bg-[var(--surface)] p-3 rounded-lg border border-[var(--border-soft)] mb-3">
                     <div className="flex justify-between items-baseline mb-1">
                       <span className="text-xs text-[var(--ink-secondary)]">Meta del Día</span>
-                      <span className="text-xs sm:text-sm font-bold text-[var(--ink)]">1,850 / 1,850 kcal</span>
+                      <span className="text-sm font-bold text-[var(--ink)]">1,850 / 1,850 kcal</span>
                     </div>
                     <div className="w-full bg-[var(--gray-200)] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[var(--accent)] h-full w-full rounded-full" />
+                      <div className="bg-[#0071E3] h-full w-full rounded-full" />
                     </div>
                   </div>
 

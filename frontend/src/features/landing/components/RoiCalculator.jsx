@@ -6,9 +6,9 @@ import { Link } from 'react-router-dom';
 /**
  * Calculadora interactiva de Retorno de Inversión (ROI) y ahorro de tiempo.
  * Optimizada para Mobile-First:
- * - Sliders con touch targets accesibles
- * - Resumen táctil de impacto financiero
- * - CTA directo de alta conversión
+ * - Sliders con clases táctiles optimizadas (touch-none, thumb amplio)
+ * - Resumen táctil de impacto financiero con cifras destacadas
+ * - Botón píldora directo de alta conversión: "Quiero ahorrar estas horas ->"
  */
 export default function RoiCalculator({ onCtaClick }) {
   const [patientsCount, setPatientsCount] = useState(35);
@@ -70,7 +70,7 @@ export default function RoiCalculator({ onCtaClick }) {
                   step="5"
                   value={patientsCount}
                   onChange={(e) => setPatientsCount(Number(e.target.value))}
-                  className="w-full h-2.5 bg-[var(--gray-200)] rounded-lg appearance-none cursor-pointer accent-[#0071E3] min-h-[44px]"
+                  className="w-full h-2 bg-neutral-200 rounded-lg cursor-pointer touch-none accent-[#0071E3] min-h-[44px]"
                 />
               </div>
               <div className="flex justify-between text-[11px] text-[#6E6E73]">
@@ -100,7 +100,7 @@ export default function RoiCalculator({ onCtaClick }) {
                   step="50"
                   value={consultationFee}
                   onChange={(e) => setConsultationFee(Number(e.target.value))}
-                  className="w-full h-2.5 bg-[var(--gray-200)] rounded-lg appearance-none cursor-pointer accent-[#1B7F3A] min-h-[44px]"
+                  className="w-full h-2 bg-neutral-200 rounded-lg cursor-pointer touch-none accent-[#1B7F3A] min-h-[44px]"
                 />
               </div>
               <div className="flex justify-between text-[11px] text-[#6E6E73]">
@@ -130,7 +130,7 @@ export default function RoiCalculator({ onCtaClick }) {
                   step="5"
                   value={minutesPerPlan}
                   onChange={(e) => setMinutesPerPlan(Number(e.target.value))}
-                  className="w-full h-2.5 bg-[var(--gray-200)] rounded-lg appearance-none cursor-pointer accent-[#B45309] min-h-[44px]"
+                  className="w-full h-2 bg-neutral-200 rounded-lg cursor-pointer touch-none accent-[#B45309] min-h-[44px]"
                 />
               </div>
               <div className="flex justify-between text-[11px] text-[#6E6E73]">
@@ -194,7 +194,7 @@ export default function RoiCalculator({ onCtaClick }) {
                 onClick={onCtaClick}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#0071E3] hover:bg-[#0077ED] active:scale-[0.98] py-3.5 px-6 text-sm sm:text-base font-semibold text-white shadow-sm transition-all min-h-[48px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3]"
               >
-                <span>Quiero ahorrar este tiempo</span>
+                <span>Quiero ahorrar estas horas</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <div className="text-center mt-2 text-[11px] text-[#6E6E73]">

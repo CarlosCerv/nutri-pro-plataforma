@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
  * Barra de navegación superior fija para la Landing Page de NutriPro.
  * Diseñada para Mobile-First:
  * - Soporte para safe-area-inset-top en dispositivos móviles
- * - Touch targets accesibles de mínimo 44x44px
- * - Glassmorphism con backdrop-blur
+ * - Touch targets accesibles de mínimo 44x44px en todos los elementos interactivos
+ * - Menú desplegable móvil con Glassmorphism (bg-white/95 backdrop-blur-xl)
  */
 export default function LandingNavbar({ onCtaClick }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,9 +37,9 @@ export default function LandingNavbar({ onCtaClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[var(--border-soft)]/60 bg-[rgba(255,255,255,0.85)] backdrop-blur-xl transition-all duration-300 pt-[env(safe-area-inset-top)]">
+    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/90 backdrop-blur-xl transition-all duration-300 pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Marca / Logo con touch target cómodo */}
+        {/* Marca / Logo con touch target de 44x44px */}
         <Link
           to="/"
           className="flex items-center gap-2.5 min-h-[44px] min-w-[44px] transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3] rounded-xl p-1"
@@ -66,7 +66,7 @@ export default function LandingNavbar({ onCtaClick }) {
               key={link.href}
               href={link.href}
               onClick={(e) => handleLinkClick(e, link.href)}
-              className="text-[14px] font-medium text-[#424245] hover:text-[#1D1D1F] transition-colors duration-200 py-2"
+              className="text-[14px] font-medium text-[#424245] hover:text-[#1D1D1F] transition-colors duration-200 py-2.5 px-1 min-h-[44px] inline-flex items-center"
             >
               {link.label}
             </a>
@@ -96,7 +96,7 @@ export default function LandingNavbar({ onCtaClick }) {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full text-[#424245] hover:text-[#1D1D1F] hover:bg-[var(--surface-alt)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3] cursor-pointer"
+            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] p-2 rounded-full text-[#424245] hover:text-[#1D1D1F] hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0071E3] cursor-pointer"
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
           >
@@ -105,25 +105,25 @@ export default function LandingNavbar({ onCtaClick }) {
         </div>
       </div>
 
-      {/* Menú Desplegable Móvil */}
+      {/* Menú Desplegable Móvil con Glassmorphism */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[var(--border-soft)] bg-[var(--surface)] px-4 pt-3 pb-6 space-y-3 shadow-lg animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden border-b border-neutral-200/80 bg-white/95 backdrop-blur-xl px-5 pt-3 pb-6 space-y-4 shadow-xl animate-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleLinkClick(e, link.href)}
-                className="flex items-center px-3 min-h-[44px] rounded-xl text-[15px] font-medium text-[#1D1D1F] hover:bg-[var(--surface-alt)] transition-colors"
+                className="flex items-center px-3.5 min-h-[44px] rounded-xl text-[15px] font-semibold text-[#1D1D1F] hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
               >
                 {link.label}
               </a>
             ))}
           </nav>
-          <div className="pt-3 border-t border-[var(--border-soft)] flex flex-col gap-2.5">
+          <div className="pt-3 border-t border-neutral-200/70 flex flex-col gap-3">
             <Link
               to="/login"
-              className="w-full text-center min-h-[44px] inline-flex items-center justify-center text-[15px] font-medium text-[#424245] rounded-full hover:bg-[var(--surface-alt)]"
+              className="w-full text-center min-h-[44px] inline-flex items-center justify-center text-[15px] font-medium text-[#424245] rounded-full hover:bg-neutral-100 active:bg-neutral-200"
             >
               Iniciar Sesión
             </Link>

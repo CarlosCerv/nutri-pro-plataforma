@@ -1,74 +1,73 @@
 import PropTypes from 'prop-types';
-import { Check, X, ShieldAlert, Sparkles } from 'lucide-react';
+import { Check, X, Sparkles, AlertCircle } from 'lucide-react';
 
 /**
  * Tabla comparativa responsiva que contrasta NutriPro frente a Hojas de Cálculo (Excel)
- * y Software Tradicional/Antiguo. Diseñada para Mobile-First:
- * - En Desktop: Tabla completa con columna destacada
- * - En Mobile: Tarjetas apiladas de contraste por funcionalidad con indicadores claros
+ * y Software Tradicional. Diseñada para Mobile-First:
+ * - En Desktop (>= md): Tabla completa con columna destacada
+ * - En Mobile (< md): Tarjetas apiladas de contraste (Card-Stack) con acento #0071E3
  */
 export default function ComparisonTable() {
   const comparisonRows = [
     {
-      feature: 'Tiempo promedio para armar una dieta semanal',
-      nutripro: '5 a 8 minutos (Drag & Drop interactivo)',
+      feature: 'Velocidad para armar una dieta semanal',
+      nutripro: '5 a 8 minutos con Drag & Drop',
       excel: '45 a 60 minutos (Copia y pega manual)',
       traditional: '20 a 30 minutos (Listas rígidas)',
       highlight: true,
+      badge: 'Ahorro 85% de tiempo',
     },
     {
-      feature: 'Cálculo instantáneo de Macros y Kcal en vivo',
-      nutripro: true,
+      feature: 'Cálculo de Kcal, Macros y SMAE en vivo',
+      nutripro: 'Instantáneo y 100% automático',
       excel: 'Fórmulas manuales propensas a error',
-      traditional: true,
+      traditional: 'Limitado o desactualizado',
+      highlight: true,
+      badge: 'Cero errores de cálculo',
     },
     {
-      feature: 'Catálogo oficial del SMAE integrado con búsqueda',
-      nutripro: true,
-      excel: false,
-      traditional: 'Incompleto o desactualizado',
+      feature: 'Catálogo oficial SMAE 100% integrado',
+      nutripro: 'Catálogo oficial completo + USDA',
+      excel: 'Requiere digitar cada ingrediente',
+      traditional: 'Base genérica incompleta',
+      highlight: false,
     },
     {
-      feature: 'Antropometría ISAK y Bioimpedancia integrada',
-      nutripro: true,
-      excel: false,
-      traditional: 'Limitado o solo peso/talla',
+      feature: 'Antropometría ISAK y Bioimpedancia',
+      nutripro: 'Pliegues, perímetros y bioimpedancia',
+      excel: 'No disponible',
+      traditional: 'Solo peso y talla básica',
+      highlight: false,
     },
     {
-      feature: 'Recordatorios automáticos de citas por SMS y Email',
-      nutripro: true,
-      excel: false,
+      feature: 'Recordatorios automáticos de citas',
+      nutripro: 'SMS y correos automáticos 36h antes',
+      excel: 'No disponible',
       traditional: 'Requiere plugins o costo extra',
+      highlight: true,
+      badge: '-80% ausentismo',
     },
     {
-      feature: 'Expediente clínico formal con notas SOAP y Laboratorio',
-      nutripro: true,
-      excel: 'Disperso en archivos de Word/PDF',
+      feature: 'Expediente clínico SOAP y Laboratorio',
+      nutripro: 'Notas SOAP, analitos y recetas en la nube',
+      excel: 'Disperso en archivos sueltos',
       traditional: 'Formularios lentos y complejos',
+      highlight: false,
     },
     {
-      feature: 'Analítica poblacional de pacientes bajo cortes OMS',
-      nutripro: true,
-      excel: false,
-      traditional: false,
+      feature: 'Entrega de planes al paciente',
+      nutripro: 'Portal interactivo PWA + PDF estético',
+      excel: 'Archivos PDF desalineados',
+      traditional: 'Plantillas genéricas poco claras',
+      highlight: true,
+      badge: 'Mayor adherencia',
     },
     {
-      feature: 'Control de cobros y finanzas de la consulta',
-      nutripro: true,
+      feature: 'Control financiero y cobros de consulta',
+      nutripro: 'Integrado con reportes y balance mensual',
       excel: 'Requiere otra hoja separada',
-      traditional: false,
-    },
-    {
-      feature: 'Generación y exportación de planes a PDF profesional',
-      nutripro: true,
-      excel: 'Desalineado y poco estético',
-      traditional: 'Plantillas genéricas',
-    },
-    {
-      feature: 'Experiencia visual moderna y fluida',
-      nutripro: true,
-      excel: false,
-      traditional: false,
+      traditional: 'No disponible',
+      highlight: false,
     },
   ];
 
@@ -82,7 +81,7 @@ export default function ComparisonTable() {
     }
     if (val === false) {
       return (
-        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-[var(--surface-alt)] text-[#6E6E73]">
+        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-neutral-200 text-[#6E6E73]">
           <X className="h-3.5 w-3.5" />
         </span>
       );
@@ -111,51 +110,65 @@ export default function ComparisonTable() {
           </p>
         </div>
 
-        {/* ── Vista Móvil: Tarjetas de Contraste Apiladas (< 768px) ── */}
+        {/* ── Vista Móvil: Tarjetas Apiladas de Contraste (Card-Stack < md) ── */}
         <div className="md:hidden space-y-4">
           {comparisonRows.map((row, idx) => (
             <div
               key={idx}
-              className={`rounded-[16px] border bg-[var(--surface)] p-4 shadow-2xs ${
+              className={`rounded-[18px] border bg-[var(--surface)] p-4 sm:p-5 shadow-xs transition-all ${
                 row.highlight ? 'border-[#0071E3]/40 ring-1 ring-[#0071E3]/20' : 'border-[var(--border-soft)]'
               }`}
             >
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-sm font-bold text-[#1D1D1F]">{row.feature}</span>
-                {row.highlight && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#0071E3] text-white px-2 py-0.5 rounded-full shrink-0">
-                    Clave
+              {/* Título de la Característica */}
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <span className="text-sm font-bold text-[#1D1D1F] leading-snug">{row.feature}</span>
+                {row.badge && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#0071E3] text-white px-2.5 py-0.5 rounded-full shrink-0">
+                    {row.badge}
                   </span>
                 )}
               </div>
 
+              {/* Contraste NutriPro vs Métodos Tradicionales */}
               <div className="space-y-2 text-xs">
-                {/* NutriPro */}
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0071E3]/10 border border-[#0071E3]/20">
-                  <span className="font-semibold text-[#0071E3] flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span>NutriPro</span>
-                  </span>
-                  <div className="text-right">{renderCellContent(row.nutripro, true)}</div>
+                {/* NutriPro (Destacado) */}
+                <div className="p-3 rounded-[12px] bg-[#0071E3]/10 border border-[#0071E3]/25 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0071E3] text-white shrink-0">
+                      <Check className="h-3 w-3 stroke-[3]" />
+                    </span>
+                    <span className="font-bold text-[#0071E3] shrink-0">NutriPro:</span>
+                    <span className="font-semibold text-[#1D1D1F] truncate">{row.nutripro}</span>
+                  </div>
                 </div>
 
-                {/* Excel */}
-                <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-alt)]">
-                  <span className="text-[#424245] font-medium">Excel / Sheets</span>
-                  <div className="text-right">{renderCellContent(row.excel)}</div>
+                {/* Software Tradicional */}
+                <div className="p-2.5 rounded-[10px] bg-[var(--surface-alt)] flex items-center justify-between gap-2 text-[#6E6E73]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-200 text-[#6E6E73] shrink-0">
+                      <X className="h-2.5 w-2.5" />
+                    </span>
+                    <span className="font-medium text-[#424245] shrink-0">Software Antiguo:</span>
+                    <span className="truncate">{row.traditional}</span>
+                  </div>
                 </div>
 
-                {/* Software Antiguo */}
-                <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-alt)]">
-                  <span className="text-[#424245] font-medium">Software Tradicional</span>
-                  <div className="text-right">{renderCellContent(row.traditional)}</div>
+                {/* Excel / Sheets */}
+                <div className="p-2.5 rounded-[10px] bg-[var(--surface-alt)] flex items-center justify-between gap-2 text-[#6E6E73]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-neutral-200 text-[#6E6E73] shrink-0">
+                      <X className="h-2.5 w-2.5" />
+                    </span>
+                    <span className="font-medium text-[#424245] shrink-0">Excel:</span>
+                    <span className="truncate">{row.excel}</span>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* ── Vista Tablet/Desktop: Tabla Estructurada (>= 768px) ── */}
+        {/* ── Vista Tablet/Desktop: Tabla Estructurada (>= md) ── */}
         <div className="hidden md:block overflow-x-auto rounded-[18px] border border-[var(--border-soft)] bg-[var(--surface)] shadow-xs">
           <table className="w-full text-left border-collapse min-w-[680px]">
             <thead>
@@ -165,6 +178,7 @@ export default function ComparisonTable() {
                 </th>
                 <th className="py-5 px-6 text-sm font-bold text-[#0071E3] w-1/4 bg-[var(--accent-soft)]/40 border-x border-[var(--accent-border)]/40 relative">
                   <div className="flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4" />
                     <span>NutriPro</span>
                     <span className="text-[10px] uppercase font-bold tracking-wider bg-[#0071E3] text-white px-2 py-0.5 rounded-full">
                       Superior
@@ -172,10 +186,10 @@ export default function ComparisonTable() {
                   </div>
                 </th>
                 <th className="py-5 px-6 text-sm font-semibold text-[#424245] w-1/6">
-                  Excel / Sheets
+                  Software Antiguo
                 </th>
                 <th className="py-5 px-6 text-sm font-semibold text-[#424245] w-1/6">
-                  Software Antiguo
+                  Excel / Sheets
                 </th>
               </tr>
             </thead>
@@ -188,13 +202,20 @@ export default function ComparisonTable() {
                   }`}
                 >
                   <td className="py-4 px-6 text-xs sm:text-sm font-medium text-[#1D1D1F]">
-                    {row.feature}
+                    <div className="flex items-center gap-2">
+                      <span>{row.feature}</span>
+                      {row.badge && (
+                        <span className="hidden lg:inline-block text-[10px] font-bold bg-[#0071E3]/10 text-[#0071E3] px-2 py-0.5 rounded-full">
+                          {row.badge}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="py-4 px-6 bg-[var(--accent-soft)]/20 border-x border-[var(--accent-border)]/40 text-left">
                     {renderCellContent(row.nutripro, true)}
                   </td>
-                  <td className="py-4 px-6 text-left">{renderCellContent(row.excel)}</td>
                   <td className="py-4 px-6 text-left">{renderCellContent(row.traditional)}</td>
+                  <td className="py-4 px-6 text-left">{renderCellContent(row.excel)}</td>
                 </tr>
               ))}
             </tbody>
