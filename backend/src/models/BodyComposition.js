@@ -12,6 +12,18 @@ const bodyCompositionSchema = new mongoose.Schema({
         default: Date.now,
         index: true
     },
+    // Medidas basicas de la consulta. Sin esto un registro no puede
+    // reconstruir la evolucion de peso/IMC, que es la grafica del expediente.
+    measurements: {
+        weight: { type: Number, min: 0 },        // kg
+        height: { type: Number, min: 0 },        // cm
+        bmi: { type: Number, min: 0 },
+        waistHipRatio: { type: Number, min: 0 }
+    },
+    bloodPressure: {
+        systolic: { type: Number, min: 0 },
+        diastolic: { type: Number, min: 0 }
+    },
     // Pliegues cutáneos (mm)
     skinfolds: {
         triceps: { type: Number, min: 0 },
@@ -20,7 +32,10 @@ const bodyCompositionSchema = new mongoose.Schema({
         suprailiac: { type: Number, min: 0 },
         abdominal: { type: Number, min: 0 },
         thigh: { type: Number, min: 0 },
-        calf: { type: Number, min: 0 }
+        calf: { type: Number, min: 0 },
+        // Requeridos por Jackson-Pollock (ver services/nutritionCalculator.js)
+        chest: { type: Number, min: 0 },
+        midaxillary: { type: Number, min: 0 }
     },
     // Perímetros (cm)
     circumferences: {

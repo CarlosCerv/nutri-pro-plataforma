@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Save, Camera, User, MapPin, Phone, Mail, Calendar, CreditCard } from 'lucide-react';
+import { Camera, User, MapPin, Phone, Mail, Calendar, CreditCard } from 'lucide-react';
 import api from '../../services/api';
+import useSaveState from '../../hooks/useSaveState';
+import SaveBar from '../../design-system/components/SaveBar.jsx';
 
 const SECTION = ({ title, children }) => (
   <div className="space-y-4">
@@ -49,32 +51,24 @@ export default function GeneralDataTab({ patient, onUpdate }) {
     tabaquismo:      patient?.tabaquismo      || 0,
     alcoholismo:     patient?.alcoholismo     || 0,
   });
-  const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const { saving, saved, error, save } = useSaveState();
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
+  // `Date.now()` no puede llamarse durante el render (regla de pureza de React):
+  // se captura una sola vez al montar y de ahí sale la edad.
+  const [ahora] = useState(() => Date.now());
   const calcEdad = () => {
     if (!form.dob) return null;
-    return Math.floor((Date.now() - new Date(form.dob)) / (1000*60*60*24*365.25));
+    return Math.floor((ahora - new Date(form.dob)) / (1000 * 60 * 60 * 24 * 365.25));
   };
 
-  const handleSave = async (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
-    setSaving(true);
-    try {
+    save(async () => {
       const res = await api.put(`/api/patients/${patient._id}`, form);
       onUpdate?.(res.data.data || res.data);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch {
-      // En desarrollo sin backend: simular guardado
-      onUpdate?.({ ...patient, ...form });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   return (
@@ -218,18 +212,7 @@ export default function GeneralDataTab({ patient, onUpdate }) {
         </Row>
       </SECTION>
 
-      {/* Botón guardar */}
-      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
-        <button type="submit" disabled={saving} id="save-general-btn"
-          className="btn btn-primary gap-2">
-          {saving
-            ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
-            : saved
-            ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
-            : <><Save size={15} />Guardar cambios</>
-          }
-        </button>
-      </div>
+      <SaveBar saving={saving} saved={saved} error={error} id="save-general-btn" label="Guardar cambios" />
     </form>
   );
 }

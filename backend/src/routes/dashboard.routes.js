@@ -1,9 +1,21 @@
 import express from 'express';
-import { getDashboardStats } from '../controllers/dashboardController.js';
+import {
+    getDashboardStats,
+    getWeightData,
+    getPathologyData,
+    getMacroData,
+    getRecentActivity,
+} from '../controllers/dashboardController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/stats', protect, getDashboardStats);
+router.use(protect);
+
+router.get('/stats', getDashboardStats);
+router.get('/weight-data', getWeightData);
+router.get('/pathology-data', getPathologyData);
+router.get('/macro-data', getMacroData);
+router.get('/activity', getRecentActivity);
 
 export default router;

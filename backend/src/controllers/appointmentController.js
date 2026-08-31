@@ -161,3 +161,48 @@ export const deleteAppointment = asyncHandler(async (req, res) => {
         data: {},
     });
 }, { message: 'Error deleting appointment' });
+
+/** Etiquetas que espera la agenda del dashboard (frontend/src/components/Dashboard/DashboardInsights.jsx). */
+const ESTADO_LABEL = {
+    scheduled: 'confirmada',
+    completed: 'confirmada',
+    cancelled: 'cancelada',
+    no_show: 'cancelada',
+};
+
+const TIPO_LABEL = {
+    initial: 'Primera consulta',
+    follow_up: 'Seguimiento',
+    check_in: 'Control',
+    final: 'Cierre',
+};
+
+// @desc    Citas de hoy del nutriologo autenticado
+// @route   GET /api/appointments/today
+// @access  Private
+export const getTodayAppointments = asyncHandler(async (req, res) => {
+    const now = new Date();
+    const inicio = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const fin = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    const citas = await Appointment.find({
+        nutritionist: req.user.id,
+        date: { $gte: inicio, $lt: fin },
+    })
+        .populate('patient', 'firstName lastName')
+        .sort({ date: 1, time: 1 });
+
+    res.status(200).json({
+        success: true,
+        count: citas.length,
+        data: citas.map((c) => ({
+            id: c._id,
+            hora: c.time || new Date(c.date).toTimeString().slice(0, 5),
+            nombre: c.patient
+                ? `${c.patient.firstName} ${c.patient.lastName}`
+                : [c.guestDetails?.firstName, c.guestDetails?.lastName].filter(Boolean).join(' ') || 'Invitado',
+            tipo: TIPO_LABEL[c.type] || 'Consulta',
+            estado: ESTADO_LABEL[c.status] || 'pendiente',
+        })),
+    });
+}, { message: 'Error al obtener las citas de hoy' });

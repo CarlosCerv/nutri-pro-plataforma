@@ -63,7 +63,7 @@ export default function MealPlans() {
     return () => {
       cancelled = true;
     };
-  }, [planForPdf, generatePDF]);
+  }, [planForPdf, generatePDF, pdfRef]);
 
   const filtered = dietas.filter((d) => {
     const name = (d.name || '').toLowerCase();

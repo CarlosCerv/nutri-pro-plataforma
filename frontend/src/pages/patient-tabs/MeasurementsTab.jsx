@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar,
 } from 'recharts';
-import { Plus, Save, TrendingDown, TrendingUp, Info } from 'lucide-react';
+import { Plus, TrendingDown, TrendingUp, Info } from 'lucide-react';
 import api from '../../services/api';
 import { calcularIMC, clasificarIMC } from '../../lib/calculations/imc';
 import { calcularTodosMetodos } from '../../lib/calculations/bodyFat';
+import { toBodyCompositionPayload, toHistorySeries } from '../../lib/bodyComposition';
+import useSaveState from '../../hooks/useSaveState';
+import SaveBar from '../../design-system/components/SaveBar.jsx';
 
 const Field = ({ label, unit, children, hint }) => (
   <div className="form-group">
@@ -60,8 +63,11 @@ const IMC_BAR_ZONES = [
 ];
 
 export default function MeasurementsTab({ patient }) {
+  // `Date.now()` no puede llamarse durante el render (regla de pureza de React):
+  // se captura una sola vez al montar y de ahí sale la edad.
+  const [ahora] = useState(() => Date.now());
   const edad = patient?.dob
-    ? Math.floor((Date.now() - new Date(patient.dob)) / (1000*60*60*24*365.25))
+    ? Math.floor((ahora - new Date(patient.dob)) / (1000 * 60 * 60 * 24 * 365.25))
     : 30;
   const sexo = patient?.sex || 'F';
 
@@ -84,8 +90,7 @@ export default function MeasurementsTab({ patient }) {
   });
   const [formulaGrasa,  setFormulaGrasa]  = useState('durninWomersley');
   const [historico,     setHistorico]     = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const { saving, saved, error, save } = useSaveState();
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const num = (v) => parseFloat(v) || 0;
@@ -106,28 +111,39 @@ export default function MeasurementsTab({ patient }) {
   const resultadosGrasa = calcularTodosMetodos({ pliegues, edad, sexo, peso: num(form.peso) });
   const grasaActual     = resultadosGrasa[formulaGrasa];
 
-  // Histórico mock
+  // Histórico real de mediciones. `recarga` fuerza un refetch tras guardar; la
+  // petición vive dentro del efecto para que el estado se fije después del
+  // await y nunca de forma síncrona al montar.
+  const [recarga, setRecarga] = useState(0);
+
   useEffect(() => {
-    setHistorico([
-      { fecha: 'Feb', peso: 78.0, grasa: 32.1, imc: 28.7 },
-      { fecha: 'Mar', peso: 75.5, grasa: 30.8, imc: 27.7 },
-      { fecha: 'Abr', peso: 72.4, grasa: 29.2, imc: 26.6 },
-    ]);
-  }, [patient]);
+    if (!patient?._id) return undefined;
+    let cancelado = false;
+
+    (async () => {
+      try {
+        const res = await api.get(`/api/body-composition/patient/${patient._id}`);
+        if (!cancelado) setHistorico(toHistorySeries(res.data?.data || []));
+      } catch {
+        // La gráfica se queda vacía; el error de guardado sí se muestra en SaveBar.
+        if (!cancelado) setHistorico([]);
+      }
+    })();
+
+    return () => { cancelado = true; };
+  }, [patient?._id, recarga]);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setSaving(true);
-    try {
-      await api.post(`/api/body-composition`, { patientId: patient._id, ...form, imc, icc });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } finally {
-      setSaving(false);
-    }
+    const payload = toBodyCompositionPayload(form, {
+      patientId: patient._id,
+      imc,
+      icc,
+      grasa: grasaActual?.pctGrasa,
+      formula: formulaGrasa,
+    });
+    const { ok } = await save(() => api.post('/api/body-composition', payload));
+    if (ok) setRecarga((n) => n + 1);
   };
 
   const imcPct = imc ? Math.min(((imc / 45) * 100), 100) : 0;
@@ -329,16 +345,7 @@ export default function MeasurementsTab({ patient }) {
       )}
 
       {/* Guardar */}
-      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
-        <button type="submit" disabled={saving} className="btn btn-primary gap-2">
-          {saving
-            ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
-            : saved
-            ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
-            : <><Save size={15} />Guardar mediciones</>
-          }
-        </button>
-      </div>
+      <SaveBar saving={saving} saved={saved} error={error} label="Guardar mediciones" />
     </form>
   );
 }

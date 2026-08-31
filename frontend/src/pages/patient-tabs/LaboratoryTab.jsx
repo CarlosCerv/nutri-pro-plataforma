@@ -1,8 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Save, Plus, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Plus, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { RANGOS_LAB, semaforoLab } from '../../lib/calculations/idr';
 import api from '../../services/api';
+import useSaveState from '../../hooks/useSaveState';
+import SaveBar from '../../design-system/components/SaveBar.jsx';
+
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+/** Registros de `GET /api/patients/:id/lab` → series cronológicas para recharts. */
+const toLabSeries = (registros = []) =>
+  [...registros]
+    .filter((r) => r?.date)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .map((r) => {
+      const d = new Date(r.date);
+      return { fecha: `${MESES[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`, ...(r.values || {}) };
+    });
 
 // ── Grupos de análisis clínicos ──────────────────────────────────
 const LAB_GROUPS = [
@@ -87,34 +101,51 @@ export default function LaboratoryTab({ patient }) {
   const [fecha,  setFecha]  = useState(new Date().toISOString().slice(0, 10));
   const [values, setValues] = useState({});
   const [histLab, setHistLab] = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const { saving, saved, error, save } = useSaveState();
 
   // Signos vitales
   const [signos, setSignos] = useState({
     temperatura: '', fc: '', fr: '',
   });
 
+  // `recarga` fuerza un refetch tras guardar. La petición vive dentro del
+  // efecto (y no en un callback que el efecto invoca) para que el estado se
+  // fije siempre después del await y nunca de forma síncrona al montar.
+  const [recarga, setRecarga] = useState(0);
+
   useEffect(() => {
-    // Mock histórico
-    setHistLab([
-      { fecha: 'Ene', glucosa_ayuno_mg: 95,  colesterol_total_mg: 210, trigliceridos_mg: 180 },
-      { fecha: 'Feb', glucosa_ayuno_mg: 105, colesterol_total_mg: 195, trigliceridos_mg: 155 },
-      { fecha: 'Mar', glucosa_ayuno_mg: 98,  colesterol_total_mg: 185, trigliceridos_mg: 140 },
-    ]);
-  }, []);
+    if (!patient?._id) return undefined;
+    let cancelado = false;
+
+    (async () => {
+      try {
+        const res = await api.get(`/api/patients/${patient._id}/lab`);
+        if (!cancelado) setHistLab(toLabSeries(res.data?.data || []));
+      } catch {
+        // La gráfica se queda vacía; el error de guardado sí se muestra en SaveBar.
+        if (!cancelado) setHistLab([]);
+      }
+    })();
+
+    return () => { cancelado = true; };
+  }, [patient?._id, recarga]);
 
   const set = (k, v) => setValues(prev => ({ ...prev, [k]: v }));
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setSaving(true);
-    try {
-      await api.post('/api/patients/' + patient._id + '/lab', { fecha, ...values, ...signos });
-      setSaved(true); setTimeout(() => setSaved(false), 2500);
-    } catch {
-      setSaved(true); setTimeout(() => setSaved(false), 2500);
-    } finally { setSaving(false); }
+    const { ok } = await save(() =>
+      api.post(`/api/patients/${patient._id}/lab`, {
+        date: fecha,
+        values,
+        vitals: {
+          temperature: signos.temperatura,
+          heartRate: signos.fc,
+          respiratoryRate: signos.fr,
+        },
+      })
+    );
+    if (ok) setRecarga((n) => n + 1);
   };
 
   return (
@@ -215,14 +246,7 @@ export default function LaboratoryTab({ patient }) {
       )}
 
       {/* Guardar */}
-      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
-        <button type="submit" disabled={saving} className="btn btn-primary gap-2">
-          {saving ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
-            : saved ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
-            : <><Save size={15} />Guardar laboratorio</>
-          }
-        </button>
-      </div>
+      <SaveBar saving={saving} saved={saved} error={error} label="Guardar laboratorio" />
     </form>
   );
 }

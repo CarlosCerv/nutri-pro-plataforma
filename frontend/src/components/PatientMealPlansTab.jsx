@@ -60,7 +60,7 @@ const PatientMealPlansTab = ({ patientId, patient }) => {
     return () => {
       cancelled = true;
     };
-  }, [planForPdf, patient, generatePDF]);
+  }, [planForPdf, patient, generatePDF, pdfRef]);
 
   const handleExportPDF = (plan) => {
     setPdfErr('');

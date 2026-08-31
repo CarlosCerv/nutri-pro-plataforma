@@ -8,6 +8,8 @@ import {
     uploadDocument,
     upload,
     exportPatients,
+    addLabResult,
+    getLabResults,
 } from '../controllers/patientController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -29,5 +31,9 @@ router.route('/:id')
     .delete(deletePatient);
 
 router.post('/:id/upload', upload.single('document'), uploadDocument);
+
+router.route('/:id/lab')
+    .get(getLabResults)
+    .post(addLabResult);
 
 export default router;

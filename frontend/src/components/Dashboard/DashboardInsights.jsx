@@ -15,6 +15,14 @@ const ACTIVIDAD_ICONS = {
   pdf: { Icon: FileText, color: '#FF9F0A' },
 };
 
+/**
+ * El color de cada serie lo asigna el cliente, no la API: el backend devuelve
+ * `{ name, value }` y aquí se le aplica la paleta de gráficas del sistema de
+ * diseño (tokens `--chart-*` de index.css).
+ */
+const CHART_PALETTE = ['#0058b0', '#1b7f3a', '#b45309', '#b42318', '#5b21b6', '#86868b'];
+const conColor = (items = []) => items.map((item, i) => ({ ...item, color: CHART_PALETTE[i % CHART_PALETTE.length] }));
+
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -70,8 +78,8 @@ export default function DashboardInsights() {
         ]);
 
         setWeightData(weightRes.data.data || []);
-        setPathologyData(pathologyRes.data.data || []);
-        setMacroData(macroRes.data.data || []);
+        setPathologyData(conColor(pathologyRes.data.data || []));
+        setMacroData(conColor(macroRes.data.data || []));
         setAppointments(appointmentsRes.data.data || []);
         setActivity(activityRes.data.data || []);
       } catch (error) {

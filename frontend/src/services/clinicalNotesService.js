@@ -1,40 +1,34 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-const getHeaders = () => {
-    const token = localStorage.getItem('token');
-    return {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    };
-};
-
+/**
+ * Notas clínicas de un paciente.
+ *
+ * Usa la instancia compartida de `services/api.js` a propósito: antes creaba su
+ * propio cliente de axios que leía el token solo de `localStorage`, así que un
+ * usuario que iniciaba sesión sin marcar "recordarme" (token en
+ * `sessionStorage`) recibía 401 en todas estas llamadas estando autenticado.
+ * La instancia compartida además centraliza el manejo del 401.
+ */
 const clinicalNotesService = {
-    // Get all notes for a patient
     getPatientNotes: async (patientId) => {
-        const response = await axios.get(`${API_URL}/clinical-notes/patient/${patientId}`, getHeaders());
+        const response = await api.get(`/clinical-notes/patient/${patientId}`);
         return response.data;
     },
 
-    // Create a new note
     createNote: async (patientId, noteData) => {
-        const response = await axios.post(`${API_URL}/clinical-notes/patient/${patientId}`, noteData, getHeaders());
+        const response = await api.post(`/clinical-notes/patient/${patientId}`, noteData);
         return response.data;
     },
 
-    // Update a note
     updateNote: async (noteId, noteData) => {
-        const response = await axios.put(`${API_URL}/clinical-notes/${noteId}`, noteData, getHeaders());
+        const response = await api.put(`/clinical-notes/${noteId}`, noteData);
         return response.data;
     },
 
-    // Delete a note
     deleteNote: async (noteId) => {
-        const response = await axios.delete(`${API_URL}/clinical-notes/${noteId}`, getHeaders());
+        const response = await api.delete(`/clinical-notes/${noteId}`);
         return response.data;
-    }
+    },
 };
 
 export default clinicalNotesService;

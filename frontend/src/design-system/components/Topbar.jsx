@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Menu, Search, Plus } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { getPageMeta } from '../../lib/pageMeta';
@@ -13,14 +13,16 @@ const QUICK_ACTIONS = [
 const HIDE_TOOLBAR_SEARCH = [/^\/pacientes$/, /^\/agenda$/, /^\/finanzas$/, /^\/dietas\/nueva$/];
 
 export default function Topbar({ onMenuToggle }) {
-  const [quickOpen, setQuickOpen] = useState(false);
   const location = useLocation();
+  // El menú rápido guarda la ruta en la que se abrió en vez de cerrarse desde
+  // un efecto: sincronizar estado con `location` dentro de un useEffect
+  // provoca un render en cascada en cada navegación.
+  const [openForPath, setOpenForPath] = useState(null);
+  const quickOpen = openForPath === location.pathname;
+  const setQuickOpen = (next) => setOpenForPath(next ? location.pathname : null);
+
   const meta = getPageMeta(location.pathname);
   const hideToolbarSearch = HIDE_TOOLBAR_SEARCH.some((re) => re.test(location.pathname));
-
-  useEffect(() => {
-    setQuickOpen(false);
-  }, [location.pathname]);
 
   return (
     <header
@@ -56,7 +58,7 @@ export default function Topbar({ onMenuToggle }) {
           <div className="relative shrink-0 self-start pt-0.5">
             <button
               type="button"
-              onClick={() => setQuickOpen((v) => !v)}
+              onClick={() => setQuickOpen(!quickOpen)}
               className="btn btn-primary btn-sm min-h-11 px-3 md:inline-flex gap-1.5"
               aria-expanded={quickOpen}
               aria-haspopup="menu"

@@ -230,3 +230,92 @@ export const exportPatients = asyncHandler(async (req, res) => {
         data: patients,
     });
 }, { message: 'Error exporting patients' });
+
+// @desc    Registrar un panel de laboratorio del paciente
+// @route   POST /api/patients/:id/lab
+// @access  Private
+export const addLabResult = asyncHandler(async (req, res) => {
+    const patient = await Patient.findById(req.params.id);
+
+    if (!patient) {
+        return res.status(404).json({
+            success: false,
+            message: 'Paciente no encontrado',
+        });
+    }
+
+    if (!isOwnedBy(patient, req.user.id)) {
+        return res.status(403).json({
+            success: false,
+            message: 'No autorizado para modificar este paciente',
+        });
+    }
+
+    const { date, values = {}, vitals = {} } = req.body;
+
+    // Solo se guardan los analitos con un numero real: la interfaz envia el
+    // panel completo y la mayoria de los campos viene vacia en cada consulta.
+    const cleanValues = {};
+    for (const [key, raw] of Object.entries(values)) {
+        const n = typeof raw === 'number' ? raw : parseFloat(raw);
+        if (Number.isFinite(n)) cleanValues[key] = n;
+    }
+
+    if (Object.keys(cleanValues).length === 0 && Object.keys(vitals).length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Captura al menos un valor de laboratorio o un signo vital.',
+        });
+    }
+
+    const numberOrUndefined = (raw) => {
+        const n = typeof raw === 'number' ? raw : parseFloat(raw);
+        return Number.isFinite(n) ? n : undefined;
+    };
+
+    patient.labResults.push({
+        date: date ? new Date(date) : new Date(),
+        values: cleanValues,
+        vitals: {
+            temperature: numberOrUndefined(vitals.temperature),
+            heartRate: numberOrUndefined(vitals.heartRate),
+            respiratoryRate: numberOrUndefined(vitals.respiratoryRate),
+        },
+    });
+
+    await patient.save();
+
+    res.status(201).json({
+        success: true,
+        data: patient.labResults[patient.labResults.length - 1],
+    });
+}, { message: 'Error al guardar el laboratorio' });
+
+// @desc    Historial de laboratorios del paciente (mas reciente primero)
+// @route   GET /api/patients/:id/lab
+// @access  Private
+export const getLabResults = asyncHandler(async (req, res) => {
+    const patient = await Patient.findById(req.params.id).select('nutritionist labResults');
+
+    if (!patient) {
+        return res.status(404).json({
+            success: false,
+            message: 'Paciente no encontrado',
+        });
+    }
+
+    if (!isOwnedBy(patient, req.user.id)) {
+        return res.status(403).json({
+            success: false,
+            message: 'No autorizado para ver este paciente',
+        });
+    }
+
+    const results = [...patient.labResults].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.status(200).json({
+        success: true,
+        count: results.length,
+        data: results,
+    });
+}, { message: 'Error al obtener los laboratorios' });

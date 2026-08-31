@@ -1,10 +1,11 @@
 import { Suspense, lazy, useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, NavLink, useLocation, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Edit3, Download, Salad,
+  ArrowLeft, Edit3, Download, Salad, AlertCircle, RefreshCw,
   User, Activity, FlaskConical, Heart, Apple, Dumbbell,
 } from 'lucide-react';
 import api from '../services/api';
+import { getApiErrorMessage } from '../lib/apiError';
 
 const GeneralDataTab = lazy(() => import('./patient-tabs/GeneralDataTab'));
 const MeasurementsTab = lazy(() => import('./patient-tabs/MeasurementsTab'));
@@ -66,28 +67,22 @@ export default function PatientDetail() {
   const { pathname } = useLocation();
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const activeTab = useMemo(() => tabFromPath(pathname, id), [pathname, id]);
 
+  // Un expediente clínico no puede inventar al paciente cuando la API falla:
+  // antes este catch sustituía la respuesta por una ficha ficticia, y el
+  // nutriólogo terminaba leyendo (y editando) datos que no eran de nadie.
   const fetchPatient = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await api.get(`/api/patients/${id}`);
       setPatient(res.data.data || res.data);
-    } catch {
-      setPatient({
-        _id: id,
-        firstName: 'María',
-        lastName: 'González',
-        email: 'maria@email.com',
-        phone: '3310001111',
-        dob: '1990-06-15',
-        sex: 'F',
-        lastWeight: 72.4,
-        height: 165,
-        objective: 'Bajar de peso',
-        active: true,
-        createdAt: '2025-01-10',
-      });
+    } catch (err) {
+      setPatient(null);
+      setError(getApiErrorMessage(err, 'No se pudo cargar el expediente.'));
     } finally {
       setLoading(false);
     }
@@ -110,6 +105,26 @@ export default function PatientDetail() {
               <div className="skeleton h-4 w-64 rounded-lg" />
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="empty-state" role="alert">
+        <div className="empty-state-icon">
+          <AlertCircle size={28} />
+        </div>
+        <div className="text-sm text-[var(--text-secondary)]">{error}</div>
+        <div className="flex gap-2">
+          <button type="button" onClick={fetchPatient} className="btn btn-primary btn-sm gap-2">
+            <RefreshCw size={14} />
+            Reintentar
+          </button>
+          <Link to="/pacientes" className="btn btn-outline btn-sm">
+            Volver a pacientes
+          </Link>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Save } from 'lucide-react';
 import api from '../../services/api';
+import useSaveState from '../../hooks/useSaveState';
+import SaveBar from '../../design-system/components/SaveBar.jsx';
 
 const GRUPOS_FRECUENCIA = [
   'Verduras y hortalizas', 'Frutas', 'Cereales y derivados', 'Leguminosas',
@@ -27,8 +28,7 @@ export default function FoodHabitsTab({ patient }) {
     horariosComida: patient?.horariosComida || TIEMPOS_DEFAULT,
     recordatorio24h: patient?.recordatorio24h || '',
   });
-  const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const { saving, saved, error, save } = useSaveState();
 
   const set    = (k, v)  => setForm(f => ({ ...f, [k]: v }));
   const setFreq = (g, v) => setForm(f => ({ ...f, frecuencias: { ...f.frecuencias, [g]: v } }));
@@ -38,19 +38,9 @@ export default function FoodHabitsTab({ patient }) {
     return { ...f, horariosComida: arr };
   });
 
-  const handleSave = async (e) => {
+  const handleSave = (e) => {
     e.preventDefault();
-    setSaving(true);
-    try {
-      await api.put(`/api/patients/${patient._id}`, form);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } catch {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
-    } finally {
-      setSaving(false);
-    }
+    save(() => api.put(`/api/patients/${patient._id}`, form));
   };
 
   return (
@@ -147,14 +137,7 @@ export default function FoodHabitsTab({ patient }) {
       </div>
 
       {/* Guardar */}
-      <div className="flex justify-end pt-4 border-t border-[var(--border-soft)]">
-        <button type="submit" disabled={saving} className="btn btn-primary gap-2">
-          {saving ? <><div className="w-4 h-4 border-2 border-white/35 border-t-white rounded-full animate-spin" />Guardando...</>
-            : saved ? <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>Guardado</>
-            : <><Save size={15} />Guardar hábitos</>
-          }
-        </button>
-      </div>
+      <SaveBar saving={saving} saved={saved} error={error} label="Guardar hábitos" />
     </form>
   );
 }

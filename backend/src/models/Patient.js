@@ -36,6 +36,73 @@ const patientSchema = new mongoose.Schema({
         enum: ['male', 'female', 'other', ''],
     },
 
+    // ─────────────────────────────────────────────────────────────────
+    // Campos clinicos que captura el expediente del frontend.
+    //
+    // Existen porque Mongoose corre en modo `strict` y descartaba en silencio
+    // todo lo que las pestañas enviaban en `PUT /api/patients/:id`: la
+    // peticion respondia 200 y la captura clinica no se guardaba en ninguna
+    // parte. Los nombres siguen a la interfaz (español) a proposito; la
+    // unificacion con `anthropometry`/`dateOfBirth`/`gender` es un trabajo
+    // aparte que implica migrar datos, no solo renombrar.
+    // ─────────────────────────────────────────────────────────────────
+    dob: { type: Date },
+    sex: { type: String, enum: ['F', 'M', 'O', ''] },
+    curp: { type: String, trim: true, uppercase: true },
+    address: { type: String, trim: true },
+
+    // Antecedentes (GeneralDataTab)
+    antFamDM: { type: Boolean, default: false },
+    antFamHTA: { type: Boolean, default: false },
+    antFamObesidad: { type: Boolean, default: false },
+    antFamCancer: { type: Boolean, default: false },
+    antPersonales: { type: String, trim: true },
+    cirugiasPrevias: { type: String, trim: true },
+    alergias: { type: String, trim: true },
+    intolerancias: { type: String, trim: true },
+    medicamentos: { type: String, trim: true },
+
+    // Estilo de vida y habitos toxicos (GeneralDataTab)
+    horasSueno: { type: Number, min: 0, max: 24 },
+    nivelEstres: { type: Number, min: 0, max: 10 },
+    ocupacion: { type: String, trim: true },
+    horasLaboral: { type: Number, min: 0, max: 24 },
+    tabaquismo: { type: Number, min: 0 },
+    alcoholismo: { type: Number, min: 0 },
+
+    // Valoracion clinica (ClinicalTab)
+    diagnosticoNutricional: { type: String, trim: true },
+    patologias: [{ type: String, trim: true }],
+    sintomasGI: [{ type: String, trim: true }],
+    objetivos: [{ type: String, trim: true }],
+    notasClinicas: { type: String, trim: true },
+
+    // Habitos alimentarios (FoodHabitsTab)
+    preferencias: { type: String, trim: true },
+    disgustos: { type: String, trim: true },
+    objetivoAlim: { type: String, trim: true },
+    frecuencias: { type: Map, of: String, default: {} },
+    horariosComida: [{
+        nombre: { type: String, trim: true },
+        hora: { type: String, trim: true },
+    }],
+    recordatorio24h: { type: String, trim: true },
+
+    // Actividad fisica (PhysicalActivityTab)
+    nivelActividad: {
+        type: String,
+        enum: ['sedentario', 'ligero', 'moderado', 'activo', 'muy_activo', ''],
+        default: 'sedentario',
+    },
+    actividadesRegistradas: [{
+        // `id` lo genera el cliente con Date.now(), por eso es Number y no ObjectId.
+        id: { type: Number },
+        nombre: { type: String, trim: true },
+        met: { type: Number, min: 0 },
+        duracion: { type: Number, min: 0 },   // minutos por sesion
+    }],
+    prescripcion: { type: String, trim: true },
+
     // Module 1: Patient Status & Profile
     isActive: {
         type: Boolean,
@@ -165,6 +232,22 @@ const patientSchema = new mongoose.Schema({
         path: String,
         type: { type: String, enum: ['lab_result', 'prescription', 'referral', 'other'] },
         uploadDate: { type: Date, default: Date.now }
+    }],
+
+    // Resultados de laboratorio por consulta.
+    // Los analiticos que captura la interfaz (LAB_GROUPS en
+    // frontend/src/pages/patient-tabs/LaboratoryTab.jsx) son una lista abierta
+    // que crece con el catalogo clinico, por eso `values` es un Map libre en
+    // vez de un esquema fijo. `vitals` si tiene forma conocida.
+    labResults: [{
+        date: { type: Date, default: Date.now },
+        values: { type: Map, of: Number, default: {} },
+        vitals: {
+            temperature: Number,
+            heartRate: Number,
+            respiratoryRate: Number,
+        },
+        createdAt: { type: Date, default: Date.now },
     }],
 
     // Status
