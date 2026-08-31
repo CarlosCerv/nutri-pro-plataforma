@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI, patientsAPI } from '../services/api';
 import { Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
-import PremiumSelect from '../components/PremiumSelect';
-import SearchableSelect from '../components/SearchableSelect';
+import Combobox from '../design-system/components/Combobox.jsx';
 import './NewAppointment.css';
 
 const NewAppointment = () => {
@@ -125,11 +124,18 @@ const NewAppointment = () => {
                                     <label className="field-label" htmlFor="patient">
                                         Seleccionar Paciente <span className="req">*</span>
                                     </label>
-                                    <SearchableSelect
-                                        options={patients}
+                                    <Combobox
+                                        name="patient"
+                                        searchable
+                                        options={patients.map((p) => ({
+                                            value: p._id,
+                                            label: `${p.firstName} ${p.lastName}`,
+                                            description: p.email || p.phone || undefined,
+                                        }))}
                                         value={formData.patient}
                                         onChange={handleChange}
-                                        placeholder="Buscar por nombre o apellido..."
+                                        placeholder="Seleccionar paciente…"
+                                        searchPlaceholder="Buscar por nombre o apellido…"
                                         disabled={loading}
                                     />
                                 </div>
@@ -162,7 +168,7 @@ const NewAppointment = () => {
                         <div className="form-fields-grid">
                             <div className="form-field">
                                 <label className="field-label">Tipo de Consulta <span className="req">*</span></label>
-                                <PremiumSelect
+                                <Combobox
                                     name="type"
                                     options={[
                                         { value: 'initial', label: 'Primera Vez (Inicial)' },
@@ -172,7 +178,7 @@ const NewAppointment = () => {
                                     ]}
                                     value={formData.type}
                                     onChange={handleChange}
-                                    placeholder="Seleccionar tipo..."
+                                    placeholder="Seleccionar tipo…"
                                     disabled={loading}
                                 />
                             </div>

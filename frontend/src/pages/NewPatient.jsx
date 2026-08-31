@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { patientsAPI } from '../services/api';
 import { Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
-import PremiumSelect from '../components/PremiumSelect';
+import Combobox from '../design-system/components/Combobox.jsx';
 import './NewPatient.css';
 
 const NewPatient = () => {
@@ -199,7 +199,7 @@ const NewPatient = () => {
                             </div>
                             <div className="form-field">
                                 <label className="field-label">Género</label>
-                                <PremiumSelect name="gender" options={genderOptions} value={formData.gender} onChange={handleChange} placeholder="Seleccionar género..." disabled={loading} />
+                                <Combobox name="gender" options={genderOptions} value={formData.gender} onChange={handleChange} placeholder="Seleccionar género…" disabled={loading} />
                             </div>
                         </div>
                     </div>
@@ -268,11 +268,11 @@ const NewPatient = () => {
                         <div className="form-fields-grid">
                             <div className="form-field">
                                 <label className="field-label">Objetivo Nutricional</label>
-                                <PremiumSelect name="nutritionalGoal" options={goalOptions} value={formData.nutritionalGoal} onChange={handleChange} placeholder="Seleccionar objetivo..." disabled={loading} />
+                                <Combobox name="nutritionalGoal" options={goalOptions} value={formData.nutritionalGoal} onChange={handleChange} placeholder="Seleccionar objetivo…" disabled={loading} />
                             </div>
                             <div className="form-field">
                                 <label className="field-label">Nivel de Actividad</label>
-                                <PremiumSelect name="activityLevel" options={activityOptions} value={formData.activityLevel} onChange={handleChange} placeholder="Seleccionar nivel..." disabled={loading} />
+                                <Combobox name="activityLevel" options={activityOptions} value={formData.activityLevel} onChange={handleChange} placeholder="Seleccionar nivel…" disabled={loading} />
                             </div>
                             <div className="form-field full-width">
                                 <label className="field-label" htmlFor="notes">Notas adicionales</label>

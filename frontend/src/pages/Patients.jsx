@@ -258,7 +258,7 @@ export default function Patients() {
             <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors">
               Anterior
             </button>
-            <button type="button" className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-[#1d1d1f] font-semibold">
+            <button type="button" className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white font-semibold">
               1
             </button>
             <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors">

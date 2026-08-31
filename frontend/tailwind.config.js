@@ -5,52 +5,72 @@ export default {
     './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
+    // apple-style-frontend: la escala de radios es 6 / 11 / 18 px, más la
+    // píldora de los botones de acción. Antes todo estaba aplanado a 8px, lo
+    // que borraba la diferencia entre un control pequeño y un contenedor.
     borderRadius: {
       none: '0',
-      sm: '4px',
-      DEFAULT: '6px',
-      md: '8px',
-      lg: '8px',
-      xl: '8px',
-      '2xl': '8px',
-      '3xl': '8px',
-      full: '9999px',
+      sm: 'var(--radius-s)',
+      DEFAULT: 'var(--radius-s)',
+      md: 'var(--radius-s)',
+      lg: 'var(--radius-m)',
+      xl: 'var(--radius-m)',
+      '2xl': 'var(--radius-l)',
+      '3xl': 'var(--radius-l)',
+      full: 'var(--radius-pill)',
+    },
+    // Cuatro pesos, no más (regla no negociable #4).
+    fontWeight: {
+      light: '300',
+      normal: '400',
+      medium: '400',
+      semibold: '600',
+      bold: '700',
     },
     extend: {
       colors: {
+        // OBSOLETAS — no usar en código nuevo.
+        //
+        // `emerald`, `gold` y `navy` eran una segunda y tercera identidad de
+        // marca, contra la regla no negociable #1 del sistema (un solo
+        // acento). Se mantienen los nombres porque unas 60 clases del código
+        // todavía los usan y borrarlos los volvería invisibles en silencio;
+        // los valores ya apuntan al acento y a los estados semánticos, así
+        // que la interfaz ya cumple la regla. Cuando la migración de páginas
+        // termine de reemplazarlos por tokens, este bloque se borra.
         navy: {
-          950: '#090E1A',
-          900: '#0D1526',
-          800: '#132038',
-          700: '#1A2E50',
-          600: '#243D6A',
-          500: '#2E4E88',
+          950: '#1D1D1F',
+          900: '#1D1D1F',
+          800: '#2C2C2E',
+          700: '#424245',
+          600: '#424245',
+          500: '#6E6E73',
         },
         emerald: {
-          DEFAULT: '#34C759',
-          50:  '#EAF8EF',
-          100: '#D8F4E0',
-          200: '#B6E8C4',
-          300: '#8DDAA2',
-          400: '#5ED17D',
-          500: '#34C759',
-          600: '#248A3D',
-          700: '#1F6F34',
-          800: '#174F27',
-          900: '#0D2F18',
+          DEFAULT: '#0071E3',
+          50:  '#E8F4FF',
+          100: '#CCE4FF',
+          200: '#99C9FF',
+          300: '#66ADFF',
+          400: '#3392FF',
+          500: '#0071E3',
+          600: '#005BB5',
+          700: '#004494',
+          800: '#003370',
+          900: '#00224D',
         },
         gold: {
-          DEFAULT: '#FFCC00',
-          50:  '#FFFBE6',
-          100: '#FFF6CC',
-          200: '#FFEE99',
-          300: '#FFE166',
-          400: '#FFD633',
-          500: '#FFCC00',
-          600: '#B28F00',
-          700: '#8A6D00',
-          800: '#5C4900',
-          900: '#332800',
+          DEFAULT: '#B45309',
+          50:  '#FFF7ED',
+          100: '#FFEDD5',
+          200: '#FED7AA',
+          300: '#FDBA74',
+          400: '#F59E0B',
+          500: '#B45309',
+          600: '#92400E',
+          700: '#7C2D12',
+          800: '#5C2308',
+          900: '#3F1A06',
         },
         success: '#1B7F3A',
         warning: '#B45309',
@@ -128,11 +148,11 @@ export default {
         'card-hover':  'var(--shadow-1)',
       },
       animation: {
-        'fade-in':       'fadeIn 0.2s var(--ease-apple)',
-        'fade-up':       'fadeUp 0.3s var(--ease-apple)',
-        'slide-in-left': 'slideInLeft 0.3s var(--ease-apple)',
-        'slide-in-right':'slideInRight 0.3s var(--ease-apple)',
-        'scale-in':      'scaleIn 0.2s var(--ease-apple)',
+        'fade-in':       'fadeIn 0.2s var(--ease)',
+        'fade-up':       'fadeUp 0.3s var(--ease)',
+        'slide-in-left': 'slideInLeft 0.3s var(--ease)',
+        'slide-in-right':'slideInRight 0.3s var(--ease)',
+        'scale-in':      'scaleIn 0.2s var(--ease)',
         'pulse-soft':    'pulseSoft 2s ease-in-out infinite',
         shimmer:         'shimmer 1.5s linear infinite',
         'spin-slow':     'spin 3s linear infinite',
@@ -167,12 +187,16 @@ export default {
           to:   { backgroundPosition: '200% 0' },
         },
       },
+      // Dos duraciones y una sola curva (regla no negociable #5).
       transitionDuration: {
+        micro: 'var(--duration-micro)',
+        layout: 'var(--duration-layout)',
         200: '200ms',
         300: '300ms',
       },
       transitionTimingFunction: {
-        apple: 'var(--ease-apple)',
+        DEFAULT: 'var(--ease)',
+        apple: 'var(--ease)',
       },
       backgroundImage: {
         'shimmer-base': 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)',

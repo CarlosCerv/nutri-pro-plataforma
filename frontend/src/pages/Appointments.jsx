@@ -163,7 +163,7 @@ const Appointments = () => {
                 {group.appointments.map((appointment) => (
                   <li
                     key={appointment._id}
-                    className="overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--surface)] shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-hover)]"
+                    className="overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--surface)] shadow-card transition-colors duration-micro hover:border-[var(--border)]"
                   >
                     <div className="grid gap-4 p-4 md:grid-cols-[minmax(0,5.5rem)_1fr_auto] md:items-center md:gap-5">
                       <div className="flex flex-row items-center gap-3 border-b border-[var(--border-soft)] pb-3 md:flex-col md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-center">
