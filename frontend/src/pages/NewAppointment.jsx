@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI, patientsAPI } from '../services/api';
+import { getApiErrorMessage } from '../lib/apiError';
+import { useToast } from '../contexts/ToastContext';
 import { Save, Loader } from 'lucide-react';
 import BackButton from '../components/BackButton';
 import Combobox from '../design-system/components/Combobox.jsx';
@@ -8,6 +10,7 @@ import './NewAppointment.css';
 
 const NewAppointment = () => {
     const navigate = useNavigate();
+    const toast = useToast();
     const [loading, setLoading] = useState(false);
     const [patients, setPatients] = useState([]);
     const [error, setError] = useState('');
@@ -74,10 +77,12 @@ const NewAppointment = () => {
             }
 
             await appointmentsAPI.create(appointmentData);
+            // Antes la redirección era el único indicio de éxito, lo que se
+            // parece demasiado a que la aplicación se perdió.
+            toast.success('Cita agendada.');
             navigate('/agenda');
         } catch (err) {
-            console.error('Error creating appointment:', err);
-            setError(err.response?.data?.message || 'Error al crear la cita');
+            setError(getApiErrorMessage(err, 'No se pudo crear la cita.'));
             setLoading(false);
         }
     };

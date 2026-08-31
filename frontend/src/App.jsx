@@ -1,6 +1,7 @@
 import { Suspense, lazy, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { LEGACY_REDIRECTS } from './lib/redirects';
 
 // Design System
@@ -101,6 +102,7 @@ const ProtectedPage = ({ element }) => (
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Suspense fallback={<PageFallback fullScreen />}>
           <Routes>
@@ -171,6 +173,7 @@ function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }

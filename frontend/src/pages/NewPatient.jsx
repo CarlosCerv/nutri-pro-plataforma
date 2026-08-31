@@ -1,296 +1,350 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { patientsAPI } from '../services/api';
-import { Save, Loader } from 'lucide-react';
-import BackButton from '../components/BackButton';
+import { getApiErrorMessage } from '../lib/apiError';
+import { useToast } from '../contexts/ToastContext';
+import Button from '../design-system/components/Button.jsx';
 import Combobox from '../design-system/components/Combobox.jsx';
-import './NewPatient.css';
+import FormSection from '../design-system/components/FormSection.jsx';
+import { LoadingState } from '../design-system/components/StateViews.jsx';
 
-const NewPatient = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const isEditMode = !!id;
+/**
+ * Alta y edición de paciente.
+ *
+ * El formulario anterior pedía 31 campos en una sola pantalla, todo o nada:
+ * si el nutriólogo salía antes de enviar, perdía la captura entera, y dar de
+ * alta a alguien con solo su nombre y su teléfono obligaba a recorrer cuatro
+ * secciones. Ahora el alta son dos pasos y el primero ya guarda: cuatro
+ * campos bastan para tener el expediente creado.
+ *
+ * Se retiran dieciséis campos fantasma (`skinfolds_*`, `perimeters_*`,
+ * `diameters_*`): vivían en el estado y se enviaban al backend en cada
+ * guardado, pero no tenían ningún input en la pantalla, así que siempre
+ * viajaban vacíos. Esas medidas se capturan en la pestaña Evolución del
+ * expediente, que es donde tienen sentido, y se guardan con su fecha.
+ */
 
-    const [loading, setLoading] = useState(false);
-    const [initialLoading, setInitialLoading] = useState(!!id);
-    const [error, setError] = useState('');
-    const [formData, setFormData] = useState({
-        firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', gender: '',
-        weight: '', height: '', nutritionalGoal: '', activityLevel: '',
-        notes: '', conditions: '', familyHistory: '', eatingHabits: '',
-        fatPercentage: '', muscleMass: '', waterPercentage: '', visceralFat: '', boneMass: '', metabolicAge: '',
-        skinfolds_tricipital: '', skinfolds_bicipital: '', skinfolds_subscapular: '', skinfolds_suprailiac: '', skinfolds_abdominal: '', skinfolds_thigh: '', skinfolds_calf: '',
-        perimeters_arm: '', perimeters_armFlexed: '', perimeters_waist: '', perimeters_hip: '', perimeters_thigh: '', perimeters_calf: '',
-        diameters_humerus: '', diameters_femur: '', diameters_wrist: ''
-    });
+const GENEROS = [
+  { value: 'male', label: 'Masculino' },
+  { value: 'female', label: 'Femenino' },
+  { value: 'other', label: 'Otro' },
+];
 
-    const fetchPatientData = useCallback(async () => {
-        try {
-            const response = await patientsAPI.getOne(id);
-            const p = response.data.data;
-            setFormData({
-                firstName: p.firstName || '', lastName: p.lastName || '', email: p.email || '', phone: p.phone || '',
-                dateOfBirth: p.dateOfBirth ? p.dateOfBirth.split('T')[0] : '', gender: p.gender || '',
-                weight: p.anthropometry?.weight || '', height: p.anthropometry?.height || '',
-                nutritionalGoal: p.nutritionalGoals?.primaryGoal || '', activityLevel: p.lifestyle?.activityLevel || '',
-                notes: p.notes || '', conditions: p.medicalHistory?.conditions?.join(', ') || '',
-                familyHistory: p.medicalHistory?.familyHistory || '', eatingHabits: p.eatingHabits || '',
-                fatPercentage: p.anthropometry?.bioimpedance?.fatPercentage || '',
-                muscleMass: p.anthropometry?.bioimpedance?.muscleMass || '',
-                waterPercentage: p.anthropometry?.bioimpedance?.waterPercentage || '',
-                visceralFat: p.anthropometry?.bioimpedance?.visceralFat || '',
-                boneMass: p.anthropometry?.bioimpedance?.boneMass || '',
-                metabolicAge: p.anthropometry?.bioimpedance?.metabolicAge || '',
-                skinfolds_tricipital: p.anthropometry?.skinfolds?.tricipital || '',
-                skinfolds_bicipital: p.anthropometry?.skinfolds?.bicipital || '',
-                skinfolds_subscapular: p.anthropometry?.skinfolds?.subscapular || '',
-                skinfolds_suprailiac: p.anthropometry?.skinfolds?.suprailiac || '',
-                skinfolds_abdominal: p.anthropometry?.skinfolds?.abdominal || '',
-                skinfolds_thigh: p.anthropometry?.skinfolds?.thigh || '',
-                skinfolds_calf: p.anthropometry?.skinfolds?.calf || '',
-                perimeters_arm: p.anthropometry?.perimeters?.arm || '',
-                perimeters_armFlexed: p.anthropometry?.perimeters?.armFlexed || '',
-                perimeters_waist: p.anthropometry?.perimeters?.waist || '',
-                perimeters_hip: p.anthropometry?.perimeters?.hip || '',
-                perimeters_thigh: p.anthropometry?.perimeters?.thigh || '',
-                perimeters_calf: p.anthropometry?.perimeters?.calf || '',
-                diameters_humerus: p.anthropometry?.diameters?.humerus || '',
-                diameters_femur: p.anthropometry?.diameters?.femur || '',
-                diameters_wrist: p.anthropometry?.diameters?.wrist || '',
-            });
-            setInitialLoading(false);
-        } catch {
-            setError('Error al cargar datos');
-            setInitialLoading(false);
-        }
-    }, [id]);
+const OBJETIVOS = [
+  { value: 'weight_loss', label: 'Pérdida de peso' },
+  { value: 'weight_gain', label: 'Ganancia de peso' },
+  { value: 'muscle_gain', label: 'Ganancia muscular' },
+  { value: 'maintenance', label: 'Mantenimiento' },
+  { value: 'health_improvement', label: 'Mejora de salud' },
+  { value: 'other', label: 'Otro' },
+];
 
-    useEffect(() => {
-        if (isEditMode) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            fetchPatientData();
-        }
-    }, [fetchPatientData, isEditMode]);
+const ACTIVIDADES = [
+  { value: 'sedentary', label: 'Sedentario' },
+  { value: 'lightly_active', label: 'Ligeramente activo' },
+  { value: 'moderately_active', label: 'Moderadamente activo' },
+  { value: 'very_active', label: 'Muy activo' },
+  { value: 'extremely_active', label: 'Extremadamente activo' },
+];
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(''); setLoading(true);
-        try {
-            const patientData = {
-                firstName: formData.firstName, lastName: formData.lastName,
-                email: formData.email || undefined, phone: formData.phone || undefined,
-                dateOfBirth: formData.dateOfBirth || undefined, gender: formData.gender || undefined,
-                anthropometry: {
-                    weight: formData.weight ? parseFloat(formData.weight) : undefined,
-                    height: formData.height ? parseFloat(formData.height) : undefined,
-                    bioimpedance: {
-                        fatPercentage: formData.fatPercentage ? parseFloat(formData.fatPercentage) : undefined,
-                        muscleMass: formData.muscleMass ? parseFloat(formData.muscleMass) : undefined,
-                        waterPercentage: formData.waterPercentage ? parseFloat(formData.waterPercentage) : undefined,
-                        visceralFat: formData.visceralFat ? parseFloat(formData.visceralFat) : undefined,
-                        boneMass: formData.boneMass ? parseFloat(formData.boneMass) : undefined,
-                        metabolicAge: formData.metabolicAge ? parseFloat(formData.metabolicAge) : undefined,
-                    },
-                    skinfolds: {
-                        tricipital: formData.skinfolds_tricipital ? parseFloat(formData.skinfolds_tricipital) : undefined,
-                        bicipital: formData.skinfolds_bicipital ? parseFloat(formData.skinfolds_bicipital) : undefined,
-                        subscapular: formData.skinfolds_subscapular ? parseFloat(formData.skinfolds_subscapular) : undefined,
-                        suprailiac: formData.skinfolds_suprailiac ? parseFloat(formData.skinfolds_suprailiac) : undefined,
-                        abdominal: formData.skinfolds_abdominal ? parseFloat(formData.skinfolds_abdominal) : undefined,
-                        thigh: formData.skinfolds_thigh ? parseFloat(formData.skinfolds_thigh) : undefined,
-                        calf: formData.skinfolds_calf ? parseFloat(formData.skinfolds_calf) : undefined,
-                    },
-                    perimeters: {
-                        arm: formData.perimeters_arm ? parseFloat(formData.perimeters_arm) : undefined,
-                        armFlexed: formData.perimeters_armFlexed ? parseFloat(formData.perimeters_armFlexed) : undefined,
-                        waist: formData.perimeters_waist ? parseFloat(formData.perimeters_waist) : undefined,
-                        hip: formData.perimeters_hip ? parseFloat(formData.perimeters_hip) : undefined,
-                        thigh: formData.perimeters_thigh ? parseFloat(formData.perimeters_thigh) : undefined,
-                        calf: formData.perimeters_calf ? parseFloat(formData.perimeters_calf) : undefined,
-                    },
-                    diameters: {
-                        humerus: formData.diameters_humerus ? parseFloat(formData.diameters_humerus) : undefined,
-                        femur: formData.diameters_femur ? parseFloat(formData.diameters_femur) : undefined,
-                        wrist: formData.diameters_wrist ? parseFloat(formData.diameters_wrist) : undefined,
-                    }
-                },
-                nutritionalGoals: { primaryGoal: formData.nutritionalGoal || undefined },
-                lifestyle: { activityLevel: formData.activityLevel || undefined },
-                medicalHistory: {
-                    conditions: formData.conditions ? formData.conditions.split(',').map(c => c.trim()).filter(Boolean) : [],
-                    familyHistory: formData.familyHistory || undefined
-                },
-                notes: formData.notes || undefined,
-                eatingHabits: formData.eatingHabits || undefined
-            };
-            if (isEditMode) await patientsAPI.update(id, patientData);
-            else await patientsAPI.create(patientData);
-            navigate('/pacientes');
-        } catch (err) { setError(err.response?.data?.message || 'Error al guardar'); setLoading(false); }
-    };
-
-    if (initialLoading) return <div className="page-loading"><div className="spinner-large"></div></div>;
-
-    const genderOptions = [
-        { value: 'male', label: 'Masculino' },
-        { value: 'female', label: 'Femenino' },
-        { value: 'other', label: 'Otro' }
-    ];
-
-    const goalOptions = [
-        { value: 'weight_loss', label: 'Pérdida de peso' },
-        { value: 'weight_gain', label: 'Ganancia de peso' },
-        { value: 'muscle_gain', label: 'Ganancia muscular' },
-        { value: 'maintenance', label: 'Mantenimiento' },
-        { value: 'health_improvement', label: 'Mejora de salud' },
-        { value: 'other', label: 'Otro' }
-    ];
-
-    const activityOptions = [
-        { value: 'sedentary', label: 'Sedentario' },
-        { value: 'lightly_active', label: 'Ligeramente activo' },
-        { value: 'moderately_active', label: 'Moderadamente activo' },
-        { value: 'very_active', label: 'Muy activo' },
-        { value: 'extremely_active', label: 'Extremadamente activo' }
-    ];
-
-    return (
-        <div className="new-patient-page fade-in">
-            <div className="page-header">
-                <BackButton to="/pacientes" />
-                <div>
-                    <h1>{isEditMode ? 'Editar Paciente' : 'Nuevo Paciente'}</h1>
-                    <p>{isEditMode ? 'Modifica la información del paciente' : 'Completa la información del paciente'}</p>
-                </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="patient-form card-form">
-                {error && <div className="error-banner">{error}</div>}
-
-                <div className="form-layout-stack">
-                    {/* section 1: personal info */}
-                    <div className="form-card-section">
-                        <h3>Información Personal</h3>
-                        <div className="form-fields-grid">
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="firstName">Nombre <span className="req">*</span></label>
-                                <input type="text" id="firstName" name="firstName" className="field-input" value={formData.firstName} onChange={handleChange} required disabled={loading} placeholder="Ej. Carlos" />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="lastName">Apellido <span className="req">*</span></label>
-                                <input type="text" id="lastName" name="lastName" className="field-input" value={formData.lastName} onChange={handleChange} required disabled={loading} placeholder="Ej. Eduardo" />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="email">Email</label>
-                                <input type="email" id="email" name="email" className="field-input" value={formData.email} onChange={handleChange} disabled={loading} placeholder="carlos@ejemplo.com" />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="phone">Teléfono</label>
-                                <input type="tel" id="phone" name="phone" className="field-input" value={formData.phone} onChange={handleChange} disabled={loading} placeholder="+52 ..." />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="dateOfBirth">Fecha de Nacimiento</label>
-                                <input type="date" id="dateOfBirth" name="dateOfBirth" className="field-input" value={formData.dateOfBirth} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Género</label>
-                                <Combobox name="gender" options={genderOptions} value={formData.gender} onChange={handleChange} placeholder="Seleccionar género…" disabled={loading} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* section 2: clinical history */}
-                    <div className="form-card-section bg-alt-faint">
-                        <h3>Historia Clínica</h3>
-                        <div className="form-fields-grid">
-                            <div className="form-field full-width">
-                                <label className="field-label" htmlFor="conditions">Antecedentes Patológicos</label>
-                                <textarea id="conditions" name="conditions" className="field-input field-textarea" rows="2" value={formData.conditions} onChange={handleChange} disabled={loading} placeholder="Enfermedades crónicas, cirugías, alergias..." />
-                            </div>
-                            <div className="form-field full-width">
-                                <label className="field-label" htmlFor="familyHistory">Historial Genealógico</label>
-                                <textarea id="familyHistory" name="familyHistory" className="field-input field-textarea" rows="2" value={formData.familyHistory} onChange={handleChange} disabled={loading} placeholder="Diabetes, hipertensión, cáncer en familia..." />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* section 3: anthropometry */}
-                    <div className="form-card-section">
-                        <h3>Datos Antropométricos</h3>
-                        <div className="form-fields-grid mb-gutter">
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="weight">Peso (kg)</label>
-                                <input type="number" step="0.1" id="weight" name="weight" className="field-input" value={formData.weight} onChange={handleChange} disabled={loading} placeholder="70.5" />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label" htmlFor="height">Altura (cm)</label>
-                                <input type="number" step="0.1" id="height" name="height" className="field-input" value={formData.height} onChange={handleChange} disabled={loading} placeholder="175" />
-                            </div>
-                        </div>
-
-                        <h4 className="section-title-compact">Bioimpedancia</h4>
-                        <div className="form-fields-grid-triple">
-                            <div className="form-field">
-                                <label className="field-label">Grasa (%)</label>
-                                <input type="number" step="0.1" name="fatPercentage" className="field-input" value={formData.fatPercentage} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Muscular (kg)</label>
-                                <input type="number" step="0.1" name="muscleMass" className="field-input" value={formData.muscleMass} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Agua (%)</label>
-                                <input type="number" step="0.1" name="waterPercentage" className="field-input" value={formData.waterPercentage} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Visceral</label>
-                                <input type="number" step="0.1" name="visceralFat" className="field-input" value={formData.visceralFat} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Ósea (kg)</label>
-                                <input type="number" step="0.1" name="boneMass" className="field-input" value={formData.boneMass} onChange={handleChange} disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Edad Metab.</label>
-                                <input type="number" step="1" name="metabolicAge" className="field-input" value={formData.metabolicAge} onChange={handleChange} disabled={loading} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* section 4: goals & lifestyle */}
-                    <div className="form-card-section bg-alt-faint">
-                        <h3>Objetivos y Estilo de Vida</h3>
-                        <div className="form-fields-grid">
-                            <div className="form-field">
-                                <label className="field-label">Objetivo Nutricional</label>
-                                <Combobox name="nutritionalGoal" options={goalOptions} value={formData.nutritionalGoal} onChange={handleChange} placeholder="Seleccionar objetivo…" disabled={loading} />
-                            </div>
-                            <div className="form-field">
-                                <label className="field-label">Nivel de Actividad</label>
-                                <Combobox name="activityLevel" options={activityOptions} value={formData.activityLevel} onChange={handleChange} placeholder="Seleccionar nivel…" disabled={loading} />
-                            </div>
-                            <div className="form-field full-width">
-                                <label className="field-label" htmlFor="notes">Notas adicionales</label>
-                                <textarea id="notes" name="notes" className="field-input field-textarea" rows="2" value={formData.notes} onChange={handleChange} disabled={loading} placeholder="Observaciones generales..." />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="form-footer-actions">
-                    <button type="button" className="btn-v2-secondary" onClick={() => navigate('/pacientes')} disabled={loading}> Cancelar </button>
-                    <button type="submit" className="btn-v2-primary" disabled={loading}>
-                        {loading ? <><Loader className="spinner" size={20} /><span>Guardando...</span></> : <><Save size={20} /><span>{isEditMode ? 'Actualizar Paciente' : 'Guardar Paciente'}</span></>}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
+const FORM_VACIO = {
+  firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '', gender: '',
+  weight: '', height: '',
+  fatPercentage: '', muscleMass: '', waterPercentage: '', visceralFat: '', boneMass: '', metabolicAge: '',
+  nutritionalGoal: '', activityLevel: '',
+  conditions: '', familyHistory: '', eatingHabits: '', notes: '',
 };
 
-export default NewPatient;
+const numero = (v) => (v === '' || v === null || v === undefined ? undefined : parseFloat(v));
+
+const Campo = ({ label, htmlFor, required, unit, children }) => (
+  <div className="form-group">
+    <label className="label" htmlFor={htmlFor}>
+      {label}
+      {unit ? <span className="normal-case text-[var(--ink-secondary)]"> ({unit})</span> : null}
+      {required ? <span className="text-[var(--danger)]"> *</span> : null}
+    </label>
+    {children}
+  </div>
+);
+
+export default function NewPatient() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const esEdicion = Boolean(id);
+  const toast = useToast();
+
+  const [paso, setPaso] = useState(1);
+  const [pacienteId, setPacienteId] = useState(id || null);
+  const [form, setForm] = useState(FORM_VACIO);
+  const [loading, setLoading] = useState(false);
+  const [cargaInicial, setCargaInicial] = useState(esEdicion);
+  const [error, setError] = useState('');
+
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const onSelect = (e) => set(e.target.name, e.target.value);
+
+  const cargar = useCallback(async () => {
+    try {
+      const res = await patientsAPI.getOne(id);
+      const p = res.data.data;
+      setForm({
+        firstName: p.firstName || '',
+        lastName: p.lastName || '',
+        email: p.email || '',
+        phone: p.phone || '',
+        dateOfBirth: p.dateOfBirth ? p.dateOfBirth.split('T')[0] : '',
+        gender: p.gender || '',
+        weight: p.anthropometry?.weight ?? '',
+        height: p.anthropometry?.height ?? '',
+        fatPercentage: p.anthropometry?.bioimpedance?.fatPercentage ?? '',
+        muscleMass: p.anthropometry?.bioimpedance?.muscleMass ?? '',
+        waterPercentage: p.anthropometry?.bioimpedance?.waterPercentage ?? '',
+        visceralFat: p.anthropometry?.bioimpedance?.visceralFat ?? '',
+        boneMass: p.anthropometry?.bioimpedance?.boneMass ?? '',
+        metabolicAge: p.anthropometry?.bioimpedance?.metabolicAge ?? '',
+        nutritionalGoal: p.nutritionalGoals?.primaryGoal || '',
+        activityLevel: p.lifestyle?.activityLevel || '',
+        conditions: p.medicalHistory?.conditions?.join(', ') || '',
+        familyHistory: p.medicalHistory?.familyHistory || '',
+        eatingHabits: p.eatingHabits || '',
+        notes: p.notes || '',
+      });
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'No se pudo cargar el paciente.'));
+    } finally {
+      setCargaInicial(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (esEdicion) cargar();
+  }, [esEdicion, cargar]);
+
+  /** Identificación: lo mínimo para que el expediente exista. */
+  const payloadPaso1 = () => ({
+    firstName: form.firstName.trim(),
+    lastName: form.lastName.trim(),
+    email: form.email.trim() || undefined,
+    phone: form.phone.trim() || undefined,
+    dateOfBirth: form.dateOfBirth || undefined,
+    gender: form.gender || undefined,
+  });
+
+  /** Datos clínicos iniciales: todo opcional. */
+  const payloadPaso2 = () => ({
+    anthropometry: {
+      weight: numero(form.weight),
+      height: numero(form.height),
+      bioimpedance: {
+        fatPercentage: numero(form.fatPercentage),
+        muscleMass: numero(form.muscleMass),
+        waterPercentage: numero(form.waterPercentage),
+        visceralFat: numero(form.visceralFat),
+        boneMass: numero(form.boneMass),
+        metabolicAge: numero(form.metabolicAge),
+      },
+    },
+    nutritionalGoals: { primaryGoal: form.nutritionalGoal || undefined },
+    lifestyle: { activityLevel: form.activityLevel || undefined },
+    medicalHistory: {
+      conditions: form.conditions ? form.conditions.split(',').map((c) => c.trim()).filter(Boolean) : [],
+      familyHistory: form.familyHistory || undefined,
+    },
+    eatingHabits: form.eatingHabits || undefined,
+    notes: form.notes || undefined,
+  });
+
+  const guardar = async (datos, { avanzar = false, mensaje, destino } = {}) => {
+    setLoading(true);
+    setError('');
+    try {
+      if (pacienteId) {
+        await patientsAPI.update(pacienteId, datos);
+      } else {
+        const res = await patientsAPI.create(datos);
+        setPacienteId(res.data?.data?._id || null);
+      }
+      if (mensaje) toast.success(mensaje);
+      if (avanzar) setPaso(2);
+      if (destino) navigate(destino);
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'No se pudo guardar el paciente.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const enviarPaso1 = (e) => {
+    e.preventDefault();
+    if (esEdicion) {
+      guardar({ ...payloadPaso1(), ...payloadPaso2() }, { mensaje: 'Paciente actualizado.', destino: `/pacientes/${pacienteId}` });
+    } else {
+      guardar(payloadPaso1(), { avanzar: true, mensaje: `${form.firstName} quedó registrado. Puedes completar sus datos clínicos o dejarlo para después.` });
+    }
+  };
+
+  const enviarPaso2 = (e) => {
+    e.preventDefault();
+    guardar(payloadPaso2(), { mensaje: 'Datos clínicos guardados.', destino: `/pacientes/${pacienteId}` });
+  };
+
+  if (cargaInicial) return <LoadingState label="Cargando paciente…" />;
+
+  const identificacion = (
+    <FormSection title="Identificación" description="Con esto basta para crear el expediente.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Campo label="Nombre" htmlFor="p-nombre" required>
+          <input id="p-nombre" className="input" required value={form.firstName} onChange={(e) => set('firstName', e.target.value)} placeholder="Ej. Carlos" disabled={loading} />
+        </Campo>
+        <Campo label="Apellido" htmlFor="p-apellido" required>
+          <input id="p-apellido" className="input" required value={form.lastName} onChange={(e) => set('lastName', e.target.value)} placeholder="Ej. Cervantes" disabled={loading} />
+        </Campo>
+        <Campo label="Correo" htmlFor="p-email">
+          <input id="p-email" type="email" className="input" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="carlos@ejemplo.com" disabled={loading} />
+        </Campo>
+        <Campo label="Teléfono" htmlFor="p-tel">
+          <input id="p-tel" type="tel" className="input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+52 …" disabled={loading} />
+        </Campo>
+        <Campo label="Fecha de nacimiento" htmlFor="p-dob">
+          <input id="p-dob" type="date" className="input" value={form.dateOfBirth} onChange={(e) => set('dateOfBirth', e.target.value)} disabled={loading} />
+        </Campo>
+        <Combobox name="gender" label="Género" options={GENEROS} value={form.gender} onChange={onSelect} placeholder="Seleccionar…" disabled={loading} />
+      </div>
+    </FormSection>
+  );
+
+  const datosClinicos = (
+    <>
+      <FormSection title="Medidas iniciales" description="Opcional. Las mediciones de seguimiento se capturan después, en la pestaña Evolución del expediente.">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Campo label="Peso" htmlFor="p-peso" unit="kg">
+            <input id="p-peso" type="number" step="0.1" min="0" className="input" value={form.weight} onChange={(e) => set('weight', e.target.value)} placeholder="70.5" disabled={loading} />
+          </Campo>
+          <Campo label="Talla" htmlFor="p-talla" unit="cm">
+            <input id="p-talla" type="number" step="0.1" min="0" className="input" value={form.height} onChange={(e) => set('height', e.target.value)} placeholder="175" disabled={loading} />
+          </Campo>
+          <Campo label="Grasa" htmlFor="p-grasa" unit="%">
+            <input id="p-grasa" type="number" step="0.1" min="0" className="input" value={form.fatPercentage} onChange={(e) => set('fatPercentage', e.target.value)} disabled={loading} />
+          </Campo>
+          <Campo label="Masa muscular" htmlFor="p-musculo" unit="kg">
+            <input id="p-musculo" type="number" step="0.1" min="0" className="input" value={form.muscleMass} onChange={(e) => set('muscleMass', e.target.value)} disabled={loading} />
+          </Campo>
+          <Campo label="Agua" htmlFor="p-agua" unit="%">
+            <input id="p-agua" type="number" step="0.1" min="0" className="input" value={form.waterPercentage} onChange={(e) => set('waterPercentage', e.target.value)} disabled={loading} />
+          </Campo>
+          <Campo label="Grasa visceral" htmlFor="p-visceral">
+            <input id="p-visceral" type="number" step="0.1" min="0" className="input" value={form.visceralFat} onChange={(e) => set('visceralFat', e.target.value)} disabled={loading} />
+          </Campo>
+          <Campo label="Masa ósea" htmlFor="p-osea" unit="kg">
+            <input id="p-osea" type="number" step="0.1" min="0" className="input" value={form.boneMass} onChange={(e) => set('boneMass', e.target.value)} disabled={loading} />
+          </Campo>
+          <Campo label="Edad metabólica" htmlFor="p-edadmet" unit="años">
+            <input id="p-edadmet" type="number" min="0" className="input" value={form.metabolicAge} onChange={(e) => set('metabolicAge', e.target.value)} disabled={loading} />
+          </Campo>
+        </div>
+      </FormSection>
+
+      <FormSection title="Objetivo y estilo de vida">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Combobox name="nutritionalGoal" label="Objetivo nutricional" options={OBJETIVOS} value={form.nutritionalGoal} onChange={onSelect} placeholder="Seleccionar…" disabled={loading} />
+          <Combobox name="activityLevel" label="Nivel de actividad" options={ACTIVIDADES} value={form.activityLevel} onChange={onSelect} placeholder="Seleccionar…" disabled={loading} />
+        </div>
+      </FormSection>
+
+      <FormSection title="Antecedentes">
+        <div className="grid gap-4">
+          <Campo label="Antecedentes personales" htmlFor="p-cond">
+            <textarea id="p-cond" rows="2" className="input" value={form.conditions} onChange={(e) => set('conditions', e.target.value)} placeholder="Enfermedades crónicas, cirugías, alergias… (separadas por comas)" disabled={loading} />
+          </Campo>
+          <Campo label="Antecedentes familiares" htmlFor="p-fam">
+            <textarea id="p-fam" rows="2" className="input" value={form.familyHistory} onChange={(e) => set('familyHistory', e.target.value)} placeholder="Diabetes, hipertensión, cáncer en la familia…" disabled={loading} />
+          </Campo>
+          <Campo label="Hábitos alimentarios" htmlFor="p-habitos">
+            <textarea id="p-habitos" rows="2" className="input" value={form.eatingHabits} onChange={(e) => set('eatingHabits', e.target.value)} disabled={loading} />
+          </Campo>
+          <Campo label="Notas" htmlFor="p-notas">
+            <textarea id="p-notas" rows="2" className="input" value={form.notes} onChange={(e) => set('notes', e.target.value)} disabled={loading} />
+          </Campo>
+        </div>
+      </FormSection>
+    </>
+  );
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-5 animate-fade-up">
+      <Link to={esEdicion ? `/pacientes/${id}` : '/pacientes'} className="btn btn-ghost btn-sm gap-2">
+        <ArrowLeft size={16} /> Volver
+      </Link>
+
+      {!esEdicion ? (
+        <ol className="flex items-center gap-3 text-sm" aria-label="Progreso del alta">
+          {[
+            { n: 1, label: 'Identificación' },
+            { n: 2, label: 'Datos clínicos' },
+          ].map((p) => (
+            <li key={p.n} className="flex items-center gap-2">
+              <span
+                aria-current={paso === p.n ? 'step' : undefined}
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
+                  paso > p.n
+                    ? 'bg-[var(--success)] text-white'
+                    : paso === p.n
+                      ? 'bg-[var(--accent)] text-white'
+                      : 'bg-[var(--surface-strong)] text-[var(--ink-secondary)]'
+                }`}
+              >
+                {paso > p.n ? <Check size={13} /> : p.n}
+              </span>
+              <span className={paso === p.n ? 'font-semibold text-[var(--ink)]' : 'text-[var(--ink-secondary)]'}>
+                {p.label}
+              </span>
+              {p.n === 1 ? <span className="text-[var(--border)]">›</span> : null}
+            </li>
+          ))}
+        </ol>
+      ) : null}
+
+      {error ? (
+        <div role="alert" className="rounded-[var(--radius-m)] border border-[var(--danger)] bg-[rgba(196,30,22,0.06)] px-4 py-3 text-sm text-[var(--danger)]">
+          {error}
+        </div>
+      ) : null}
+
+      {esEdicion ? (
+        <form onSubmit={enviarPaso1} className="card space-y-8">
+          {identificacion}
+          {datosClinicos}
+          <div className="flex justify-end gap-2 border-t border-[var(--border-soft)] pt-4">
+            <Button type="submit" loading={loading} disabled={!form.firstName || !form.lastName}>
+              Guardar cambios
+            </Button>
+          </div>
+        </form>
+      ) : paso === 1 ? (
+        <form onSubmit={enviarPaso1} className="card space-y-8">
+          {identificacion}
+          <div className="flex justify-end border-t border-[var(--border-soft)] pt-4">
+            <Button type="submit" loading={loading} disabled={!form.firstName || !form.lastName} className="gap-2">
+              Guardar y continuar
+              <ArrowRight size={15} />
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={enviarPaso2} className="card space-y-8">
+          {datosClinicos}
+          <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--border-soft)] pt-4">
+            <Button variant="outline" onClick={() => navigate(`/pacientes/${pacienteId}`)} disabled={loading}>
+              Completar después
+            </Button>
+            <Button type="submit" loading={loading}>
+              Guardar datos clínicos
+            </Button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
