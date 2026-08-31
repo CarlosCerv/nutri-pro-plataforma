@@ -11,10 +11,13 @@ import { ErrorState } from '../../design-system/components/StateViews';
 
 const ESTADO_COLORS = { confirmada: 'badge-success', pendiente: 'badge-warning', cancelada: 'badge-danger' };
 
+// Los iconos de actividad diferencian el tipo de evento, no la marca: van en
+// la paleta de graficas, que es la unica del sistema pensada para distinguir
+// categorias entre si.
 const ACTIVIDAD_ICONS = {
-  patient: { Icon: Users, color: '#007AFF' },
-  diet: { Icon: Salad, color: '#34C759' },
-  pdf: { Icon: FileText, color: '#FF9F0A' },
+  patient: { Icon: Users, color: 'var(--chart-blue)' },
+  diet: { Icon: Salad, color: 'var(--chart-green)' },
+  pdf: { Icon: FileText, color: 'var(--chart-orange)' },
 };
 
 /**
@@ -22,7 +25,14 @@ const ACTIVIDAD_ICONS = {
  * `{ name, value }` y aquí se le aplica la paleta de gráficas del sistema de
  * diseño (tokens `--chart-*` de index.css).
  */
-const CHART_PALETTE = ['#0058b0', '#1b7f3a', '#b45309', '#b42318', '#5b21b6', '#86868b'];
+const CHART_PALETTE = [
+  'var(--chart-blue)',
+  'var(--chart-green)',
+  'var(--chart-orange)',
+  'var(--chart-red)',
+  'var(--chart-purple)',
+  'var(--gray-500)',
+];
 const conColor = (items = []) => items.map((item, i) => ({ ...item, color: CHART_PALETTE[i % CHART_PALETTE.length] }));
 
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
@@ -47,7 +57,7 @@ const SectionHeader = ({ title, subtitle, action, actionTo }) => (
       {subtitle && <p className="text-xs text-[var(--ink-secondary)]">{subtitle}</p>}
     </div>
     {action && (
-      <Link to={actionTo} className="flex items-center gap-1 text-xs font-semibold text-emerald hover:text-emerald-300 transition-colors">
+      <Link to={actionTo} className="flex items-center gap-1 text-xs font-semibold text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
         {action} <ChevronRight size={13} />
       </Link>
     )}
@@ -149,16 +159,16 @@ export default function DashboardInsights() {
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={weightData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                   <defs>
-                    <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#007AFF" stopOpacity={0.18} />
-                      <stop offset="95%" stopColor="#007AFF" stopOpacity={0} />
+                    <linearGradient id="gradienteAcento" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.18} />
+                      <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E5EA" />
-                  <XAxis dataKey="semana" tick={{ fill: '#86868B', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#86868B', fontSize: 11 }} axisLine={false} tickLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-strong)" />
+                  <XAxis dataKey="semana" tick={{ fill: 'var(--ink-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--ink-secondary)', fontSize: 11 }} axisLine={false} tickLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
                   <Tooltip content={<CustomTooltip unit=" kg" />} />
-                  <Area type="monotone" dataKey="promedio" name="kg promedio" stroke="#007AFF" strokeWidth={2} fill="url(#emeraldGrad)" dot={{ r: 4, fill: '#007AFF', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#007AFF' }} />
+                  <Area type="monotone" dataKey="promedio" name="kg promedio" stroke="var(--accent)" strokeWidth={2} fill="url(#gradienteAcento)" dot={{ r: 4, fill: 'var(--accent)', strokeWidth: 0 }} activeDot={{ r: 6, fill: 'var(--accent)' }} />
                 </AreaChart>
               </ResponsiveContainer>
             </>
@@ -182,7 +192,7 @@ export default function DashboardInsights() {
                       <Cell key={index} fill={entry.color} opacity={0.85} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value}%`, '']} contentStyle={{ background: '#FFFFFF', border: '1px solid #E5E5EA', borderRadius: '8px', padding: '8px 12px', color: '#1D1D1F' }} />
+                  <Tooltip formatter={(value) => [`${value}%`, '']} contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-s)', padding: '8px 12px', color: 'var(--ink)' }} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1.5 mt-2">
@@ -264,7 +274,7 @@ export default function DashboardInsights() {
               </Link>
             </div>
           )}
-          <Link to="/agenda/nueva" className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[var(--border-soft)] text-xs text-[var(--ink-secondary)] hover:text-emerald hover:border-emerald/30 transition-all duration-200">
+          <Link to="/agenda/nueva" className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[var(--border-soft)] text-xs text-[var(--ink-secondary)] hover:text-[var(--accent-hover)] hover:border-[var(--accent-border)] transition-all duration-200">
             <Plus size={13} /> Agregar consulta
           </Link>
         </div>

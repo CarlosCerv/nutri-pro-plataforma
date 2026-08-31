@@ -67,7 +67,7 @@ export default function PhysicalActivityTab({ patient }) {
               onClick={() => set('nivelActividad', key)}
               className={`flex flex-col gap-1 p-4 rounded-2xl border text-left transition-all duration-200
                 ${form.nivelActividad === key
-                  ? 'bg-emerald/10 border-emerald/30 text-emerald'
+                  ? 'bg-[var(--accent-tint)] border-[var(--accent-border)] text-[var(--accent)]'
                   : 'bg-[var(--surface-alt)] border-[var(--border-soft)] text-[var(--ink-secondary)] hover:border-[var(--border-soft)] hover:text-[var(--ink-muted)]'
                 }`}>
               <div className="text-xs font-bold">{label.split('(')[0].trim()}</div>
@@ -81,12 +81,12 @@ export default function PhysicalActivityTab({ patient }) {
         <div className="flex items-center gap-4 p-4 rounded-2xl bg-[var(--surface-alt)] border border-[var(--border-soft)]">
           <div>
             <div className="text-xs text-[var(--ink-secondary)]">Factor de actividad</div>
-            <div className="font-mono text-2xl text-emerald font-medium">× {fa}</div>
+            <div className="font-mono text-2xl text-[var(--accent)] font-medium">× {fa}</div>
           </div>
           <div className="w-px h-10 bg-[var(--surface-strong)]" />
           <div>
             <div className="text-xs text-[var(--ink-secondary)]">GET estimado (TMB × FA)</div>
-            <div className="font-mono text-2xl text-gold font-medium">{getEst} kcal</div>
+            <div className="font-mono text-2xl text-[var(--warning)] font-medium">{getEst} kcal</div>
           </div>
           <div className="w-px h-10 bg-[var(--surface-strong)]" />
           <div>
@@ -138,7 +138,7 @@ export default function PhysicalActivityTab({ patient }) {
                     <div className="text-sm text-[var(--ink-muted)]">{a.nombre || 'Actividad sin nombre'}</div>
                     <div className="text-xs text-[var(--ink-secondary)]">{a.duracion} min · MET {a.met}</div>
                   </div>
-                  <div className="font-mono text-sm text-emerald">{kcal} kcal</div>
+                  <div className="font-mono text-sm text-[var(--accent)]">{kcal} kcal</div>
                   <button type="button" onClick={() => removeAct(a.id)}
                     className="text-[var(--ink-secondary)] hover:text-danger transition-colors">
                     ×

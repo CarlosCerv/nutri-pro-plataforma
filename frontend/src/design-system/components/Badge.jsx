@@ -6,7 +6,6 @@ const VARIANT_CLASS = {
   danger: 'badge-danger',
   info: 'badge-info',
   neutral: 'badge-neutral',
-  gold: 'badge-gold',
 };
 
 /**
@@ -24,7 +23,7 @@ const Badge = ({ variant = 'neutral', className = '', children, ...rest }) => (
 );
 
 Badge.propTypes = {
-  variant: PropTypes.oneOf(['success', 'warning', 'danger', 'info', 'neutral', 'gold']),
+  variant: PropTypes.oneOf(['success', 'warning', 'danger', 'info', 'neutral']),
   className: PropTypes.string,
   children: PropTypes.node,
 };

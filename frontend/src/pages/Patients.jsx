@@ -4,6 +4,7 @@ import {
   Plus, Search, Users, ChevronRight,
 } from 'lucide-react';
 import api from '../services/api';
+import { calcularIMC, clasificarIMC } from '../lib/calculations/imc';
 
 const FILTROS = ['Todos', 'Activos', 'Sin dieta', 'Con alerta'];
 
@@ -22,30 +23,13 @@ const tieneAlerta = (p) =>
 const TABLE_GRID =
   'grid grid-cols-[minmax(200px,1fr)_108px_72px_96px_80px_32px] gap-x-3 items-center';
 
-const IMC_COLORS = {
-  'Bajo peso':   { color: '#3B82F6', dot: 'bg-info'      },
-  'Normal':      { color: '#2ECC8E', dot: 'bg-success'    },
-  'Sobrepeso':   { color: '#F59E0B', dot: 'bg-warning'    },
-  'Obesidad I':  { color: '#EF4444', dot: 'bg-danger'     },
-  'Obesidad II': { color: '#DC2626', dot: 'bg-danger'     },
-  'Obesidad III':{ color: '#991B1B', dot: 'bg-danger'     },
-};
-
-const calcIMC = (peso, talla) => {
-  if (!peso || !talla) return null;
-  const h = talla / 100;
-  return (peso / (h * h)).toFixed(1);
-};
-
-const clasificarIMC = (imc) => {
-  if (!imc) return null;
-  if (imc < 18.5) return 'Bajo peso';
-  if (imc < 25)   return 'Normal';
-  if (imc < 30)   return 'Sobrepeso';
-  if (imc < 35)   return 'Obesidad I';
-  if (imc < 40)   return 'Obesidad II';
-  return 'Obesidad III';
-};
+/**
+ * El IMC y su clasificación vienen de `lib/calculations/imc`, no de una copia
+ * local. Esta pantalla tenía las dos funciones duplicadas con sus propios
+ * umbrales y su propia tabla de colores; la del `lib` es la que cubren las
+ * pruebas y la que usa el resto de la aplicación.
+ */
+const imcDe = (peso, talla) => (peso && talla ? calcularIMC(peso, talla).toFixed(1) : null);
 
 const RowSkeleton = () => (
   <div className={`${TABLE_GRID} px-4 py-3 border-b border-[var(--border-soft)]`}>
@@ -84,6 +68,19 @@ export default function Patients() {
 
   useEffect(() => { fetchPatients(); }, [fetchPatients]);
 
+  /**
+   * Antes este contador era el literal `3`.
+   *
+   * Se calcula sobre `createdAt`, que el backend ya devuelve en cada paciente
+   * (`Patient.js` lo declara y `getPatients` no proyecta campos fuera).
+   */
+  const nuevosEsteMes = patients.filter((p) => {
+    if (!p.createdAt) return false;
+    const alta = new Date(p.createdAt);
+    const hoy = new Date();
+    return alta.getFullYear() === hoy.getFullYear() && alta.getMonth() === hoy.getMonth();
+  }).length;
+
   const filtered = patients.filter(p => {
     const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
     const matchSearch = fullName.includes(search.toLowerCase()) ||
@@ -117,10 +114,10 @@ export default function Patients() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total', value: patients.length,                                  color: '#2ECC8E' },
-          { label: 'Activos',  value: patients.filter(p => p.active !== false).length, color: '#E8C96A' },
-          { label: 'Nuevos este mes', value: 3,                                        color: '#3B82F6' },
-          { label: 'Con alerta',  value: patients.filter(p => !p.hasDiet).length,      color: '#EF4444' },
+          { label: 'Total', value: patients.length, color: 'var(--ink)' },
+          { label: 'Activos', value: patients.filter((p) => p.active !== false).length, color: 'var(--success)' },
+          { label: 'Nuevos este mes', value: nuevosEsteMes, color: 'var(--accent)' },
+          { label: 'Con alerta', value: patients.filter(tieneAlerta).length, color: 'var(--danger)' },
         ].map(s => (
           <div key={s.label} className="card p-4 !hover:shadow-none">
             <div className="font-mono text-2xl font-medium" style={{ color: s.color }}>{s.value}</div>
@@ -192,9 +189,8 @@ export default function Patients() {
               </div>
             ) : (
               filtered.map((p) => {
-                const imc = calcIMC(p.lastWeight, p.height);
-                const cat = clasificarIMC(parseFloat(imc));
-                const imcStyle = IMC_COLORS[cat];
+                const imc = imcDe(p.lastWeight, p.height);
+                const imcStyle = imc ? clasificarIMC(parseFloat(imc)) : null;
                 const fg = colorFor(p.firstName);
                 const diasDesde = p.lastConsult
                   ? Math.floor((Date.now() - new Date(p.lastConsult)) / 86400000)
@@ -232,7 +228,7 @@ export default function Patients() {
                     <div className="justify-self-start">
                       {imc ? (
                         <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: imcStyle?.color || '#86868b' }} />
+                          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: imcStyle?.color || 'var(--ink-secondary)' }} />
                           <span className="font-mono text-sm text-[var(--ink)]">{imc}</span>
                         </div>
                       ) : <span className="text-xs text-[var(--ink-secondary)]">—</span>}

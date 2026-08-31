@@ -84,7 +84,7 @@
 }
 
 .req {
-    color: var(--primary-600);
+    color: var(--accent);
 }
 
 .field-input {
@@ -97,8 +97,8 @@
 }
 
 .field-input:focus {
-    border-color: var(--primary-400);
-    box-shadow: 0 0 0 4px var(--primary-50);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
     outline: none;
 }
 
@@ -119,7 +119,7 @@
 .toggle-label-text {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--primary-600);
+    color: var(--accent);
 }
 
 .switch {
@@ -161,11 +161,11 @@
 }
 
 input:checked+.slider {
-    background-color: var(--primary-500);
+    background-color: var(--accent);
 }
 
 input:focus+.slider {
-    box-shadow: 0 0 1px var(--primary-500);
+    box-shadow: 0 0 1px var(--accent);
 }
 
 input:checked+.slider:before {
@@ -201,8 +201,8 @@ input:checked+.slider:before {
 }
 
 .select-trigger.active {
-    border-color: var(--primary-500);
-    box-shadow: 0 0 0 4px var(--primary-50);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .selected-value-preview {
@@ -214,8 +214,8 @@ input:checked+.slider:before {
 .mini-avatar {
     width: 24px;
     height: 24px;
-    background: var(--primary-100);
-    color: var(--primary-700);
+    background: var(--accent-soft);
+    color: var(--accent);
     border-radius: 6px;
     font-size: 0.7rem;
     font-weight: 700;
@@ -294,11 +294,11 @@ input:checked+.slider:before {
 }
 
 .option-item:hover {
-    background: var(--primary-50);
+    background: var(--accent-soft);
 }
 
 .option-item.selected {
-    background: var(--primary-50);
+    background: var(--accent-soft);
 }
 
 .option-info {
@@ -321,8 +321,8 @@ input:checked+.slider:before {
 }
 
 .option-item.selected .option-avatar {
-    background: var(--primary-100);
-    color: var(--primary-600);
+    background: var(--accent-soft);
+    color: var(--accent);
 }
 
 .option-text {
@@ -342,7 +342,7 @@ input:checked+.slider:before {
 }
 
 .check-icon {
-    color: var(--primary-500);
+    color: var(--accent);
 }
 
 .no-results {
@@ -386,14 +386,14 @@ input:checked+.slider:before {
 }
 
 .btn-v2-primary {
-    background: var(--primary-600);
+    background: var(--accent);
     color: white;
     border: none;
     box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2);
 }
 
 .btn-v2-primary:hover {
-    background: var(--primary-700);
+    background: var(--accent);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(219, 39, 119, 0.3);
 }

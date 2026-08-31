@@ -61,7 +61,7 @@ export default function ClinicalTab({ patient }) {
       <button type="button" onClick={() => toggle(campo, valor)}
         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 border
           ${active
-            ? 'bg-emerald/15 text-emerald border-emerald/30'
+            ? 'bg-[var(--accent-tint)] text-[var(--accent)] border-[var(--accent-border)]'
             : 'bg-[var(--surface-alt)] text-[var(--ink-secondary)] border-[var(--border-soft)] hover:border-[var(--border-soft)] hover:text-[var(--ink-muted)]'
           }`}>
         {active && <span className="mr-1">✓</span>}
@@ -81,7 +81,7 @@ export default function ClinicalTab({ patient }) {
               onClick={() => setForm(f => ({ ...f, diagnosticoNutricional: d }))}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border
                 ${form.diagnosticoNutricional === d
-                  ? 'bg-gold/15 text-gold border-gold/30'
+                  ? 'bg-[var(--warning-tint)] text-[var(--warning)] border-[var(--warning)]'
                   : 'bg-[var(--surface-alt)] text-[var(--ink-secondary)] border-[var(--border-soft)] hover:text-[var(--ink-muted)] hover:border-[var(--border-soft)]'
                 }`}>
               {d}
@@ -132,9 +132,9 @@ export default function ClinicalTab({ patient }) {
       {/* ── Notas clínicas privadas ── */}
       <div className="space-y-3">
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2 flex items-center gap-2">
-          <Lock size={14} className="text-gold" />
+          <Lock size={14} className="text-[var(--warning)]" />
           Notas Clínicas Privadas
-          <span className="badge badge-gold text-2xs">Solo visible para ti</span>
+          <span className="badge badge-warning text-2xs">Solo visible para ti</span>
         </h3>
         <textarea
           className="input min-h-[150px] resize-none"

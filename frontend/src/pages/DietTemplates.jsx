@@ -83,7 +83,7 @@ export default function DietTemplates() {
                 <div className="flex gap-4">
                   <div>
                     <div className="text-2xs text-[var(--ink-secondary)] uppercase tracking-widest mb-0.5">Kcal</div>
-                    <div className="font-mono text-sm font-medium text-gold">{t.kcal}</div>
+                    <div className="font-mono text-sm font-medium text-[var(--warning)]">{t.kcal}</div>
                   </div>
                   <div className="w-px h-8 bg-[var(--surface-strong)]"></div>
                   <div>
@@ -95,7 +95,7 @@ export default function DietTemplates() {
 
               <div className="pt-4 mt-5 border-t border-[var(--border-soft)]">
                 <Link to={`/dietas/nueva?templateId=${t._id}`} 
-                  className="w-full btn btn-ghost justify-between text-emerald hover:bg-emerald/10 hover:border-emerald/20 transition-all border border-transparent">
+                  className="w-full btn btn-ghost justify-between text-[var(--accent)] hover:bg-[var(--accent-tint)] hover:border-[var(--accent-border)] transition-all border border-transparent">
                   <span className="flex items-center gap-2"><Copy size={16} /> Usar esta plantilla</span>
                   <ArrowRight size={16} />
                 </Link>

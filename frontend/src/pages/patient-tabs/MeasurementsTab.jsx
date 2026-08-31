@@ -54,12 +54,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const IMC_BAR_ZONES = [
-  { label: 'Bajo',  w: 18.5, color: '#3B82F6' },
-  { label: 'Normal',w: 6.5,  color: '#2ECC8E' },
-  { label: 'Sobre', w: 5.0,  color: '#F59E0B' },
-  { label: 'OI',    w: 5.0,  color: '#EF4444' },
-  { label: 'OII',   w: 5.0,  color: '#DC2626' },
-  { label: 'OIII',  w: '>',  color: '#991B1B' },
+  { label: 'Bajo',  w: 18.5, color: 'var(--info)' },
+  { label: 'Normal',w: 6.5,  color: 'var(--success)' },
+  { label: 'Sobre', w: 5.0,  color: 'var(--warning)' },
+  { label: 'OI',    w: 5.0,  color: 'var(--danger)' },
+  { label: 'OII',   w: 5.0,  color: 'var(--danger)' },
+  { label: 'OIII',  w: '>',  color: 'var(--danger)' },
 ];
 
 export default function MeasurementsTab({ patient }) {
@@ -157,7 +157,7 @@ export default function MeasurementsTab({ patient }) {
           <input type="date" className="input !w-auto py-1.5" value={form.fecha}
             onChange={e => set('fecha', e.target.value)} />
         </div>
-        <button type="button" className="btn btn-ghost btn-sm gap-1.5 text-emerald">
+        <button type="button" className="btn btn-ghost btn-sm gap-1.5 text-[var(--accent)]">
           <Plus size={13} /> Nueva consulta
         </button>
       </div>
@@ -214,9 +214,9 @@ export default function MeasurementsTab({ patient }) {
             {/* Barra de IMC */}
             <div className="relative h-3 rounded-full overflow-hidden flex">
               {[
-                { w: '20%', color: '#3B82F6' }, { w: '14%', color: '#2ECC8E' },
-                { w: '11%', color: '#F59E0B' }, { w: '11%', color: '#EF4444' },
-                { w: '11%', color: '#DC2626' }, { w: '33%', color: '#991B1B' },
+                { w: '20%', color: 'var(--info)' }, { w: '14%', color: 'var(--success)' },
+                { w: '11%', color: 'var(--warning)' }, { w: '11%', color: 'var(--danger)' },
+                { w: '11%', color: 'var(--danger)' }, { w: '33%', color: 'var(--danger)' },
               ].map((z, i) => <div key={i} style={{ width: z.w, background: z.color }} />)}
               {/* Indicador */}
               <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg"
@@ -260,7 +260,7 @@ export default function MeasurementsTab({ patient }) {
               <button key={f.key} type="button"
                 onClick={() => setFormulaGrasa(f.key)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all
-                  ${formulaGrasa === f.key ? 'bg-emerald text-navy-950' : 'bg-[var(--surface-strong)] text-[var(--ink-secondary)] hover:text-[var(--ink)]'}`}>
+                  ${formulaGrasa === f.key ? 'bg-[var(--accent)] text-[var(--ink)]' : 'bg-[var(--surface-strong)] text-[var(--ink-secondary)] hover:text-[var(--ink)]'}`}>
                 {f.label}
                 <span className="ml-1 opacity-50">({f.pliegues})</span>
               </button>
@@ -270,10 +270,10 @@ export default function MeasurementsTab({ patient }) {
           {grasaActual ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
-                { label: '% Grasa',     value: `${grasaActual.pctGrasa}%`, color: '#E8C96A' },
-                { label: 'Densidad',    value: grasaActual.densidad?.toFixed(4), color: '#3B82F6' },
-                { label: 'Masa grasa',  value: `${grasaActual.masaGrasa} kg`, color: '#EF4444' },
-                { label: 'Masa magra',  value: `${grasaActual.masaMagra} kg`, color: '#2ECC8E' },
+                { label: '% Grasa',     value: `${grasaActual.pctGrasa}%`, color: 'var(--ink)' },
+                { label: 'Densidad',    value: grasaActual.densidad?.toFixed(4), color: 'var(--ink)' },
+                { label: 'Masa grasa',  value: `${grasaActual.masaGrasa} kg`, color: 'var(--ink)' },
+                { label: 'Masa magra',  value: `${grasaActual.masaMagra} kg`, color: 'var(--ink)' },
               ].map(r => (
                 <div key={r.label} className="text-center p-3 rounded-xl bg-white/94">
                   <div className="font-mono text-xl font-medium" style={{ color: r.color }}>{r.value || '—'}</div>
@@ -323,7 +323,7 @@ export default function MeasurementsTab({ patient }) {
                   <XAxis dataKey="fecha" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Line type="monotone" dataKey="peso" name="kg" stroke="#2ECC8E" strokeWidth={2} dot={{ fill: '#2ECC8E', r: 4, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="peso" name="kg" stroke="var(--chart-green)" strokeWidth={2} dot={{ fill: 'var(--success)', r: 4, strokeWidth: 0 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -336,7 +336,7 @@ export default function MeasurementsTab({ patient }) {
                   <XAxis dataKey="fecha" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="grasa" name="%" fill="#E8C96A" radius={[4, 4, 0, 0]} opacity={0.8} />
+                  <Bar dataKey="grasa" name="%" fill="var(--chart-orange)" radius={[4, 4, 0, 0]} opacity={0.8} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

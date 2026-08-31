@@ -29,53 +29,12 @@ export default {
     },
     extend: {
       colors: {
-        // OBSOLETAS — no usar en código nuevo.
-        //
-        // `emerald`, `gold` y `navy` eran una segunda y tercera identidad de
-        // marca, contra la regla no negociable #1 del sistema (un solo
-        // acento). Se mantienen los nombres porque unas 60 clases del código
-        // todavía los usan y borrarlos los volvería invisibles en silencio;
-        // los valores ya apuntan al acento y a los estados semánticos, así
-        // que la interfaz ya cumple la regla. Cuando la migración de páginas
-        // termine de reemplazarlos por tokens, este bloque se borra.
-        navy: {
-          950: '#1D1D1F',
-          900: '#1D1D1F',
-          800: '#2C2C2E',
-          700: '#424245',
-          600: '#424245',
-          500: '#6E6E73',
-        },
-        emerald: {
-          DEFAULT: '#0071E3',
-          50:  '#E8F4FF',
-          100: '#CCE4FF',
-          200: '#99C9FF',
-          300: '#66ADFF',
-          400: '#3392FF',
-          500: '#0071E3',
-          600: '#005BB5',
-          700: '#004494',
-          800: '#003370',
-          900: '#00224D',
-        },
-        gold: {
-          DEFAULT: '#B45309',
-          50:  '#FFF7ED',
-          100: '#FFEDD5',
-          200: '#FED7AA',
-          300: '#FDBA74',
-          400: '#F59E0B',
-          500: '#B45309',
-          600: '#92400E',
-          700: '#7C2D12',
-          800: '#5C2308',
-          900: '#3F1A06',
-        },
-        success: '#1B7F3A',
-        warning: '#B45309',
-        danger:  '#C41E16',
-        info:    '#0071E3',
+        // Los estados semánticos apuntan a los tokens en vez de repetir sus
+        // valores: con dos copias, cambiar uno dejaba el otro atrás.
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        danger:  'var(--danger)',
+        info:    'var(--info)',
       },
       fontFamily: {
         display: [

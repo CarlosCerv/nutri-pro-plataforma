@@ -8,14 +8,22 @@ export const calcularIMC = (weightKg, heightCm) => {
   return weightKg / (heightM * heightM);
 };
 
-// Clasificación OMS con código de color para semáforo UI
+/**
+ * Clasificación OMS con código de color para semáforo UI.
+ *
+ * Los tres grados de obesidad comparten `--danger`. Antes eran tres rojos
+ * distintos, pero nadie decodifica una gradación de rojo como tres niveles de
+ * severidad: quien lee la fila ve la etiqueta «Obesidad II», que es donde vive
+ * de verdad esa información. La skill lo dice explícitamente — el layout, no
+ * el color, carga la jerarquía.
+ */
 export const clasificarIMC = (imc) => {
-  if (imc < 18.5) return { categoria: 'Bajo peso',     codigo: 'info',    color: '#3B82F6', rango: '< 18.5' };
-  if (imc < 25.0) return { categoria: 'Normal',         codigo: 'normal',  color: '#2ECC8E', rango: '18.5–24.9' };
-  if (imc < 30.0) return { categoria: 'Sobrepeso',      codigo: 'warning', color: '#F59E0B', rango: '25–29.9' };
-  if (imc < 35.0) return { categoria: 'Obesidad I',     codigo: 'danger',  color: '#EF4444', rango: '30–34.9' };
-  if (imc < 40.0) return { categoria: 'Obesidad II',    codigo: 'danger',  color: '#DC2626', rango: '35–39.9' };
-  return              { categoria: 'Obesidad III',   codigo: 'danger',  color: '#991B1B', rango: '≥ 40' };
+  if (imc < 18.5) return { categoria: 'Bajo peso',   codigo: 'info',    color: 'var(--info)',    rango: '< 18.5' };
+  if (imc < 25.0) return { categoria: 'Normal',       codigo: 'normal',  color: 'var(--success)', rango: '18.5–24.9' };
+  if (imc < 30.0) return { categoria: 'Sobrepeso',    codigo: 'warning', color: 'var(--warning)', rango: '25–29.9' };
+  if (imc < 35.0) return { categoria: 'Obesidad I',   codigo: 'danger',  color: 'var(--danger)',  rango: '30–34.9' };
+  if (imc < 40.0) return { categoria: 'Obesidad II',  codigo: 'danger',  color: 'var(--danger)',  rango: '35–39.9' };
+  return            { categoria: 'Obesidad III', codigo: 'danger',  color: 'var(--danger)',  rango: '≥ 40' };
 };
 
 // ── ICC — Índice Cintura-Cadera ───────────────────────────────────

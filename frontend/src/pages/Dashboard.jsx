@@ -103,16 +103,16 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <KPICard label="Pacientes activos" value={stats?.pacientesActivos}
           delta={stats?.pacientesDelta}
-          icon={Users} color="#007AFF" loading={loading} />
+          icon={Users} color="var(--accent)" loading={loading} />
         <KPICard label="Consultas este mes" value={stats?.consultasMes}
           delta={stats?.consultasDelta}
-          icon={CalendarCheck} color="#34C759" loading={loading} />
+          icon={CalendarCheck} color="var(--accent)" loading={loading} />
         <KPICard label="Dietas generadas" value={stats?.dietasTotal}
           delta={stats?.dietasDelta}
-          icon={Salad} color="#FF9F0A" loading={loading} />
+          icon={Salad} color="var(--accent)" loading={loading} />
         <KPICard label="Apego promedio" value={stats?.apegoProm ? `${stats.apegoProm}%` : null}
           delta={stats?.apegoDelta}
-          icon={Activity} color="#5856D6" loading={loading} />
+          icon={Activity} color="var(--accent)" loading={loading} />
       </div>
 
       <Suspense

@@ -238,9 +238,9 @@ export default function LaboratoryTab({ patient }) {
                 <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: '11px' }} />
-                <Line type="monotone" dataKey="glucosa_ayuno_mg" name="Glucosa" stroke="#2ECC8E" strokeWidth={2} dot={{ r: 3, fill: '#2ECC8E', strokeWidth: 0 }} />
-                <Line type="monotone" dataKey="colesterol_total_mg" name="Colesterol" stroke="#E8C96A" strokeWidth={2} dot={{ r: 3, fill: '#E8C96A', strokeWidth: 0 }} />
-                <Line type="monotone" dataKey="trigliceridos_mg" name="Triglicéridos" stroke="#EF4444" strokeWidth={2} dot={{ r: 3, fill: '#EF4444', strokeWidth: 0 }} />
+                <Line type="monotone" dataKey="glucosa_ayuno_mg" name="Glucosa" stroke="var(--chart-green)" strokeWidth={2} dot={{ r: 3, fill: 'var(--chart-green)', strokeWidth: 0 }} />
+                <Line type="monotone" dataKey="colesterol_total_mg" name="Colesterol" stroke="var(--chart-orange)" strokeWidth={2} dot={{ r: 3, fill: 'var(--chart-orange)', strokeWidth: 0 }} />
+                <Line type="monotone" dataKey="trigliceridos_mg" name="Triglicéridos" stroke="var(--chart-red)" strokeWidth={2} dot={{ r: 3, fill: 'var(--chart-red)', strokeWidth: 0 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

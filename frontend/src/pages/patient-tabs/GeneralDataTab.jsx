@@ -75,8 +75,8 @@ export default function GeneralDataTab({ patient, onUpdate }) {
     <form onSubmit={handleSave} className="space-y-8">
       {/* Foto de perfil */}
       <div className="flex items-center gap-5">
-        <div className="w-20 h-20 rounded-2xl bg-[var(--surface-alt)] border-2 border-dashed border-[var(--border-soft)] flex flex-col items-center justify-center cursor-pointer hover:border-emerald/40 transition-colors group">
-          <Camera size={20} className="text-[var(--ink-secondary)] group-hover:text-emerald/50 transition-colors" />
+        <div className="w-20 h-20 rounded-2xl bg-[var(--surface-alt)] border-2 border-dashed border-[var(--border-soft)] flex flex-col items-center justify-center cursor-pointer hover:border-[var(--accent-border)] transition-colors group">
+          <Camera size={20} className="text-[var(--ink-secondary)] group-hover:text-[var(--accent)] transition-colors" />
           <span className="text-2xs text-[var(--ink-secondary)] mt-1">Foto</span>
         </div>
         <div>
@@ -143,13 +143,13 @@ export default function GeneralDataTab({ patient, onUpdate }) {
               <label key={f.key}
                 className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all duration-200
                   ${form[f.key]
-                    ? 'bg-emerald/10 border-emerald/30 text-emerald'
+                    ? 'bg-[var(--accent-tint)] border-[var(--accent-border)] text-[var(--accent)]'
                     : 'bg-[var(--surface-alt)] border-[var(--border-soft)] text-[var(--ink-secondary)] hover:border-[var(--border-soft)]'
                   }`}>
                 <input type="checkbox" className="hidden" checked={form[f.key]} onChange={e => set(f.key, e.target.checked)} />
                 <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border
-                  ${form[f.key] ? 'bg-emerald border-emerald' : 'border-[var(--border-soft)]'}`}>
-                  {form[f.key] && <svg className="w-2.5 h-2.5 text-navy-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
+                  ${form[f.key] ? 'bg-[var(--accent)] border-[var(--accent)]' : 'border-[var(--border-soft)]'}`}>
+                  {form[f.key] && <svg className="w-2.5 h-2.5 text-[var(--ink)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>}
                 </div>
                 <span className="text-xs font-semibold">{f.label}</span>
               </label>
@@ -187,8 +187,8 @@ export default function GeneralDataTab({ patient, onUpdate }) {
             <div className="flex items-center gap-3 mt-1">
               <input type="range" min={1} max={10} value={form.nivelEstres}
                 onChange={e => set('nivelEstres', Number(e.target.value))}
-                className="flex-1 accent-emerald" />
-              <span className="font-mono text-sm text-emerald w-4">{form.nivelEstres}</span>
+                className="flex-1 accent-[var(--accent)]" />
+              <span className="font-mono text-sm text-[var(--accent)] w-4">{form.nivelEstres}</span>
             </div>
           </Field>
           <Field label="Horas laborales/día">

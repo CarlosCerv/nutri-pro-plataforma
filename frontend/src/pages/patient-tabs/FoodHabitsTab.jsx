@@ -123,7 +123,7 @@ export default function FoodHabitsTab({ patient }) {
                           ? f === 'Nunca'     ? 'bg-[var(--surface-strong)] text-[var(--ink-muted)]'
                           : f === 'Ocasional' ? 'bg-info/20 text-info border border-info/30'
                           : f === 'Semanal'   ? 'bg-warning/20 text-warning border border-warning/30'
-                          : 'bg-emerald/20 text-emerald border border-emerald/30'
+                          : 'bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent-border)]'
                           : 'bg-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-secondary)]'
                         }`}>
                       {f}

@@ -36,6 +36,8 @@ const usePDFExport = () => {
         scale: 2,
         useCORS: true,
         logging: false,
+        // Literal a proposito: html2canvas rasteriza a un canvas y necesita un
+        // color resuelto, no una variable CSS que solo existe en el documento.
         backgroundColor: '#ffffff',
         windowWidth: element.scrollWidth,
         windowHeight: element.scrollHeight,

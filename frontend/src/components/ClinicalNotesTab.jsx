@@ -59,7 +59,7 @@ const ClinicalNotesTab = ({ patientId }) => {
             </div>
 
             {isAdding && (
-                <div className="card note-form-card" style={{ marginBottom: '2rem', border: '1px solid #e2e8f0' }}>
+                <div className="card note-form-card" style={{ marginBottom: '2rem', border: '1px solid var(--border-soft)' }}>
                     <form onSubmit={handleCreateNote}>
                         <div className="form-group">
                             <label><strong>S</strong> - Subjetivo (Síntomas, reporte del paciente)</label>
@@ -104,7 +104,7 @@ const ClinicalNotesTab = ({ patientId }) => {
                             />
                         </div>
                         <div className="form-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button type="submit" className="btn btn-success">
+                            <button type="submit" className="btn btn-primary">
                                 <Save size={18} /> Guardar Nota
                             </button>
                             <button type="button" className="btn btn-outline" onClick={() => setIsAdding(false)}>
@@ -119,7 +119,7 @@ const ClinicalNotesTab = ({ patientId }) => {
                 {loading ? (
                     <p>Cargando notas...</p>
                 ) : notes.length === 0 ? (
-                    <div className="empty-state" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                    <div className="empty-state" style={{ textAlign: 'center', padding: '2rem', color: 'var(--ink-secondary)' }}>
                         <FileText size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
                         <p>No hay notas clínicas registradas.</p>
                     </div>
@@ -128,10 +128,10 @@ const ClinicalNotesTab = ({ patientId }) => {
                         <div key={note._id} className="card note-card" style={{ marginBottom: '1rem', cursor: 'pointer' }} onClick={() => toggleNote(note._id)}>
                             <div className="note-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <h4 style={{ margin: 0, color: '#0f172a' }}>
+                                    <h4 style={{ margin: 0, color: 'var(--ink)' }}>
                                         Consulta del {new Date(note.date).toLocaleDateString()}
                                     </h4>
-                                    <small style={{ color: '#64748b' }}>
+                                    <small style={{ color: 'var(--ink-secondary)' }}>
                                         Por: {note.nutritionist?.name || 'Nutricionista'}
                                     </small>
                                 </div>
@@ -139,22 +139,22 @@ const ClinicalNotesTab = ({ patientId }) => {
                             </div>
 
                             {expandedNoteId === note._id && (
-                                <div className="note-content" style={{ marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
+                                <div className="note-content" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--surface-alt)', paddingTop: '1rem' }}>
                                     <div className="soap-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                                         <div className="soap-section">
-                                            <h5 style={{ color: '#059669', marginBottom: '0.5rem' }}>Subjetivo</h5>
+                                            <h5 style={{ color: 'var(--ink-muted)', marginBottom: '0.5rem' }}>Subjetivo</h5>
                                             <p style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{note.subjective || '-'}</p>
                                         </div>
                                         <div className="soap-section">
-                                            <h5 style={{ color: '#059669', marginBottom: '0.5rem' }}>Objetivo</h5>
+                                            <h5 style={{ color: 'var(--ink-muted)', marginBottom: '0.5rem' }}>Objetivo</h5>
                                             <p style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{note.objective || '-'}</p>
                                         </div>
                                         <div className="soap-section">
-                                            <h5 style={{ color: '#059669', marginBottom: '0.5rem' }}>Análisis</h5>
+                                            <h5 style={{ color: 'var(--ink-muted)', marginBottom: '0.5rem' }}>Análisis</h5>
                                             <p style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{note.analysis}</p>
                                         </div>
                                         <div className="soap-section">
-                                            <h5 style={{ color: '#059669', marginBottom: '0.5rem' }}>Plan</h5>
+                                            <h5 style={{ color: 'var(--ink-muted)', marginBottom: '0.5rem' }}>Plan</h5>
                                             <p style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{note.plan}</p>
                                         </div>
                                     </div>
