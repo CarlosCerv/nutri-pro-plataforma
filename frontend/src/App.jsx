@@ -1,6 +1,7 @@
 import { Suspense, lazy, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LEGACY_REDIRECTS } from './lib/redirects';
 
 // Design System
 import Sidebar from './design-system/components/Sidebar';
@@ -150,52 +151,13 @@ function App() {
               <Route path="estadisticas" element={<PopulationReports />} />
             </Route>
 
-            {/* Redirecciones.
-                Además de los alias en inglés que ya existían, aquí viven las
-                URLs que prometían una subpantalla y entregaban exactamente la
-                misma vista que su ruta padre: las tres de /calculos, las dos
-                de /reportes, /alimentos/nuevo y las tres de /admin. Se
-                conservan como redirecciones para no romper enlaces guardados. */}
-            <Route path="/mealplans" element={<Navigate to="/dietas" replace />} />
-            <Route path="/menu-builder" element={<Navigate to="/dietas/nueva" replace />} />
-            <Route path="/diet-templates" element={<Navigate to="/dietas/plantillas" replace />} />
-            <Route path="/dietas/catalogo" element={<Navigate to="/dietas/plantillas" replace />} />
-            <Route path="/appointments" element={<Navigate to="/agenda" replace />} />
-            <Route path="/appointments/new" element={<Navigate to="/agenda/nueva" replace />} />
-            <Route path="/patients" element={<Navigate to="/pacientes" replace />} />
-            <Route path="/patients/new" element={<Navigate to="/pacientes/nuevo" replace />} />
+            {/* Redirecciones de URLs heredadas. La tabla vive en
+                `lib/redirects.js` para que las pruebas comprueben la misma
+                fuente que usa el router, no una copia. */}
+            {Object.entries(LEGACY_REDIRECTS).map(([desde, hacia]) => (
+              <Route key={desde} path={desde} element={<Navigate to={hacia} replace />} />
+            ))}
             <Route path="/patients/:id" element={<Navigate to="/pacientes/:id" replace />} />
-
-            <Route path="/alimentos" element={<Navigate to="/dietas/alimentos" replace />} />
-            <Route path="/alimentos/nuevo" element={<Navigate to="/dietas/alimentos" replace />} />
-
-            <Route path="/calculos" element={<Navigate to="/herramientas" replace />} />
-            <Route path="/calculos/imc" element={<Navigate to="/herramientas" replace />} />
-            <Route path="/calculos/calorias" element={<Navigate to="/herramientas" replace />} />
-            <Route path="/calculos/deportistas" element={<Navigate to="/herramientas" replace />} />
-            <Route path="/calculator" element={<Navigate to="/herramientas" replace />} />
-
-            <Route path="/reportes" element={<Navigate to="/dietas" replace />} />
-            <Route path="/reportes/nuevo" element={<Navigate to="/dietas" replace />} />
-            <Route path="/reportes/historial" element={<Navigate to="/dietas" replace />} />
-            <Route path="/reportes-poblacionales" element={<Navigate to="/herramientas/estadisticas" replace />} />
-
-            {/* El módulo de licencias no tiene backend: no hay modelo License,
-                ni endpoints, ni `authorize()` aplicado en ninguna ruta. Sale
-                del release en vez de mostrar cifras inventadas. */}
-            <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin/licencias" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin/usuarios" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/admin/ingresos" element={<Navigate to="/dashboard" replace />} />
-
-            {/* Perfil y configuración */}
-            <Route path="/perfil" element={<ProtectedPage element={<Profile />} />} />
-            <Route path="/profile" element={<Navigate to="/perfil" replace />} />
-            <Route path="/configuracion" element={<Navigate to="/perfil" replace />} />
-
-            {/* Finanzas */}
-            <Route path="/finanzas" element={<ProtectedPage element={<Finance />} />} />
-            <Route path="/finance" element={<Navigate to="/finanzas" replace />} />
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
