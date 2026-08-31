@@ -1,27 +1,19 @@
 {
-  "services": {
-    "frontend": {
-      "root": "frontend",
-      "framework": "vite"
-    },
-    "backend": {
-      "root": "backend",
-      "framework": "express",
-      "entrypoint": "index.js"
-    }
-  },
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": {
-        "service": "backend"
-      }
+      "destination": "/api"
     },
     {
-      "source": "/(.*)",
-      "destination": {
-        "service": "frontend"
-      }
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "0 8 * * *"
     }
   ]
 }
