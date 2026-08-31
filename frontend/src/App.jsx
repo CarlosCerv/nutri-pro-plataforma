@@ -160,6 +160,10 @@ function App() {
               <Route path="estadisticas" element={<PopulationReports />} />
             </Route>
 
+            {/* Cuenta */}
+            <Route path="/finanzas" element={<ProtectedPage element={<Finance />} />} />
+            <Route path="/perfil" element={<ProtectedPage element={<Profile />} />} />
+
             {/* Redirecciones de URLs heredadas. La tabla vive en
                 `lib/redirects.js` para que las pruebas comprueben la misma
                 fuente que usa el router, no una copia. */}
