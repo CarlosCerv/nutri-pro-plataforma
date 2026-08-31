@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Shield } from 'lucide-react';
+import { Globe, Shield, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { authAPI } from '../services/api';
 import Tabs from '../design-system/components/Tabs.jsx';
@@ -7,6 +7,7 @@ import FormSection from '../design-system/components/FormSection.jsx';
 import SaveBar from '../design-system/components/SaveBar.jsx';
 import useSaveState from '../hooks/useSaveState';
 import { Card, Input } from '../design-system/components';
+import PublicBookingSettings from '../components/PublicBookingSettings.jsx';
 
 /**
  * Cuenta y ajustes.
@@ -22,6 +23,7 @@ import { Card, Input } from '../design-system/components';
 
 const TABS = [
   { id: 'perfil', label: 'Datos profesionales', icon: <User size={15} /> },
+  { id: 'publica', label: 'Página pública', icon: <Globe size={15} /> },
   { id: 'seguridad', label: 'Contraseña', icon: <Shield size={15} /> },
 ];
 
@@ -100,6 +102,8 @@ export default function Profile() {
             label="Guardar cambios"
           />
         </Card>
+      ) : tab === 'publica' ? (
+        <PublicBookingSettings user={user} onSaved={(u) => updateUser({ ...user, ...u })} />
       ) : (
         <Card as="form" onSubmit={guardarPassword} className="space-y-6">
           <FormSection title="Cambiar contraseña" description="Mínimo 6 caracteres. Cerrarás sesión en otros dispositivos la próxima vez que expire su token.">

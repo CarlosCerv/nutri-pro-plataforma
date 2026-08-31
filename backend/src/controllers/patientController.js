@@ -1,7 +1,12 @@
+import crypto from 'crypto';
 import Patient from '../models/Patient.js';
+import PreConsultationToken from '../models/PreConsultationToken.js';
 import uploadMiddleware, { getFileUrl } from '../middleware/uploadMiddleware.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import isOwnedBy from '../utils/ownership.js';
+
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+const PRE_CONSULTATION_TTL_DAYS = 7;
 
 // Export upload middleware for use in routes
 export const upload = uploadMiddleware;
@@ -319,3 +324,63 @@ export const getLabResults = asyncHandler(async (req, res) => {
         data: results,
     });
 }, { message: 'Error al obtener los laboratorios' });
+
+// @desc    Genera un enlace de un solo uso para el cuestionario pre-consulta
+// @route   POST /api/patients/:id/pre-consultation-link
+// @access  Private
+export const generatePreConsultationLink = asyncHandler(async (req, res) => {
+    const patient = await Patient.findById(req.params.id).select('nutritionist firstName lastName');
+
+    if (!patient) {
+        return res.status(404).json({ success: false, message: 'Paciente no encontrado' });
+    }
+    if (!isOwnedBy(patient, req.user.id)) {
+        return res.status(403).json({ success: false, message: 'No autorizado para este paciente' });
+    }
+
+    // El valor crudo solo existe en esta respuesta; en Mongo se guarda su
+    // hash (ver PreConsultationToken.js), así que ni un volcado de la base
+    // de datos entrega un enlace utilizable.
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + PRE_CONSULTATION_TTL_DAYS * 24 * 60 * 60 * 1000);
+
+    await PreConsultationToken.create({
+        patient: patient._id,
+        nutritionist: req.user.id,
+        tokenHash,
+        expiresAt,
+    });
+
+    res.status(201).json({
+        success: true,
+        data: {
+            url: `${FRONTEND_URL}/consulta/${rawToken}`,
+            expiresAt,
+        },
+    });
+}, { message: 'Error al generar el enlace del cuestionario' });
+
+// @desc    Genera (o regenera) el enlace permanente del portal del paciente
+// @route   POST /api/patients/:id/portal-link
+// @access  Private
+export const generatePortalLink = asyncHandler(async (req, res) => {
+    const patient = await Patient.findById(req.params.id).select('nutritionist portalToken');
+
+    if (!patient) {
+        return res.status(404).json({ success: false, message: 'Paciente no encontrado' });
+    }
+    if (!isOwnedBy(patient, req.user.id)) {
+        return res.status(403).json({ success: false, message: 'No autorizado para este paciente' });
+    }
+
+    // Regenerar invalida el enlace anterior: útil si se compartió por error o
+    // el paciente perdió el control del dispositivo donde lo guardó.
+    patient.portalToken = crypto.randomBytes(24).toString('hex');
+    await patient.save();
+
+    res.status(200).json({
+        success: true,
+        data: { url: `${FRONTEND_URL}/portal/${patient.portalToken}` },
+    });
+}, { message: 'Error al generar el enlace del portal' });

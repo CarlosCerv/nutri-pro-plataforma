@@ -111,3 +111,76 @@ export const mealPlanValidators = [
     body('nutrition.totalCalories').optional({ checkFalsy: true }).isFloat({ min: 0, max: 20000 }),
     handleValidation,
 ];
+
+/**
+ * Validadores de las rutas públicas (`/api/public/*`). Sin sesión que las
+ * proteja, la validación de tipo es la única barrera antes de que el body
+ * toque un `findOneAndUpdate`/`create` — de ahí que sean más estrictos que
+ * sus equivalentes autenticados (nada de campos "any").
+ */
+export const preConsultationValidators = [
+    body('antFamDM').optional().isBoolean().toBoolean(),
+    body('antFamHTA').optional().isBoolean().toBoolean(),
+    body('antFamObesidad').optional().isBoolean().toBoolean(),
+    body('antFamCancer').optional().isBoolean().toBoolean(),
+    opcionalTexto('antPersonales', 1000),
+    opcionalTexto('cirugiasPrevias', 1000),
+    opcionalTexto('alergias', 500),
+    opcionalTexto('intolerancias', 500),
+    opcionalTexto('medicamentos', 500),
+    body('horasSueno').optional({ checkFalsy: true }).isFloat({ min: 0, max: 24 }),
+    body('nivelEstres').optional({ checkFalsy: true }).isFloat({ min: 0, max: 10 }),
+    opcionalTexto('ocupacion', 200),
+    body('horasLaboral').optional({ checkFalsy: true }).isFloat({ min: 0, max: 24 }),
+    body('tabaquismo').optional({ checkFalsy: true }).isFloat({ min: 0, max: 1000 }),
+    body('alcoholismo').optional({ checkFalsy: true }).isFloat({ min: 0, max: 1000 }),
+    opcionalTexto('preferencias', 1000),
+    opcionalTexto('disgustos', 1000),
+    opcionalTexto('objetivoAlim', 500),
+    opcionalTexto('recordatorio24h', 2000),
+    handleValidation,
+];
+
+export const publicBookingCreateValidators = [
+    body('firstName').trim().notEmpty().withMessage('Tu nombre es obligatorio').isLength({ max: 120 }),
+    body('lastName').trim().notEmpty().withMessage('Tu apellido es obligatorio').isLength({ max: 120 }),
+    body('email').optional({ checkFalsy: true }).trim().isEmail().withMessage('Correo inválido'),
+    body('phone').optional({ checkFalsy: true }).trim().isString().isLength({ max: 40 }),
+    body('date').notEmpty().withMessage('Elige una fecha').isISO8601().withMessage('Fecha inválida'),
+    body('time').notEmpty().withMessage('Elige un horario').matches(/^\d{2}:\d{2}$/).withMessage('Hora inválida'),
+    body('serviceIndex').optional({ checkFalsy: true }).isInt({ min: 0 }),
+    handleValidation,
+];
+
+/**
+ * `PUT /api/auth/profile` no tenía validación (aceptaba cualquier cosa en
+ * nombre/correo/teléfono/contraseña) y ahora también acepta el `username` y
+ * la configuración de la página pública de agendamiento — todo opcional,
+ * porque la pestaña de contraseña de Profile.jsx guarda solo `password`.
+ */
+export const updateProfileValidators = [
+    body('name').optional({ checkFalsy: true }).trim().isLength({ max: 120 }),
+    body('email').optional({ checkFalsy: true }).trim().isEmail().withMessage('Proporciona un email válido').normalizeEmail(),
+    opcionalTexto('specialty', 120),
+    opcionalTexto('phone', 40),
+    body('password').optional({ checkFalsy: true }).isString().isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+    body('username')
+        .optional({ checkFalsy: true })
+        .trim()
+        .toLowerCase()
+        .isLength({ min: 3, max: 30 })
+        .matches(/^[a-z0-9](?:[a-z0-9._-]{1,28}[a-z0-9])?$/)
+        .withMessage('El usuario solo admite letras, números, puntos, guiones y guion bajo (3-30 caracteres)'),
+    body('publicBooking.enabled').optional().isBoolean().toBoolean(),
+    body('publicBooking.bio').optional({ checkFalsy: true }).trim().isString().isLength({ max: 600 }),
+    body('publicBooking.slotDurationMinutes').optional({ checkFalsy: true }).isInt({ min: 5, max: 240 }),
+    body('publicBooking.services').optional().isArray({ max: 20 }),
+    body('publicBooking.services.*.name').if(body('publicBooking.services').exists()).trim().notEmpty().isLength({ max: 120 }),
+    body('publicBooking.services.*.durationMinutes').optional({ checkFalsy: true }).isInt({ min: 5, max: 480 }),
+    body('publicBooking.services.*.price').optional({ checkFalsy: true }).isFloat({ min: 0 }),
+    body('publicBooking.workingHours').optional().isArray({ max: 40 }),
+    body('publicBooking.workingHours.*.day').if(body('publicBooking.workingHours').exists()).isInt({ min: 0, max: 6 }),
+    body('publicBooking.workingHours.*.start').if(body('publicBooking.workingHours').exists()).matches(/^\d{2}:\d{2}$/),
+    body('publicBooking.workingHours.*.end').if(body('publicBooking.workingHours').exists()).matches(/^\d{2}:\d{2}$/),
+    handleValidation,
+];

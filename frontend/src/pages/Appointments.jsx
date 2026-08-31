@@ -197,6 +197,9 @@ const Appointments = () => {
                           {appointment.status === 'completed' && (
                             <Badge variant="success" className="text-xs">Completada</Badge>
                           )}
+                          {appointment.status === 'scheduled' && appointment.confirmedByPatient && (
+                            <Badge variant="success" className="text-xs">Confirmada por WhatsApp</Badge>
+                          )}
                         </div>
                       </div>
 

@@ -13,7 +13,7 @@ function resolveRawApiBase() {
 /** Origen del backend sin duplicar /api (VITE puede ser ...5000 o ...5000/api). */
 const RAW_BASE = resolveRawApiBase();
 const API_ORIGIN = String(RAW_BASE).trim().replace(/\/api\/?$/i, '').replace(/\/+$/, '') || 'http://localhost:5000';
-const API_URL = `${API_ORIGIN}/api/`;
+export const API_URL = `${API_ORIGIN}/api/`;
 
 // Create axios instance
 const api = axios.create({
@@ -76,6 +76,8 @@ export const patientsAPI = {
         headers: { 'Content-Type': 'multipart/form-data' },
     }),
     exportAll: () => api.get('/patients/export'),
+    generatePreConsultationLink: (id) => api.post(`/patients/${id}/pre-consultation-link`),
+    generatePortalLink: (id) => api.post(`/patients/${id}/portal-link`),
 };
 
 // Appointments API

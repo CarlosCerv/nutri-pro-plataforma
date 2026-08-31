@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import PatientAlertPanel from '../components/PatientAlertPanel';
+import PatientLinksCard from '../components/PatientLinksCard';
 import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
 import { useToast } from '../contexts/ToastContext';
 import { patientsAPI } from '../services/api';
@@ -328,8 +329,9 @@ export default function PatientDetail() {
           </Suspense>
         </div>
 
-        <div className="xl:sticky xl:top-24">
+        <div className="space-y-5 xl:sticky xl:top-24">
           <PatientAlertPanel patient={patient} />
+          <PatientLinksCard patientId={id} />
         </div>
       </div>
 

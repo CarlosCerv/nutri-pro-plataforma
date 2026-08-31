@@ -1,21 +1,17 @@
 import Food from '../models/Food.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
-// @desc    Get nutritionally equivalent foods
-// @route   POST /api/food-exchange/equivalents
-// @access  Private
-export const getEquivalents = asyncHandler(async (req, res) => {
-    const { foodId, patientFilters } = req.body;
-
-    // Get the original food
+/**
+ * Núcleo del cálculo de equivalentes, sin capa HTTP — lo reutiliza tanto
+ * `getEquivalents` (nutriólogo autenticado, `/api/food-exchange/equivalents`)
+ * como el portal público del paciente (`/api/public/portal/:token/sustitutos`),
+ * que no tiene sesión de nutriólogo pero sí necesita la misma lógica.
+ * Devuelve `null` si `foodId` no existe, en vez de lanzar, para que cada
+ * caller decida el código HTTP (404 en uno, un array vacío en el otro).
+ */
+export async function findEquivalents(foodId, patientFilters) {
     const originalFood = await Food.findById(foodId);
-
-    if (!originalFood) {
-        return res.status(404).json({
-            success: false,
-            message: 'Alimento no encontrado',
-        });
-    }
+    if (!originalFood) return null;
 
     // Define tolerance ranges for equivalence
     const CALORIE_TOLERANCE = 0.10; // ±10%
@@ -93,6 +89,24 @@ export const getEquivalents = asyncHandler(async (req, res) => {
         .filter(item => item.macroMatch)
         .sort((a, b) => b.score - a.score)
         .slice(0, 10); // Return top 10 matches
+
+    return { originalFood, equivalents };
+}
+
+// @desc    Get nutritionally equivalent foods
+// @route   POST /api/food-exchange/equivalents
+// @access  Private
+export const getEquivalents = asyncHandler(async (req, res) => {
+    const { foodId, patientFilters } = req.body;
+
+    const resultado = await findEquivalents(foodId, patientFilters);
+    if (!resultado) {
+        return res.status(404).json({
+            success: false,
+            message: 'Alimento no encontrado',
+        });
+    }
+    const { originalFood, equivalents } = resultado;
 
     res.json({
         success: true,

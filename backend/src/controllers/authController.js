@@ -126,7 +126,36 @@ export const updateProfile = asyncHandler(async (req, res) => {
         user.password = req.body.password;
     }
 
-    const updatedUser = await user.save();
+    if (req.body.username) {
+        user.username = req.body.username;
+    }
+
+    // Los arreglos (`services`, `workingHours`) se reemplazan enteros cuando
+    // vienen en el body — la pantalla de "Página pública" siempre manda su
+    // estado completo, nunca un parche de un solo elemento.
+    if (req.body.publicBooking) {
+        const pb = req.body.publicBooking;
+        if (pb.enabled !== undefined) user.publicBooking.enabled = pb.enabled;
+        if (pb.bio !== undefined) user.publicBooking.bio = pb.bio;
+        if (pb.slotDurationMinutes !== undefined) user.publicBooking.slotDurationMinutes = pb.slotDurationMinutes;
+        if (pb.services !== undefined) user.publicBooking.services = pb.services;
+        if (pb.workingHours !== undefined) user.publicBooking.workingHours = pb.workingHours;
+    }
+
+    let updatedUser;
+    try {
+        updatedUser = await user.save();
+    } catch (error) {
+        // Índice único de `username`: mensaje claro en vez del 500 genérico
+        // que dejaría pasar el error de Mongo tal cual.
+        if (error.code === 11000 && error.keyPattern?.username) {
+            return res.status(409).json({
+                success: false,
+                message: 'Ese nombre de usuario ya está en uso.',
+            });
+        }
+        throw error;
+    }
 
     res.status(200).json({
         success: true,
@@ -139,6 +168,8 @@ export const updateProfile = asyncHandler(async (req, res) => {
                 role: updatedUser.role,
                 specialty: updatedUser.specialty,
                 phone: updatedUser.phone,
+                username: updatedUser.username,
+                publicBooking: updatedUser.publicBooking,
             },
         },
     });
@@ -160,6 +191,8 @@ export const getMe = asyncHandler(async (req, res) => {
                 role: user.role,
                 specialty: user.specialty,
                 phone: user.phone,
+                username: user.username,
+                publicBooking: user.publicBooking,
             },
         },
     });

@@ -10,6 +10,8 @@ import {
     exportPatients,
     addLabResult,
     getLabResults,
+    generatePreConsultationLink,
+    generatePortalLink,
 } from '../controllers/patientController.js';
 import { protect } from '../middleware/auth.js';
 import { patientValidators, patientUpdateValidators } from '../middleware/validators.js';
@@ -36,5 +38,8 @@ router.post('/:id/upload', upload.single('document'), uploadDocument);
 router.route('/:id/lab')
     .get(getLabResults)
     .post(addLabResult);
+
+router.post('/:id/pre-consultation-link', generatePreConsultationLink);
+router.post('/:id/portal-link', generatePortalLink);
 
 export default router;

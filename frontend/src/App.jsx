@@ -24,6 +24,12 @@ const MenuBuilder = lazy(() => import('./pages/MenuBuilder'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Finance = lazy(() => import('./pages/Finance'));
 
+// Públicas: las abre un paciente o un visitante sin cuenta, nunca dentro de
+// AppLayout (ver pages/public/PublicPageShell.jsx).
+const PreConsultationWizard = lazy(() => import('./pages/public/PreConsultationWizard'));
+const PatientPortal = lazy(() => import('./pages/public/PatientPortal'));
+const PublicBooking = lazy(() => import('./pages/public/PublicBooking'));
+
 // Contenedores con pestañas. "Alimentos", "Plantillas", "Calculadoras",
 // "Reportes PDF" y "Estadísticas" eran cinco destinos de primer nivel; ahora
 // son pestañas dentro de las dos secciones donde realmente se usan.
@@ -112,6 +118,13 @@ function App() {
             <Route path="/landing" element={<LandingView />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            {/* Públicas: cuestionario pre-consulta, portal del paciente y
+                agendamiento — cada una valida su propio token/username en el
+                servidor, no llevan ProtectedPage ni AppLayout. */}
+            <Route path="/consulta/:token" element={<PreConsultationWizard />} />
+            <Route path="/portal/:token" element={<PatientPortal />} />
+            <Route path="/@:username" element={<PublicBooking />} />
 
             {/* ── Protected App Routes ── */}
 
