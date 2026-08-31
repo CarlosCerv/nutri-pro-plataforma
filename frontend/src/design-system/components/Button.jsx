@@ -27,9 +27,20 @@ const SPINNER_CLASS = {
  * Boton del sistema de diseno. Envuelve las clases .btn/.btn-* de index.css
  * en una API con props en vez de className a mano, y agrega un estado de
  * carga con el spinner correcto para cada variante.
+ *
+ * `as` permite renderizar un enlace con aspecto de boton — `as={Link}` para
+ * navegacion interna, `as="a"` para externa. Existe porque buena parte de los
+ * botones de la aplicacion son en realidad enlaces («Nuevo paciente»,
+ * «Agendar cita») y escribirlos como `<button onClick={navigate}>` les quita
+ * lo que un enlace da gratis: abrir en pestaña nueva, copiar la direccion y
+ * que el lector de pantalla lo anuncie como enlace.
+ *
+ * Cuando no es un `<button>` no se emiten `type` ni `disabled`, que no son
+ * validos en un ancla; deshabilitar se comunica con `aria-disabled`.
  */
 const Button = forwardRef(function Button(
   {
+    as: Componente = 'button',
     variant = 'primary',
     size = 'md',
     iconOnly = false,
@@ -43,24 +54,31 @@ const Button = forwardRef(function Button(
   },
   ref
 ) {
+  const esBoton = Componente === 'button';
+  const inactivo = disabled || loading;
+
   const classes = [
     'btn',
     VARIANT_CLASS[variant] || VARIANT_CLASS.primary,
     SIZE_CLASS[size],
     iconOnly ? 'btn-icon' : '',
     fullWidth ? 'w-full' : '',
+    !esBoton && inactivo ? 'pointer-events-none opacity-60' : '',
     className,
   ]
     .filter(Boolean)
     .join(' ');
 
+  const propsDeBoton = esBoton
+    ? { type, disabled: inactivo }
+    : { 'aria-disabled': inactivo || undefined };
+
   return (
-    <button
+    <Componente
       ref={ref}
-      type={type}
       className={classes}
-      disabled={disabled || loading}
       aria-busy={loading || undefined}
+      {...propsDeBoton}
       {...rest}
     >
       {loading && (
@@ -70,11 +88,12 @@ const Button = forwardRef(function Button(
         />
       )}
       {children}
-    </button>
+    </Componente>
   );
 });
 
 Button.propTypes = {
+  as: PropTypes.elementType,
   variant: PropTypes.oneOf(['primary', 'secondary', 'outline', 'ghost', 'danger']),
   size: PropTypes.oneOf(['sm', 'md', 'lg']),
   iconOnly: PropTypes.bool,
