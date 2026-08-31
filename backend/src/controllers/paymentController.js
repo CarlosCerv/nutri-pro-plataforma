@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Payment from '../models/Payment.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import isOwnedBy from '../utils/ownership.js';
@@ -125,3 +126,81 @@ export const deletePayment = asyncHandler(async (req, res) => {
         data: {}
     });
 }, { message: 'Server Error' });
+
+// @desc    Resumen financiero del mes en curso más la serie de los últimos meses
+// @route   GET /api/payments/summary
+// @access  Private
+export const getPaymentSummary = asyncHandler(async (req, res) => {
+    const meses = Math.min(Math.max(parseInt(req.query.months, 10) || 6, 1), 24);
+    const nutritionistId = new mongoose.Types.ObjectId(req.user._id);
+
+    const ahora = new Date();
+    const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+    const inicioMesAnterior = new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1);
+    const desde = new Date(ahora.getFullYear(), ahora.getMonth() - (meses - 1), 1);
+
+    // Aprovecha el índice { nutritionist: 1, date: -1 } de models/Payment.js.
+    const [porMes, porMetodo, delMes, delMesAnterior] = await Promise.all([
+        Payment.aggregate([
+            { $match: { nutritionist: nutritionistId, date: { $gte: desde } } },
+            {
+                $group: {
+                    _id: { year: { $year: '$date' }, month: { $month: '$date' }, status: '$status' },
+                    total: { $sum: '$amount' },
+                    cobros: { $sum: 1 },
+                },
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } },
+        ]),
+        Payment.aggregate([
+            { $match: { nutritionist: nutritionistId, status: 'paid', date: { $gte: inicioMes } } },
+            { $group: { _id: '$method', total: { $sum: '$amount' }, cobros: { $sum: 1 } } },
+            { $sort: { total: -1 } },
+        ]),
+        Payment.aggregate([
+            { $match: { nutritionist: nutritionistId, date: { $gte: inicioMes } } },
+            { $group: { _id: '$status', total: { $sum: '$amount' }, cobros: { $sum: 1 } } },
+        ]),
+        Payment.aggregate([
+            { $match: { nutritionist: nutritionistId, status: 'paid', date: { $gte: inicioMesAnterior, $lt: inicioMes } } },
+            { $group: { _id: null, total: { $sum: '$amount' } } },
+        ]),
+    ]);
+
+    const porEstado = (filas, estado) => filas.find((f) => f._id === estado) || { total: 0, cobros: 0 };
+    const cobradoMes = porEstado(delMes, 'paid');
+    const pendienteMes = porEstado(delMes, 'pending');
+    const cobradoMesAnterior = delMesAnterior[0]?.total || 0;
+
+    // La serie se arma como un mapa por "YYYY-MM" para que los meses sin
+    // ningún cobro aparezcan en cero en vez de desaparecer de la gráfica.
+    const serie = [];
+    for (let i = meses - 1; i >= 0; i -= 1) {
+        const d = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
+        const filas = porMes.filter((f) => f._id.year === d.getFullYear() && f._id.month === d.getMonth() + 1);
+        serie.push({
+            year: d.getFullYear(),
+            month: d.getMonth() + 1,
+            cobrado: filas.filter((f) => f._id.status === 'paid').reduce((a, f) => a + f.total, 0),
+            pendiente: filas.filter((f) => f._id.status === 'pending').reduce((a, f) => a + f.total, 0),
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: {
+            mes: {
+                cobrado: cobradoMes.total,
+                cobros: cobradoMes.cobros,
+                pendiente: pendienteMes.total,
+                pendientes: pendienteMes.cobros,
+                variacionVsMesAnterior:
+                    cobradoMesAnterior > 0
+                        ? Math.round(((cobradoMes.total - cobradoMesAnterior) / cobradoMesAnterior) * 100)
+                        : null,
+            },
+            porMetodo: porMetodo.map((m) => ({ metodo: m._id, total: m.total, cobros: m.cobros })),
+            serie,
+        },
+    });
+}, { message: 'Error al obtener el resumen financiero' });

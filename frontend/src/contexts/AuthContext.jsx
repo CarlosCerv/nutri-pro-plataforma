@@ -63,6 +63,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    /**
+     * Persiste el usuario actualizado en el mismo almacenamiento donde se
+     * guardó la sesión. Sin esto, un cambio de perfil se veía en pantalla
+     * pero desaparecía al recargar, porque el nombre y el correo se leen de
+     * `localStorage`/`sessionStorage` al montar.
+     */
+    const updateUser = (nuevoUsuario) => {
+        setUser(nuevoUsuario);
+        const almacen = localStorage.getItem('user') ? localStorage : sessionStorage;
+        almacen.setItem('user', JSON.stringify(nuevoUsuario));
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -74,6 +86,7 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         setUser,
+        updateUser,
         loading,
         login,
         register,

@@ -127,6 +127,7 @@ export const foodExchangeAPI = {
 // Payments API
 export const paymentsAPI = {
     getAll: (params) => api.get('/payments', { params }),
+    getSummary: (params) => api.get('/payments/summary', { params }),
     create: (data) => api.post('/payments', data),
     update: (id, data) => api.put(`/payments/${id}`, data),
     delete: (id) => api.delete(`/payments/${id}`),
@@ -135,6 +136,7 @@ export const paymentsAPI = {
 // Dashboard API
 export const dashboardAPI = {
     getStats: () => api.get('/dashboard/stats'),
+    getPopulation: () => api.get('/dashboard/population'),
 };
 
 export default api;
