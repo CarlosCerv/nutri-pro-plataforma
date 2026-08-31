@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Plus, Search, Download, Salad, Calendar, FileBadge, Loader,
+  Plus, Search, Download, Salad, Calendar, Loader,
 } from 'lucide-react';
 import { mealPlansAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -81,9 +81,6 @@ export default function MealPlans() {
           Planes guardados en tu cuenta.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Link to="/dietas/catalogo" className="btn btn-outline btn-sm gap-2">
-            <FileBadge size={16} /> Plantillas
-          </Link>
           <Link to="/dietas/nueva" className="btn btn-primary btn-sm gap-2">
             <Plus size={16} /> Nueva dieta
           </Link>

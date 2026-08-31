@@ -18,13 +18,17 @@ const NewAppointment = lazy(() => import('./pages/NewAppointment'));
 const MealPlans = lazy(() => import('./pages/MealPlans'));
 const DietTemplates = lazy(() => import('./pages/DietTemplates'));
 const MenuBuilder = lazy(() => import('./pages/MenuBuilder'));
-const NutritionCalculator = lazy(() => import('./pages/NutritionCalculator'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Finance = lazy(() => import('./pages/Finance'));
-const FoodsDatabase = lazy(() => import('./pages/FoodsDatabase'));
-const ReportsHub = lazy(() => import('./pages/ReportsHub'));
+
+// Contenedores con pestañas. "Alimentos", "Plantillas", "Calculadoras",
+// "Reportes PDF" y "Estadísticas" eran cinco destinos de primer nivel; ahora
+// son pestañas dentro de las dos secciones donde realmente se usan.
+const Dietas = lazy(() => import('./pages/Dietas'));
+const Herramientas = lazy(() => import('./pages/Herramientas'));
+const FoodsTab = lazy(() => import('./pages/tools/FoodsTab'));
+const CalculatorTab = lazy(() => import('./pages/tools/CalculatorTab'));
 const PopulationReports = lazy(() => import('./pages/PopulationReports'));
-const AdminLicenses = lazy(() => import('./pages/AdminLicenses'));
 
 import './index.css';
 
@@ -131,37 +135,58 @@ function App() {
             <Route path="/agenda" element={<ProtectedPage element={<Appointments />} />} />
             <Route path="/agenda/nueva" element={<ProtectedPage element={<NewAppointment />} />} />
 
-            {/* Dietas (legacy aliases mantenidos) */}
-            <Route path="/dietas" element={<ProtectedPage element={<MealPlans />} />} />
+            {/* Dietas: planes, plantillas y catálogo de alimentos */}
             <Route path="/dietas/nueva" element={<ProtectedPage element={<MenuBuilder />} />} />
-            <Route path="/dietas/catalogo" element={<ProtectedPage element={<DietTemplates />} />} />
             <Route path="/dietas/:id/editar" element={<ProtectedPage element={<MenuBuilder />} />} />
+            <Route path="/dietas" element={<ProtectedPage element={<Dietas />} />}>
+              <Route index element={<MealPlans />} />
+              <Route path="plantillas" element={<DietTemplates />} />
+              <Route path="alimentos" element={<FoodsTab />} />
+            </Route>
 
-            {/* Legacy routes for backward compat */}
+            {/* Herramientas: calculadoras y estadísticas de la consulta */}
+            <Route path="/herramientas" element={<ProtectedPage element={<Herramientas />} />}>
+              <Route index element={<CalculatorTab />} />
+              <Route path="estadisticas" element={<PopulationReports />} />
+            </Route>
+
+            {/* Redirecciones.
+                Además de los alias en inglés que ya existían, aquí viven las
+                URLs que prometían una subpantalla y entregaban exactamente la
+                misma vista que su ruta padre: las tres de /calculos, las dos
+                de /reportes, /alimentos/nuevo y las tres de /admin. Se
+                conservan como redirecciones para no romper enlaces guardados. */}
             <Route path="/mealplans" element={<Navigate to="/dietas" replace />} />
             <Route path="/menu-builder" element={<Navigate to="/dietas/nueva" replace />} />
-            <Route path="/diet-templates" element={<Navigate to="/dietas/catalogo" replace />} />
+            <Route path="/diet-templates" element={<Navigate to="/dietas/plantillas" replace />} />
+            <Route path="/dietas/catalogo" element={<Navigate to="/dietas/plantillas" replace />} />
             <Route path="/appointments" element={<Navigate to="/agenda" replace />} />
             <Route path="/appointments/new" element={<Navigate to="/agenda/nueva" replace />} />
             <Route path="/patients" element={<Navigate to="/pacientes" replace />} />
             <Route path="/patients/new" element={<Navigate to="/pacientes/nuevo" replace />} />
             <Route path="/patients/:id" element={<Navigate to="/pacientes/:id" replace />} />
 
-            {/* Alimentos */}
-            <Route path="/alimentos" element={<ProtectedPage element={<FoodsDatabase />} />} />
-            <Route path="/alimentos/nuevo" element={<ProtectedPage element={<FoodsDatabase />} />} />
+            <Route path="/alimentos" element={<Navigate to="/dietas/alimentos" replace />} />
+            <Route path="/alimentos/nuevo" element={<Navigate to="/dietas/alimentos" replace />} />
 
-            {/* Calculadoras */}
-            <Route path="/calculos" element={<ProtectedPage element={<NutritionCalculator />} />} />
-            <Route path="/calculos/imc" element={<ProtectedPage element={<NutritionCalculator />} />} />
-            <Route path="/calculos/calorias" element={<ProtectedPage element={<NutritionCalculator />} />} />
-            <Route path="/calculos/deportistas" element={<ProtectedPage element={<NutritionCalculator />} />} />
-            <Route path="/calculator" element={<Navigate to="/calculos" replace />} />
+            <Route path="/calculos" element={<Navigate to="/herramientas" replace />} />
+            <Route path="/calculos/imc" element={<Navigate to="/herramientas" replace />} />
+            <Route path="/calculos/calorias" element={<Navigate to="/herramientas" replace />} />
+            <Route path="/calculos/deportistas" element={<Navigate to="/herramientas" replace />} />
+            <Route path="/calculator" element={<Navigate to="/herramientas" replace />} />
 
-            {/* Reportes PDF */}
-            <Route path="/reportes" element={<ProtectedPage element={<ReportsHub />} />} />
-            <Route path="/reportes/nuevo" element={<ProtectedPage element={<ReportsHub />} />} />
-            <Route path="/reportes/historial" element={<ProtectedPage element={<ReportsHub />} />} />
+            <Route path="/reportes" element={<Navigate to="/dietas" replace />} />
+            <Route path="/reportes/nuevo" element={<Navigate to="/dietas" replace />} />
+            <Route path="/reportes/historial" element={<Navigate to="/dietas" replace />} />
+            <Route path="/reportes-poblacionales" element={<Navigate to="/herramientas/estadisticas" replace />} />
+
+            {/* El módulo de licencias no tiene backend: no hay modelo License,
+                ni endpoints, ni `authorize()` aplicado en ninguna ruta. Sale
+                del release en vez de mostrar cifras inventadas. */}
+            <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/admin/licencias" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/admin/usuarios" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/admin/ingresos" element={<Navigate to="/dashboard" replace />} />
 
             {/* Perfil y configuración */}
             <Route path="/perfil" element={<ProtectedPage element={<Profile />} />} />
@@ -171,13 +196,6 @@ function App() {
             {/* Finanzas */}
             <Route path="/finanzas" element={<ProtectedPage element={<Finance />} />} />
             <Route path="/finance" element={<Navigate to="/finanzas" replace />} />
-
-            {/* Analytics y Admin */}
-            <Route path="/reportes-poblacionales" element={<ProtectedPage element={<PopulationReports />} />} />
-            <Route path="/admin" element={<Navigate to="/admin/licencias" replace />} />
-            <Route path="/admin/licencias" element={<ProtectedPage element={<AdminLicenses />} />} />
-            <Route path="/admin/usuarios" element={<ProtectedPage element={<AdminLicenses />} />} />
-            <Route path="/admin/ingresos" element={<ProtectedPage element={<AdminLicenses />} />} />
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

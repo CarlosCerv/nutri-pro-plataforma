@@ -5,20 +5,24 @@ import {
   Users,
   CalendarDays,
   UtensilsCrossed,
-  Calculator,
-  FileText,
-  BarChart3,
+  Wrench,
   UserCircle,
   ChevronLeft,
   ChevronRight,
   LogOut,
-  ShieldCheck,
-  Apple,
   Wallet,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Logo from '../../components/Logo';
 
+/**
+ * Menú de siete destinos, antes once.
+ *
+ * "Alimentos" y "Plantillas" pasaron a ser pestañas de Dietas: son material
+ * de apoyo para armar un plan, no lugares donde se trabaja. "Calculadoras",
+ * "Reportes PDF" y "Estadísticas" se fundieron en "Herramientas". Y "Admin"
+ * salió del release porque no tiene backend detrás.
+ */
 const NAV_ITEMS = [
   {
     section: 'Principal',
@@ -26,24 +30,15 @@ const NAV_ITEMS = [
       { to: '/dashboard', icon: LayoutDashboard, label: 'Panel' },
       { to: '/pacientes', icon: Users, label: 'Pacientes' },
       { to: '/agenda', icon: CalendarDays, label: 'Agenda' },
-      { to: '/finanzas', icon: Wallet, label: 'Finanzas' },
-    ],
-  },
-  {
-    section: 'Clínica',
-    items: [
       { to: '/dietas', icon: UtensilsCrossed, label: 'Dietas' },
-      { to: '/alimentos', icon: Apple, label: 'Alimentos' },
-      { to: '/calculos', icon: Calculator, label: 'Calculadoras' },
-      { to: '/reportes', icon: FileText, label: 'Reportes PDF' },
+      { to: '/herramientas', icon: Wrench, label: 'Herramientas' },
     ],
   },
   {
     section: 'Cuenta',
     items: [
-      { to: '/reportes-poblacionales', icon: BarChart3, label: 'Estadísticas' },
+      { to: '/finanzas', icon: Wallet, label: 'Finanzas' },
       { to: '/perfil', icon: UserCircle, label: 'Cuenta y ajustes' },
-      { to: '/admin/licencias', icon: ShieldCheck, label: 'Admin', adminOnly: true },
     ],
   },
 ];
@@ -66,12 +61,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const isAdmin = user?.role === 'admin';
   const sidebarW = collapsed ? 'w-[72px]' : 'w-[260px]';
 
   const NavItem = ({ item }) => {
-    if (item.adminOnly && !isAdmin) return null;
-
     return (
       <NavLink
         to={item.to}

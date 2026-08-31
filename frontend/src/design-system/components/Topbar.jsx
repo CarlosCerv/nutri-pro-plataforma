@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Menu, Search, Plus } from 'lucide-react';
+import { Menu, Plus } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { getPageMeta } from '../../lib/pageMeta';
+import GlobalSearch from './GlobalSearch.jsx';
 
 const QUICK_ACTIONS = [
   { label: 'Nuevo paciente', to: '/pacientes/nuevo' },
@@ -10,7 +11,7 @@ const QUICK_ACTIONS = [
 ];
 
 /** Rutas con búsqueda propia en el contenido: evita duplicar el campo del topbar. */
-const HIDE_TOOLBAR_SEARCH = [/^\/pacientes$/, /^\/agenda$/, /^\/finanzas$/, /^\/dietas\/nueva$/];
+const HIDE_TOOLBAR_SEARCH = [/^\/pacientes$/, /^\/agenda$/, /^\/finanzas$/, /^\/dietas/];
 
 export default function Topbar({ onMenuToggle }) {
   const location = useLocation();
@@ -95,26 +96,7 @@ export default function Topbar({ onMenuToggle }) {
           </div>
         </div>
 
-        {!hideToolbarSearch && (
-        <div className="hidden md:block w-full max-w-md lg:max-w-lg min-w-0">
-          <div className="relative w-full">
-            <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] pointer-events-none"
-              strokeWidth={1.75}
-            />
-            <input
-              type="search"
-              name="q"
-              autoComplete="off"
-              placeholder="Buscar"
-              className="input pl-9 py-2 text-sm min-h-11 w-full bg-[var(--surface-muted)] border-[var(--border-soft)]"
-              aria-label="Búsqueda"
-              enterKeyHint="search"
-            />
-          </div>
-        </div>
-        )}
+        {!hideToolbarSearch && <GlobalSearch className="hidden w-full min-w-0 max-w-md md:block lg:max-w-lg" />}
       </div>
     </header>
   );

@@ -27,14 +27,12 @@ export default function DietTemplates() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="page-header mb-0">
-          <h1 className="page-title">Catálogo de Plantillas</h1>
-          <p className="page-subtitle">Acelera tu trabajo utilizando plantillas base o SMAE pre-configuradas</p>
-        </div>
-        <Link to="/dietas/nueva?template=new" className="btn btn-primary gap-2">
-          <Layers size={16} /> Crear Plantilla
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[var(--ink-muted)]">
+          Plantillas base y SMAE preconfiguradas para acelerar el armado de un plan.
+        </p>
+        <Link to="/dietas/nueva?template=new" className="btn btn-primary btn-sm gap-2">
+          <Layers size={16} /> Crear plantilla
         </Link>
       </div>
 
