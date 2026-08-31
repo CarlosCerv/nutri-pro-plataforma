@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight } from 'lucide-react';
-import Logo from '../components/Logo';
+import AuthLayout from './auth/AuthLayout';
+import Button from '../design-system/components/Button.jsx';
 
-const Register = () => {
+const MIN_PASSWORD = 6;
+
+export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,17 +15,17 @@ const Register = () => {
     specialty: '',
     phone: '',
   });
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
+
+  const passwordCorta = formData.password.length > 0 && formData.password.length < MIN_PASSWORD;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,163 +33,157 @@ const Register = () => {
     setLoading(true);
 
     const result = await register(formData);
-
     if (result.success) {
       navigate('/dashboard');
     } else {
-      setError(result.message);
+      setError(result.message || 'No pudimos crear la cuenta.');
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[var(--bg-primary)] px-5 py-12 sm:py-16 flex flex-col items-center font-sans">
-      <div className="w-full max-w-[440px] pb-8">
-        <header className="mb-8 text-center sm:mb-10">
-          <div className="mb-7 flex justify-center sm:mb-8">
-            <Logo size="md" />
-          </div>
-          <h1 className="text-[1.65rem] font-semibold leading-tight tracking-[-0.02em] text-[var(--text-primary)]">
-            Crear cuenta
-          </h1>
-          <p className="mt-2 text-[15px] leading-snug text-[var(--text-secondary)]">
-            Unos datos y empiezas
-          </p>
-        </header>
-
-        <div
-          className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] px-7 py-8 sm:px-8 sm:py-9"
-          style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06)' }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="form-group">
-              <label htmlFor="reg-name" className="label">
-                Nombre completo
-              </label>
-              <input
-                id="reg-name"
-                type="text"
-                name="name"
-                className="input w-full rounded-xl py-3"
-                placeholder="Tu nombre"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                autoComplete="name"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="reg-email" className="label">
-                Correo
-              </label>
-              <input
-                id="reg-email"
-                type="email"
-                name="email"
-                className="input w-full rounded-xl py-3"
-                placeholder="nombre@clinica.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                autoComplete="email"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="reg-password" className="label">
-                Contraseña
-              </label>
-              <input
-                id="reg-password"
-                type="password"
-                name="password"
-                className="input w-full rounded-xl py-3"
-                placeholder="Mínimo 6 caracteres"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                minLength={6}
-                disabled={loading}
-                autoComplete="new-password"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="reg-specialty" className="label">
-                Especialidad <span className="font-normal text-[var(--text-tertiary)]">opcional</span>
-              </label>
-              <input
-                id="reg-specialty"
-                type="text"
-                name="specialty"
-                className="input w-full rounded-xl py-3"
-                placeholder="Ej. nutrición clínica"
-                value={formData.specialty}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="reg-phone" className="label">
-                Teléfono <span className="font-normal text-[var(--text-tertiary)]">opcional</span>
-              </label>
-              <input
-                id="reg-phone"
-                type="tel"
-                name="phone"
-                className="input w-full rounded-xl py-3"
-                placeholder="+52 …"
-                value={formData.phone}
-                onChange={handleChange}
-                disabled={loading}
-                autoComplete="tel"
-              />
-            </div>
-
-            {error && (
-              <div className="rounded-xl border border-[rgba(255,59,48,0.22)] bg-[rgba(255,59,48,0.06)] px-4 py-3">
-                <p className="text-sm font-medium text-[var(--danger)]">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="btn btn-primary btn-lg mt-1 w-full gap-2 rounded-xl py-3.5 font-semibold disabled:cursor-not-allowed disabled:opacity-45"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="h-5 w-5 rounded-full border-2 border-white/35 border-t-white animate-spin" />
-                  <span>Creando cuenta…</span>
-                </>
-              ) : (
-                <>
-                  <span>Continuar</span>
-                  <ArrowRight size={18} strokeWidth={1.75} />
-                </>
-              )}
-            </button>
-          </form>
-
-          <p className="mt-8 text-center text-[15px] text-[var(--text-secondary)]">
-            ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline">
-              Iniciar sesión
-            </Link>
-          </p>
+    <AuthLayout
+      title="Crear cuenta"
+      subtitle="Unos datos y empiezas a llevar tu consulta."
+      footer={
+        <p className="text-center text-[15px] text-[var(--ink-muted)]">
+          ¿Ya tienes cuenta?{' '}
+          <Link to="/login" className="font-semibold text-[var(--accent)] underline-offset-4 hover:underline">
+            Iniciar sesión
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <div className="form-group">
+          <label htmlFor="reg-name" className="label">
+            Nombre completo <span className="text-[var(--danger)]">*</span>
+          </label>
+          <input
+            id="reg-name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className="input"
+            placeholder="Tu nombre"
+            required
+            autoFocus
+            autoComplete="name"
+          />
         </div>
 
-        <p className="mt-8 text-center text-xs text-[var(--text-tertiary)] sm:mt-10">
-          © NutriPro
-        </p>
-      </div>
-    </div>
-  );
-};
+        <div className="form-group">
+          <label htmlFor="reg-email" className="label">
+            Correo <span className="text-[var(--danger)]">*</span>
+          </label>
+          <input
+            id="reg-email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="input"
+            placeholder="nombre@clinica.com"
+            required
+            autoComplete="email"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+        </div>
 
-export default Register;
+        <div className="form-group">
+          <label htmlFor="reg-password" className="label">
+            Contraseña <span className="text-[var(--danger)]">*</span>
+          </label>
+          <div className="relative">
+            <input
+              id="reg-password"
+              type={showPass ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={`input pr-12${passwordCorta ? ' input-error' : ''}`}
+              placeholder={`Mínimo ${MIN_PASSWORD} caracteres`}
+              required
+              minLength={MIN_PASSWORD}
+              autoComplete="new-password"
+              aria-invalid={passwordCorta || undefined}
+              aria-describedby={passwordCorta ? 'reg-password-error' : undefined}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass((v) => !v)}
+              className="absolute inset-y-0 right-0 flex items-center rounded-[var(--radius-s)] px-3.5 text-[var(--ink-secondary)] transition-colors duration-micro hover:text-[var(--ink)]"
+              aria-label={showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              aria-pressed={showPass}
+            >
+              {showPass ? <EyeOff size={18} strokeWidth={1.75} /> : <Eye size={18} strokeWidth={1.75} />}
+            </button>
+          </div>
+          {passwordCorta ? (
+            <p id="reg-password-error" className="error-text" role="alert">
+              La contraseña debe tener al menos {MIN_PASSWORD} caracteres.
+            </p>
+          ) : null}
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="form-group">
+            <label htmlFor="reg-specialty" className="label">
+              Especialidad
+            </label>
+            <input
+              id="reg-specialty"
+              type="text"
+              name="specialty"
+              value={formData.specialty}
+              onChange={handleChange}
+              className="input"
+              placeholder="Ej. nutrición clínica"
+              autoComplete="organization-title"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="reg-phone" className="label">
+              Teléfono
+            </label>
+            <input
+              id="reg-phone"
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="input"
+              placeholder="+52 …"
+              autoComplete="tel"
+            />
+          </div>
+        </div>
+
+        {error ? (
+          <div
+            role="alert"
+            className="flex items-start gap-2.5 rounded-[var(--radius-m)] border border-[rgba(196,30,22,0.28)] bg-[rgba(196,30,22,0.06)] px-4 py-3"
+          >
+            <AlertCircle size={17} strokeWidth={1.75} className="mt-0.5 shrink-0 text-[var(--danger)]" />
+            <p className="text-sm text-[var(--danger)]">{error}</p>
+          </div>
+        ) : null}
+
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          loading={loading}
+          disabled={!formData.name || !formData.email || formData.password.length < MIN_PASSWORD}
+          className="mt-2 gap-2"
+        >
+          {loading ? 'Creando cuenta…' : 'Crear cuenta'}
+          {!loading ? <ArrowRight size={17} strokeWidth={2} aria-hidden="true" /> : null}
+        </Button>
+      </form>
+    </AuthLayout>
+  );
+}
