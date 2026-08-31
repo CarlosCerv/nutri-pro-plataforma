@@ -55,7 +55,10 @@ app.use(cors({
         .filter((o) => typeof o === 'string')
         .map((o) => o.replace(/\/$/, ''));
 
-      const isAllowed = normalizedAllowed.includes(normalizedOrigin) || normalizedOrigin.startsWith('http://localhost:');
+      const isAllowed =
+        normalizedAllowed.includes(normalizedOrigin) ||
+        normalizedOrigin.startsWith('http://localhost:') ||
+        normalizedOrigin.endsWith('.vercel.app');
       if (isAllowed) {
         callback(null, true);
       } else {
