@@ -117,13 +117,6 @@ export const foodsAPI = {
     getCategories: () => api.get('/foods/categories'),
 };
 
-// Food Exchange API
-export const foodExchangeAPI = {
-    getEquivalents: (data) => api.post('/food-exchange/equivalents', data),
-    getByCategory: (category, params) => api.get(`/food-exchange/by-category/${category}`, { params }),
-    batchExchange: (data) => api.post('/food-exchange/batch', data),
-};
-
 // Payments API
 export const paymentsAPI = {
     getAll: (params) => api.get('/payments', { params }),

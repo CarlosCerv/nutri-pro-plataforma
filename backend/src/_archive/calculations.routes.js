@@ -1,5 +1,5 @@
 import express from 'express';
-import { calculateBMR, calculateTDEE, calculateMacros, calculateNutritionPlan, calculateBodyComposition } from '../controllers/calculations.controller.js';
+import { calculateBMR, calculateTDEE, calculateMacros, calculateNutritionPlan, calculateBodyComposition } from './calculations.controller.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();

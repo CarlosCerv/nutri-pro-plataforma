@@ -41,7 +41,21 @@ export const protect = async (req, res, next) => {
     }
 };
 
-// Optional: Role-based authorization
+/**
+ * Autorizacion por rol. Hoy no la usa ninguna ruta, y eso es correcto:
+ *
+ * El aislamiento entre nutriologos NO depende de este middleware. Cada
+ * controlador comprueba la propiedad del documento contra `req.user` antes de
+ * leerlo o modificarlo (ver `patientController.js`, y los equivalentes de
+ * citas, planes, pagos y notas clinicas), asi que un nutriologo no puede
+ * alcanzar los datos de otro.
+ *
+ * `authorize` haria falta para separar roles dentro de la aplicacion, y el
+ * unico modulo que lo pedia — el de licencias — esta archivado en
+ * `frontend/src/_archive/`. Se conserva porque es el patron correcto para
+ * cuando vuelva: si ese modulo se reactiva, tiene que hacerlo con esta
+ * comprobacion aplicada en el servidor, no solo ocultando el menu.
+ */
 export const authorize = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

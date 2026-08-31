@@ -4,7 +4,7 @@ import {
     getEquivalents,
     getByCategory,
     batchExchange,
-} from '../controllers/foodExchange.controller.js';
+} from './foodExchange.controller.js';
 
 const router = express.Router();
 
