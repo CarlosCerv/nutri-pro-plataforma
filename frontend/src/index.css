@@ -122,8 +122,8 @@
   --space-2xl: 48px;
   --space-3xl: var(--space-5);
 
-  /* Rampa del acento. La consumen los cuatro .css de página que quedan
-     (NewPatient, NewAppointment, SavePlanModal, BackButton). */
+  /* Rampa del acento. Solo la consumen los dos .css de página que quedan
+     (NewAppointment, BackButton); desaparece con ellos. */
   --primary-color: var(--accent);
   --primary-light: var(--accent-soft);
   --primary-50: #e8f4ff;
