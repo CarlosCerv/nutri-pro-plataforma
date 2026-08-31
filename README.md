@@ -186,19 +186,21 @@ Ver [`frontend/README.md`](./frontend/README.md) para: estructura de carpetas, m
 ### Limitaciones conocidas del entorno serverless
 
 - **Subida de archivos**: `backend/src/middleware/uploadMiddleware.js` sube a Cloudinary si `CLOUDINARY_CLOUD_NAME`/`CLOUDINARY_API_KEY`/`CLOUDINARY_API_SECRET` estan configurados en las variables de entorno (ver tabla arriba) — sin eso, usa disco local en desarrollo o memoria efimera en Vercel, donde los archivos **no persisten** entre invocaciones. Para produccion real, configura Cloudinary.
-- **Cron jobs**: los recordatorios de citas corren via `node-cron` en local/host persistente, y via `GET /api/cron/reminders` + `vercel.json`'s `"crons"` en Vercel (protegido con `CRON_SECRET`). El plan Hobby de Vercel limita los cron jobs a una vez al dia — el schedule configurado (`0 * * * *`, cada hora) requiere Vercel Pro; ver el detalle de esta disyuntiva en Deuda tecnica y en `backend/README.md`.
+- **Cron jobs**: los recordatorios de citas corren via `node-cron` en local/host persistente, y via `GET /api/cron/reminders` + `vercel.json`'s `"crons"` en Vercel (protegido con `CRON_SECRET`). El schedule es diario (`0 8 * * *`), compatible con el plan Hobby, contra una ventana de 36 h en `reminderService.js`: toda cita recibe su aviso con entre 12 y 36 horas de anticipacion, y el flag `reminderSent` del modelo `Appointment` impide reenviarlo. Con Vercel Pro puede volverse horario cambiando solo el `schedule`.
 
 ## Sistema de diseno
 
-El frontend usa un tema unico, claro, estilo Apple (no existe modo oscuro). Los tokens viven en `frontend/src/index.css` y se consumen desde Tailwind (`frontend/tailwind.config.js`) y CSS de pagina.
+La fuente de verdad es [`.claude/skills/apple-style-frontend/SKILL.md`](./.claude/skills/apple-style-frontend/SKILL.md). Los tokens viven en `frontend/src/index.css` y se consumen desde Tailwind (`frontend/tailwind.config.js`) y los pocos `.css` de pagina que quedan. Un solo tema, claro, sin modo oscuro.
 
-- **Tipografia**: `-apple-system, BlinkMacSystemFont, "SF Pro Text/Display", Helvetica, Arial` (`--font-sans`), con tracking negativo en tamaños grandes siguiendo la escala tipografica de Apple.
-- **Color de fondo**: `--bg-primary: #f5f5f7` (gris Apple), superficies en blanco (`--surface: #ffffff`) con variantes `--surface-muted` / `--surface-strong` para jerarquia visual.
-- **Texto**: `--text-primary: #1d1d1f`, `--text-secondary: #424245`, `--text-tertiary: #6e6e73`.
-- **Acento**: `--accent: #0071e3` (azul de sistema de apple.com), con estado hover `--accent-hover` y fondo suave `--accent-soft`.
-- **Estados semanticos**: `--success`, `--warning`, `--danger`, `--info`, reutilizados en badges, alertas y graficas.
-- **Radios y sombras**: radios de borde consistentes (`--radius-*`, mayormente 8px) y dos niveles de sombra (`--shadow-soft`, `--shadow-hover`) en vez de sombras ad-hoc por componente.
-- Las paletas `navy` / `emerald` / `gold` en `tailwind.config.js` son colores puntuales (headings oscuros, iconografia con los colores de sistema de iOS), no un tema alterno — no declares clases `dark:` ni reintroduzcas un toggle de tema.
+- **Tipografia**: `-apple-system, BlinkMacSystemFont, "SF Pro Display/Text"` (`--font-family`), con cuatro pesos como maximo (300/400/600/700).
+- **Tinta**: `--ink` `#1d1d1f`, `--ink-muted` `#424245`, `--ink-secondary` `#6e6e73`.
+- **Superficies**: `--surface` `#ffffff`, `--surface-cool` `#fafafc`, `--surface-alt` `#f5f5f7`, `--surface-strong` `#e8e8ed`, `--surface-dark` `#1d1d1f`.
+- **Acento unico**: `--accent` `#0071e3`. Los estados semanticos (`--success`, `--warning`, `--danger`, `--info`) comunican el resultado de una operacion; no son acentos alternos.
+- **Radios**: `--radius-s` 6px, `--radius-m` 11px, `--radius-l` 18px, y `--radius-pill` 980px para todo boton de accion.
+- **Una sola sombra** (`--shadow-1`) y **una sola curva** (`--ease`), con dos duraciones (`--duration-micro`, `--duration-layout`).
+- Las paletas `navy` / `emerald` / `gold` de `tailwind.config.js` estan marcadas como obsoletas: apuntan al acento y a los estados semanticos, y desapareceran cuando las clases que aun las usan se migren a tokens.
+
+Ver [`frontend/README.md`](./frontend/README.md) para el detalle y para los componentes del sistema de diseno.
 
 ## Documentacion especifica
 
@@ -207,10 +209,14 @@ El frontend usa un tema unico, claro, estilo Apple (no existe modo oscuro). Los 
 
 ## Deuda tecnica conocida
 
-Registrada aqui para que quede visible en un solo lugar en vez de dispersa en notas sueltas:
+Registrada aqui para que quede visible en un solo lugar en vez de dispersa en notas sueltas.
 
-- **Recordatorios automaticos en Vercel Hobby**: la migracion a Vercel Cron Jobs esta hecha (`GET /api/cron/reminders`, ver `backend/README.md`), pero el plan gratuito de Vercel no permite cron jobs mas frecuentes que una vez al dia. El schedule configurado en `vercel.json` es cada hora (para preservar exactamente el comportamiento actual), lo cual requiere Vercel Pro. En Hobby hay que decidir entre pagar el upgrade o rediseñar la ventana de `reminderService.js` para un chequeo diario — ver el detalle de la disyuntiva en `backend/README.md`.
-- **`setup-credentials.js`**: usa `require()` (CommonJS) pero el `package.json` raiz declara `"type": "module"`, por lo que ejecutarlo directamente con `node setup-credentials.js` falla con `ERR_REQUIRE_ESM`. Usa `setup.js` en su lugar para generar los `.env` locales.
-- **Componente `DailyMealPlanner`**: (`frontend/src/components/DailyMealPlanner.jsx`, `MealPlannerExamples.jsx`, `pages/MealPlannerPage.jsx`) no esta conectado a ninguna ruta de `App.jsx` — es codigo presente pero inactivo, con su propia paleta de colores desconectada del sistema de diseno actual. `SavePlanModal.jsx` y `FoodExchangeModal.jsx` tampoco estan importados desde ninguna pagina activa (ver `frontend/README.md`). Antes de reactivar cualquiera de estos, evaluar si conviene reescribirlos contra el sistema de diseno/componentes vigentes o retirarlos.
-- **Vulnerabilidades de `npm audit`**: `twilio` (via `axios`/`form-data`), `express`, `mongoose` y `nodemailer` traen CVEs conocidos de versiones transitivas — ninguno introducido por trabajo reciente, todos preexistentes en dependencias directas del proyecto. Resolverlos implica actualizar esas dependencias (potencialmente con breaking changes, ej. Express 5), evaluar por separado de una sesion de deuda tecnica general.
-- **Validacion de entrada**: `express-validator` se adopto de forma acotada en `/api/auth/register` y `/api/auth/login` (donde cerraba una inyeccion NoSQL real, ver `backend/README.md`); el resto de los controladores sigue confiando en la validacion de esquema de Mongoose. Ampliar la cobertura es un trabajo incremental, no un requisito de esta fase.
+- **`vite` y `react-router-dom` en `npm audit`**: quedan dos avisos directos en el frontend. El de `vite` afecta al servidor de desarrollo, no al build de produccion, y subir de la 5 a la 8 arrastra un cambio de major en cadena con `@vitejs/plugin-react`. El de `react-router-dom` exige migrar a la v7. Ambos merecen su propia sesion con su propia verificacion, no colarse al final de otra. El resto del arbol quedo limpio: backend en cero, frontend sin ninguna vulnerabilidad critica.
+- **Cobertura de pruebas**: las 77 pruebas cubren la logica pura (calculos clinicos, mapeadores, hook del planificador) y la tabla de redirecciones. Las paginas no tienen pruebas de componente; el `tsconfig.json` esta acotado a `src/lib`, `src/hooks`, `src/types` y `src/utils` con `checkJs` apagado, asi que las paginas `.jsx` siguen sin verificacion de tipos.
+- **Modulo de licencias**: `frontend/src/_archive/AdminLicenses.jsx` esta fuera del release. Reactivarlo exige, en el backend, un modelo `License`, sus endpoints y aplicar `authorize('admin')`, que hoy esta definido en `middleware/auth.js` pero **no se usa en ninguna ruta**. Ver `frontend/src/_archive/README.md`.
+- **Alias de tokens heredados**: `frontend/src/index.css` mantiene un bloque de alias (`--text-primary`, `--surface-muted`, `--radius-md`…) que apuntan a los tokens canonicos de la skill, para que la migracion de las paginas pueda hacerse por partes. Se borran cuando `grep -r "var(--text-primary" frontend/src` no devuelva nada. Lo mismo con las paletas `emerald`/`gold`/`navy` de `tailwind.config.js`, que ya apuntan al acento unico.
+- **Recordatorios en Vercel Hobby**: resuelto con un cron diario y una ventana de 36 h. Con Vercel Pro puede volverse horario cambiando solo el `schedule` de `vercel.json`; la ventana mas amplia no estorba porque el flag `reminderSent` impide reenviar.
+
+### Resuelto en la ultima revision
+
+Lo que esta seccion listaba antes y ya no aplica: el `setup-credentials.js` roto, los componentes muertos del planificador de comidas, el cron incompatible con el plan gratuito, y la validacion de entrada acotada a `auth`. Se documentan aqui porque el historial de git explica el porque mejor que un resumen.

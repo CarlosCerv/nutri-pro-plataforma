@@ -17,13 +17,14 @@ Sistema de diseño de NutriPro, inspirado en apple.com. Esta skill es la fuente 
 6. **Nav/barras fijas con vidrio esmerilado**: `backdrop-filter: saturate(1.8) blur(20px)` + fondo semitransparente, no color sólido plano.
 7. **Sombra única**: `0 3px 30px rgba(0,0,0,0.22)`. No agregues sombras duras ni con offset direccional.
 8. Todo ícono es SVG inline, monocromático cuando es funcional (no decorativo).
-9. Antes de shippear un componente nuevo, verifica contraste AA mínimo entre `--ink`/`--ink-secondary` y el fondo que uses, y que el foco de teclado sea visible.
+9. Antes de shippear un componente nuevo, verifica contraste AA mínimo entre `--ink`/`--ink-muted`/`--ink-secondary` y el fondo que uses, y que el foco de teclado sea visible. Texto sobre `--accent` va en blanco: la tinta oscura sobre el azul de sistema queda en 2.7:1 y no pasa AA.
 
 ## Tokens
 
 ```css
 :root {
   --ink: #1D1D1F;
+  --ink-muted: #424245;
   --ink-secondary: #6E6E73;
   --accent: #0071E3;
   --surface: #FFFFFF;
@@ -65,7 +66,9 @@ Sistema de diseño de NutriPro, inspirado en apple.com. Esta skill es la fuente 
 - **Botón primario**: `background: var(--accent); color: #fff; border-radius: var(--radius-pill); padding: 11px 26px; font-weight: 600; transition: transform var(--duration-micro) var(--ease), background var(--duration-micro) var(--ease);` — en hover, `transform: scale(1.03)`.
 - **Tarjeta de dato** (paciente, plan, cita): `background: var(--surface); border-radius: var(--radius-m); box-shadow: var(--shadow-1); padding: var(--space-3);`
 - **Nav fijo**: `position: sticky; top: 0; height: 44px; backdrop-filter: saturate(1.8) blur(20px); background: rgba(255,255,255,0.82);` (o el equivalente oscuro en modo oscuro).
-- **Jerarquía de datos densos** (expedientes, listas largas): el dato crítico (alergias, próxima cita, alertas) va en `--ink` peso 600; lo secundario en `--ink-secondary` peso 400. El layout —no el color— carga la jerarquía.
+- **Jerarquía de datos densos** (expedientes, listas largas): el dato crítico (alergias, próxima cita, alertas) va en `--ink` peso 600; el cuerpo en `--ink-muted` peso 400; lo terciario (etiquetas, unidades, metadatos) en `--ink-secondary`. El layout —no el color— carga la jerarquía.
+
+  `--ink-muted` es el nivel intermedio: se añadió al reconciliar la skill con la aplicación, porque los expedientes clínicos son densos por naturaleza y con solo dos niveles de tinta el cuerpo del texto competía con los titulares.
 
 ## Marca
 

@@ -52,14 +52,16 @@ Si agregas un controlador nuevo, sigue este mismo patron en vez de volver a un t
 | Modelo | Archivo | Notas |
 |---|---|---|
 | `User` | `models/User.js` | `role` enum: `nutritionist` \| `admin` (no existe rol `patient`) |
-| `Patient` | `models/Patient.js` | `nutritionist` (ObjectId, requerido, indexado) aisla los pacientes por cuenta — toda consulta de listado filtra por este campo |
+| `Patient` | `models/Patient.js` | `nutritionist` (ObjectId, requerido, indexado) aisla los pacientes por cuenta — toda consulta de listado filtra por este campo. Incluye el bloque de campos clinicos que captura el expediente del frontend (antecedentes, patologias, habitos, actividad fisica) y el subdocumento `labResults` |
 | `Appointment` | `models/Appointment.js` | Referencia a `nutritionist` y `patient` |
 | `MealPlan` | `models/MealPlan.js` | Referencia a `nutritionist` y `patient` |
 | `DietTemplate` | `models/DietTemplate.js` | Plantillas reutilizables de planes de alimentacion |
 | `Food` | `models/Food.js` | Catalogo de alimentos con valores nutricionales |
-| `BodyComposition` | `models/BodyComposition.js` | Mediciones antropometricas por paciente |
+| `BodyComposition` | `models/BodyComposition.js` | Mediciones antropometricas por paciente. `measurements` (peso, talla, IMC, ICC) y `bloodPressure` existen para poder reconstruir la evolucion; los pliegues van anidados en `skinfolds` **en ingles** — el frontend traduce desde su formulario en `src/lib/bodyComposition.js` |
 | `ClinicalNote` | `models/ClinicalNote.js` | Notas clinicas por paciente |
 | `Payment` | `models/Payment.js` | Registro de pagos/facturacion |
+
+**Los campos que la interfaz captura tienen que existir en el esquema.** Mongoose corre en modo `strict`: un campo que el cliente envia y el esquema no declara se descarta **sin error**, y la peticion responde 200. Eso paso durante meses con todo el bloque clinico del expediente —antecedentes, patologias, habitos, actividad fisica—: el `PUT /api/patients/:id` respondia correctamente y no guardaba nada. Al agregar un campo nuevo a un formulario, agregalo tambien al modelo.
 
 **Aislamiento multi-tenant**: el patron en toda la API es que cada nutricionista solo ve sus propios datos, filtrando por el campo `nutritionist` en el documento (poblado desde `req.user.id` al crear, comparado con `isOwnedBy(doc, req.user.id)` al leer/modificar — ver arriba). Si agregas un modelo nuevo con esta misma relacion, sigue el mismo patron: declara el campo en el esquema (`required: true`, `index: true`) desde el principio — un campo de ownership ausente del esquema se descarta silenciosamente por el modo `strict` de Mongoose en vez de fallar de forma visible.
 
@@ -87,12 +89,17 @@ Todas las rutas cuelgan de `/api`. Salvo que se indique "publica", requieren `Au
 | PUT | `/:id` | Actualiza paciente |
 | DELETE | `/:id` | Elimina paciente |
 | POST | `/:id/upload` | Sube un documento/foto (multipart, campo `document`). Si `CLOUDINARY_*` esta configurado, el archivo se sube ahi y persiste; si no, cae a disco local (dev) o al placeholder efimero de Vercel — ver [uploadMiddleware.js](#almacenamiento-de-archivos-cloudinary) |
+| GET | `/:id/lab` | Historial de laboratorios del paciente, mas reciente primero |
+| POST | `/:id/lab` | Registra un panel de laboratorio. Solo guarda los analitos con un numero real: la interfaz envia el panel completo y la mayoria de los campos viene vacia en cada consulta |
+
+`POST /` y `PUT /:id` validan la entrada con `patientValidators` / `patientUpdateValidators` (`middleware/validators.js`).
 
 ### Citas (`/api/appointments`) — `routes/appointments.js`
 | Metodo | Ruta | Descripcion |
 |---|---|---|
 | GET | `/` | Lista citas |
-| POST | `/` | Crea cita |
+| POST | `/` | Crea cita (validada con `appointmentValidators`) |
+| GET | `/today` | Citas de hoy, ya formateadas para la agenda del panel. Debe ir antes de `/:id` para que "today" no se lea como un ObjectId |
 | GET \| PUT \| DELETE | `/:id` | Detalle, actualizacion, cancelacion |
 
 ### Planes de alimentacion (`/api/mealplans`) — `routes/mealplans.js`
@@ -156,14 +163,24 @@ Todas las rutas cuelgan de `/api`. Salvo que se indique "publica", requieren `Au
 ### Pagos (`/api/payments`) — `routes/paymentRoutes.js`
 | Metodo | Ruta | Descripcion |
 |---|---|---|
-| GET | `/` | Lista pagos |
-| POST | `/` | Registra pago |
+| GET | `/` | Lista pagos, filtrable por paciente, rango de fechas y estado |
+| GET | `/summary` | Resumen del mes en curso (cobrado, pendiente, variacion contra el mes anterior), reparto por metodo y serie mensual. Debe ir antes de `/:id`. Aprovecha el indice `{ nutritionist: 1, date: -1 }` de `models/Payment.js` |
+| POST | `/` | Registra pago (validado con `paymentValidators`) |
 | PUT \| DELETE | `/:id` | Actualiza, elimina |
 
 ### Dashboard (`/api/dashboard`) — `routes/dashboard.routes.js`
 | Metodo | Ruta | Descripcion |
 |---|---|---|
 | GET | `/stats` | Metricas agregadas para el panel principal |
+| GET | `/weight-data` | Peso promedio de los pacientes por semana ISO, ultimas 8 semanas |
+| GET | `/pathology-data` | Prevalencia de patologias entre los pacientes, en porcentaje |
+| GET | `/macro-data` | Distribucion calorica promedio de los planes (4/4/9 kcal por gramo) |
+| GET | `/activity` | Actividad reciente del consultorio, con tiempo relativo ya formateado |
+| GET | `/population` | Estadisticas poblacionales: distribucion de IMC con los cortes de la OMS, prevalencias y evolucion del peso promedio |
+
+Los cinco endpoints de graficas se implementaron porque el frontend ya los llamaba: `DashboardInsights.jsx` pedia estas rutas, no existian, y un `.catch` convertia el 404 en un array vacio. Las graficas del panel llevaban tiempo permanentemente en blanco sin ninguna señal de error.
+
+**El color de las series lo asigna el cliente, no la API.** Estos endpoints devuelven solo `{ name, value }`; la paleta se aplica en el frontend con los tokens `--chart-*`. Un endpoint que devuelve colores hexadecimales ata el backend al tema de la interfaz.
 
 ### Cron (`/api/cron`) — `routes/cron.routes.js`
 | Metodo | Ruta | Descripcion |
@@ -175,16 +192,30 @@ Todas las rutas cuelgan de `/api`. Salvo que se indique "publica", requieren `Au
 
 ## Sistema de recordatorios de citas
 
-`reminderService.js` busca citas en estado `scheduled` cuya fecha caiga entre 23 y 25 horas en el futuro y que no tengan `reminderSent: true`, e intenta notificar por email (`emailService.js`, via nodemailer) y SMS (`smsService.js`, via Twilio). Marca `reminderSent`, `reminderSentAt`, `reminderEmail` y `reminderSMS` en el documento de la cita al terminar. Ambos servicios de notificacion son lazy: si las variables `EMAIL_*` o `TWILIO_*` no estan configuradas, el servicio correspondiente registra un aviso en consola y no falla.
+`reminderService.js` busca citas en estado `scheduled` cuya fecha caiga **dentro de las proximas 36 horas** y que no tengan `reminderSent: true`, e intenta notificar por email (`emailService.js`, via nodemailer) y SMS (`smsService.js`, via Twilio). Marca `reminderSent`, `reminderSentAt`, `reminderEmail` y `reminderSMS` en el documento de la cita al terminar. Ambos servicios de notificacion son lazy: si las variables `EMAIL_*` o `TWILIO_*` no estan configuradas, el servicio correspondiente registra un aviso en consola y no falla.
 
 Ese servicio se dispara de **dos formas independientes**, segun el entorno:
 
-- **Local / host persistente**: `src/scripts/reminderCron.js` programa un job con `node-cron` (`0 * * * *`, cada hora en punto), iniciado desde `server.js` al arrancar (`startReminderCron()`). Funciona mientras el proceso Node vive de forma continua.
-- **Vercel (produccion serverless)**: `node-cron` no sirve aqui — el proceso no persiste entre invocaciones, asi que un scheduler en memoria simplemente nunca dispara. En su lugar, `GET /api/cron/reminders` (`controllers/cron.controller.js`) expone el mismo `reminderService.checkAndSendReminders()` como endpoint HTTP, y `vercel.json` lo registra en `"crons"` con el schedule `0 * * * *` (cada hora). Vercel invoca esa URL directamente — el endpoint verifica que el header `Authorization` sea `Bearer <CRON_SECRET>`, que es exactamente lo que Vercel manda automaticamente en sus propias invocaciones cuando la variable de entorno `CRON_SECRET` esta configurada en el proyecto. Sin `CRON_SECRET` configurado el endpoint responde 500 y rechaza todo (fail-closed), para que nadie pueda disparar recordatorios llamando la URL publica sin conocer el secreto.
+- **Local / host persistente**: `src/scripts/reminderCron.js` programa un job con `node-cron`, iniciado desde `server.js` al arrancar (`startReminderCron()`). Funciona mientras el proceso Node vive de forma continua.
+- **Vercel (produccion serverless)**: `node-cron` no sirve aqui — el proceso no persiste entre invocaciones, asi que un scheduler en memoria simplemente nunca dispara. En su lugar, `GET /api/cron/reminders` (`controllers/cron.controller.js`) expone el mismo `reminderService.checkAndSendReminders()` como endpoint HTTP, y `vercel.json` lo registra en `"crons"` con el schedule `0 8 * * *` (diario). Vercel invoca esa URL directamente — el endpoint verifica que el header `Authorization` sea `Bearer <CRON_SECRET>`, que es exactamente lo que Vercel manda automaticamente en sus propias invocaciones cuando la variable de entorno `CRON_SECRET` esta configurada en el proyecto. Sin `CRON_SECRET` configurado el endpoint responde 500 y rechaza todo (fail-closed), para que nadie pueda disparar recordatorios llamando la URL publica sin conocer el secreto.
 
-**Limite del plan Hobby de Vercel**: los cron jobs de Vercel en el plan gratuito solo pueden ejecutarse una vez al dia como minimo, no cada hora. Si el proyecto esta en Hobby, Vercel puede ignorar o rechazar el schedule `0 * * * *` de `vercel.json`. Opciones si aplica:
-- Actualizar a Vercel Pro (sin limite de frecuencia), manteniendo el schedule y el algoritmo de `reminderService.js` tal cual estan.
-- Cambiar el schedule a una vez al dia (ej. `0 8 * * *`) — funciona en Hobby, pero con el algoritmo actual (ventana de 23-25 horas desde el momento exacto de la invocacion) solo se enviarian recordatorios a las citas que caigan justo en esa ventana de 2 horas una vez al dia, dejando la mayoria sin recordatorio. Antes de usar un schedule diario habria que ampliar la ventana en `reminderService.js` (por ejemplo, "citas de mañana" en vez de "citas en 23-25 horas") para que un solo chequeo diario cubra todas las citas del dia siguiente.
+### Por que la ventana es de 36 horas
+
+El plan Hobby de Vercel no permite cron jobs mas frecuentes que una vez al dia. La configuracion anterior pedia `0 * * * *` (cada hora) contra una ventana de 23 a 25 horas: en Hobby, Vercel no ejecutaba ese schedule, asi que **los recordatorios sencillamente no se enviaban**. Y bajar el schedule a diario sin tocar el algoritmo habria sido peor: una ventana de 2 horas consultada una vez al dia deja fuera a casi todas las citas.
+
+La combinacion actual —cron diario a las 8:00 y ventana de 0 a 36 horas— cubre toda cita al menos una vez, con entre 12 y 36 horas de anticipacion. Ampliar la ventana es seguro porque el flag `reminderSent` impide el reenvio: una cita que cae en dos ejecuciones consecutivas recibe un solo aviso.
+
+Con Vercel Pro puede volverse horario cambiando unicamente el `schedule` de `vercel.json`. La ventana mas amplia no estorba, por el mismo motivo.
+
+## Validacion de entrada
+
+`middleware/validators.js` define las cadenas de `express-validator` y el manejador `handleValidation`, que responde 400 con el detalle por campo antes de que el request llegue al controlador.
+
+Cubre `POST /auth/register`, `POST /auth/login`, y las rutas de escritura de pacientes, citas, pagos y planes de alimentacion.
+
+Ademas de dar mensajes claros, cierra un hueco de **inyeccion NoSQL**: sin `.isEmail()` o `.isMongoId()`, un body como `{ "patient": { "$gt": "" } }` llega a Mongoose como operador de consulta en vez de como valor. Los campos opcionales usan `checkFalsy` porque los formularios envian cadenas vacias para lo que el usuario no lleno.
+
+Los controladores que actualizan con `findByIdAndUpdate` ya pasan `runValidators: true`, asi que el esquema de Mongoose sigue siendo la segunda linea de defensa.
 
 ## Almacenamiento de archivos (Cloudinary)
 
@@ -272,6 +303,7 @@ Lineamientos que ya se aplicaron en el codigo actual y que hay que mantener al a
 - **Un endpoint que recibe un `:patientId`/`:id` de la URL sin verificar ownership es una fuga de datos entre cuentas**, no un detalle menor — pasaba en `getPatientNotes` (cualquier cuenta autenticada podia leer las notas clinicas de un paciente ajeno con solo conocer su id). Usa siempre `isOwnedBy()` (ver arriba) antes de devolver el recurso, no solo antes de modificarlo.
 - **Un fallo de autorizacion es 403, no 401.** 401 es "no autenticado" (falta o es invalido el JWT); 403 es "autenticado pero no autorizado para este recurso". Todos los controladores usan 403 para fallos de `isOwnedBy`.
 - **`CRON_SECRET` sin configurar debe rechazar, no permitir.** `cron.controller.js` responde 500 si la variable no esta seteada, en vez de dejar pasar la invocacion sin verificar nada.
+- **`authorize()` esta definido pero no se usa en ninguna ruta.** `middleware/auth.js` lo expone para restringir por rol, y hoy el aislamiento entre cuentas se hace exclusivamente comparando `nutritionist` con `isOwnedBy`. Si vuelve el modulo de administracion, sus rutas tienen que llevar `authorize('admin')` en el servidor: ocultar el item del menu en el cliente no es una barrera.
 
 ## Docker
 
