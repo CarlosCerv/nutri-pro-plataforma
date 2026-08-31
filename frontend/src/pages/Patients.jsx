@@ -131,6 +131,7 @@ export default function Patients() {
         <div className="relative flex-1 min-w-0">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)] pointer-events-none" />
           <input
+            aria-label="Buscar pacientes"
             type="text"
             placeholder="Buscar por nombre, email o teléfono"
             value={search}

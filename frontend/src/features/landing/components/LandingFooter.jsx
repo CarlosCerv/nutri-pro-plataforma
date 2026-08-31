@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 /**
  * Pie de página minimalista para la Landing Page de NutriPro.
- * Sigue la jerarquía de texto y márgenes del sistema de diseño Apple.
+ * Sigue la jerarquía de texto y márgenes del sistema de diseño.
  */
 export default function LandingFooter() {
   const currentYear = new Date().getFullYear();

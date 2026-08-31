@@ -11,7 +11,7 @@ import LandingFooter from './components/LandingFooter';
 /**
  * Componente principal de la Landing Page Oficial de NutriPro.
  * Estructurado de forma 100% autocontenida y aislada en `src/features/landing/`,
- * cumpliendo con el sistema de diseño estricto `apple-style-frontend`.
+ * cumpliendo con el sistema de diseño del proyecto.
  */
 export default function LandingView({ onCtaClick }) {
   useEffect(() => {

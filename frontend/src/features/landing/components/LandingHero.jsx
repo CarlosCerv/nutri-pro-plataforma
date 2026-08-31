@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
-import { ArrowRight, CheckCircle2, Sparkles, Utensils, Flame, Activity, Zap, Play } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Utensils, Flame, Activity, Zap, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 /**
  * Sección Hero de alto impacto para la Landing Page de NutriPro.
- * Incluye titulares calibrados con tipografía Apple, botones píldora,
+ * Incluye titulares calibrados con tipografía del sistema, botones píldora,
  * badges de confianza y un mockup interactivo del constructor de dietas.
  */
 export default function LandingHero({ onPrimaryCtaClick }) {
@@ -31,13 +31,7 @@ export default function LandingHero({ onPrimaryCtaClick }) {
       />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-        {/* Eyebrow Pill Badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-1.5 text-xs font-semibold text-[var(--accent)] mb-8 shadow-xs hover:scale-[1.02] transition-transform">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>NutriPro 2.0 · El nuevo estándar clínico para nutricionistas</span>
-        </div>
-
-        {/* Titular Principal Apple H1 */}
+        {/* Titular Principal H1 */}
         <h1 className="mx-auto max-w-4xl text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[var(--ink)] leading-[1.1] text-balance">
           Diseña dietas en minutos. <br className="hidden sm:inline" />
           <span className="text-[var(--accent)]">Automatiza tu consulta</span> con precisión clínica.
@@ -81,14 +75,14 @@ export default function LandingHero({ onPrimaryCtaClick }) {
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="h-4 w-4 text-[var(--success)]" />
-            <span>100% en la nube y compatible con iPad</span>
+            <span>100% en la nube y multidispositivo</span>
           </div>
         </div>
 
         {/* Mockup Interactivo de la Aplicación */}
         <div className="relative mx-auto mt-14 sm:mt-18 max-w-5xl">
           <div className="rounded-[18px] border border-[var(--border-soft)] bg-[var(--surface)] p-2 sm:p-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-transform duration-300">
-            {/* Barra de ventana estilo macOS */}
+            {/* Barra de ventana superior */}
             <div className="flex items-center justify-between border-b border-[var(--border-soft)]/70 px-4 py-2.5 bg-[var(--surface-alt)] rounded-t-[14px]">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-[#FF5F56] inline-block border border-[#E0443E]/50" />

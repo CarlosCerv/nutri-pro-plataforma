@@ -116,6 +116,7 @@ export default function PhysicalActivityTab({ patient }) {
           </select>
           <div className="relative w-full sm:w-28">
             <input type="number" min="1" max="480"
+              aria-label="Duración en minutos"
               className="input py-2 pr-10 font-mono text-center"
               placeholder="Min"
               value={nuevaAct.duracion}
@@ -159,6 +160,7 @@ export default function PhysicalActivityTab({ patient }) {
       <div className="space-y-3">
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Prescripción de Actividad Física</h3>
         <textarea
+          aria-label="Prescripción de actividad física"
           className="input min-h-[120px] resize-none"
           value={form.prescripcion}
           onChange={e => set('prescripcion', e.target.value)}

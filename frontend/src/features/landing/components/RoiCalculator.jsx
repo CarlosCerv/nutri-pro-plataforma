@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Calculator, Clock, DollarSign, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Clock, DollarSign, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 /**
@@ -32,10 +32,6 @@ export default function RoiCalculator({ onCtaClick }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-soft)] bg-[var(--surface-alt)] px-3.5 py-1 text-xs font-semibold text-[var(--accent)] mb-4">
-            <Calculator className="h-3.5 w-3.5" />
-            <span>Impacto Financiero Real</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[var(--ink)] leading-tight text-balance">
             Calcula el Retorno de Inversión en tu consulta.
           </h2>

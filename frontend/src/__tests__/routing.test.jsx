@@ -19,8 +19,8 @@ import { LEGACY_REDIRECTS } from '../lib/redirects';
 
 // Se prueba la tabla real que consume `App.jsx`, no una copia: un test que
 // repite la lista de rutas solo comprueba lo que su autor creía que decía el
-// router. `/` y `*` se añaden aquí porque en App.jsx son rutas sueltas.
-const REDIRECCIONES = { ...LEGACY_REDIRECTS, '/': '/dashboard' };
+// router.
+const REDIRECCIONES = { ...LEGACY_REDIRECTS };
 
 const Sonda = () => {
   const { pathname } = useLocation();

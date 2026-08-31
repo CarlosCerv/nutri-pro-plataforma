@@ -156,8 +156,8 @@ export default function LaboratoryTab({ patient }) {
       {/* Fecha + signos vitales */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex items-center gap-3">
-          <label className="label mb-0 flex-shrink-0">Fecha del lab:</label>
-          <input type="date" className="input !w-auto py-1.5" value={fecha} onChange={e => setFecha(e.target.value)} />
+          <label className="label mb-0 flex-shrink-0" htmlFor="fecha-lab">Fecha del lab:</label>
+          <input id="fecha-lab" type="date" className="input !w-auto py-1.5" value={fecha} onChange={e => setFecha(e.target.value)} />
         </div>
         <div className="flex gap-3 flex-wrap">
           {[
@@ -166,9 +166,10 @@ export default function LaboratoryTab({ patient }) {
             { key: 'fr',          label: 'F.R.',  unit: 'rpm', ph: '16'  },
           ].map(s => (
             <div key={s.key} className="flex items-center gap-2">
-              <label className="text-xs text-[var(--ink-secondary)]">{s.label}</label>
+              <label className="text-xs text-[var(--ink-secondary)]" htmlFor={`lab-${s.key}`}>{s.label}</label>
               <div className="relative">
                 <input type="number" step="0.1"
+                  id={`lab-${s.key}`}
                   className="input !w-24 py-1.5 pr-8 text-center font-mono text-sm"
                   value={signos[s.key]}
                   onChange={e => setSignos(v => ({ ...v, [s.key]: e.target.value }))}

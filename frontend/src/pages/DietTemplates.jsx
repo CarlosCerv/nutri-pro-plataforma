@@ -40,6 +40,7 @@ export default function DietTemplates() {
       <div className="relative w-full max-w-md">
         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]" />
         <input
+            aria-label="Buscar plantillas"
           type="text"
           className="input pl-10"
           placeholder="Buscar plantilla o etiqueta..."

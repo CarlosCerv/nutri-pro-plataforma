@@ -3,18 +3,14 @@ import {
   Utensils,
   Activity,
   Calendar,
-  FileSpreadsheet,
   TrendingUp,
-  Clock,
-  Sparkles,
-  ShieldCheck,
   CheckCircle2,
   FileText,
   DollarSign
 } from 'lucide-react';
 
 /**
- * Bento Grid estilo Apple que destaca los 5 pilares funcionales de NutriPro.
+ * Bento Grid modular que destaca los 5 pilares funcionales de NutriPro.
  * Utiliza tarjetas asimétricas, bordes sutiles, micro-interacciones
  * y tipografía jerárquica para comunicar el valor clínico y operativo.
  */
@@ -24,10 +20,6 @@ export default function BentoGrid() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Encabezado de Sección */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-soft)] bg-[var(--surface-alt)] px-3.5 py-1 text-xs font-semibold text-[var(--accent)] mb-4">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Capacidades de Vanguardia</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[var(--ink)] leading-tight text-balance">
             La suite clínica más completa para nutricionistas.
           </h2>

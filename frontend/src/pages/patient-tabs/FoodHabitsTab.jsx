@@ -50,6 +50,7 @@ export default function FoodHabitsTab({ patient }) {
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Recordatorio de 24 Horas</h3>
         <p className="text-xs text-[var(--ink-secondary)]">Registra todos los alimentos y bebidas consumidos en las últimas 24 horas</p>
         <textarea
+          aria-label="Recordatorio de 24 horas"
           className="input min-h-[120px] resize-none font-mono text-sm"
           value={form.recordatorio24h}
           onChange={e => set('recordatorio24h', e.target.value)}
@@ -65,11 +66,13 @@ export default function FoodHabitsTab({ patient }) {
             <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-alt)] border border-[var(--border-soft)]">
               <input
                 type="time"
+                aria-label={`Hora del tiempo de comida ${i + 1}`}
                 className="input !w-auto !py-1.5 font-mono text-sm flex-shrink-0"
                 value={t.hora}
                 onChange={e => setHorario(i, 'hora', e.target.value)}
               />
               <input
+                aria-label={`Nombre del tiempo de comida ${i + 1}`}
                 className="input flex-1 !py-1.5 text-sm"
                 value={t.nombre}
                 onChange={e => setHorario(i, 'nombre', e.target.value)}

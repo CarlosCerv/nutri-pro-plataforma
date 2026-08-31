@@ -137,6 +137,7 @@ export default function ClinicalTab({ patient }) {
           <span className="badge badge-warning text-2xs">Solo visible para ti</span>
         </h3>
         <textarea
+          aria-label="Notas clínicas privadas"
           className="input min-h-[150px] resize-none"
           value={form.notasClinicas}
           onChange={e => setForm(f => ({ ...f, notasClinicas: e.target.value }))}

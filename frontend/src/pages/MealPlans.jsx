@@ -113,6 +113,7 @@ export default function MealPlans() {
       <div className="relative max-w-md">
         <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]" />
         <input
+            aria-label="Buscar planes de alimentación"
           type="text"
           className="input w-full pl-10"
           placeholder="Buscar por nombre o paciente"

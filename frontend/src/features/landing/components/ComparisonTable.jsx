@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Check, X, Sparkles } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 /**
  * Tabla comparativa que contrasta NutriPro frente a Hojas de Cálculo (Excel)
@@ -57,7 +57,7 @@ export default function ComparisonTable() {
       traditional: 'Plantillas genéricas',
     },
     {
-      feature: 'Experiencia visual moderna y fluida estilo Apple',
+      feature: 'Experiencia visual moderna y fluida',
       nutripro: true,
       excel: false,
       traditional: false,
@@ -91,10 +91,6 @@ export default function ComparisonTable() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-soft)] bg-[var(--surface)] px-3.5 py-1 text-xs font-semibold text-[var(--accent)] mb-4">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Comparativa Objetiva</span>
-          </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[var(--ink)] leading-tight text-balance">
             Por qué los mejores nutriólogos eligen NutriPro.
           </h2>

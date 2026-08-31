@@ -6,7 +6,7 @@ import Tabs from '../design-system/components/Tabs.jsx';
 import FormSection from '../design-system/components/FormSection.jsx';
 import SaveBar from '../design-system/components/SaveBar.jsx';
 import useSaveState from '../hooks/useSaveState';
-import { Card } from '../design-system/components';
+import { Card, Input } from '../design-system/components';
 
 /**
  * Cuenta y ajustes.
@@ -68,56 +68,28 @@ export default function Profile() {
         <Card as="form" onSubmit={guardarPerfil} className="space-y-6">
           <FormSection title="Datos profesionales" description="Aparecen en los reportes que exportas a PDF.">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="form-group">
-                <label className="label" htmlFor="perfil-nombre">
-                  Nombre completo <span className="text-[var(--danger)]">*</span>
-                </label>
-                <input
-                  id="perfil-nombre"
-                  className="input"
-                  required
-                  value={perfil.name}
-                  onChange={(e) => setCampo('name', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="label" htmlFor="perfil-email">
-                  Correo <span className="text-[var(--danger)]">*</span>
-                </label>
-                <input
-                  id="perfil-email"
-                  type="email"
-                  className="input"
-                  required
-                  value={perfil.email}
-                  onChange={(e) => setCampo('email', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="label" htmlFor="perfil-especialidad">
-                  Especialidad
-                </label>
-                <input
-                  id="perfil-especialidad"
-                  className="input"
-                  value={perfil.specialty}
-                  onChange={(e) => setCampo('specialty', e.target.value)}
-                  placeholder="Ej. nutrición clínica"
-                />
-              </div>
-              <div className="form-group">
-                <label className="label" htmlFor="perfil-telefono">
-                  Teléfono
-                </label>
-                <input
-                  id="perfil-telefono"
-                  type="tel"
-                  className="input"
-                  value={perfil.phone}
-                  onChange={(e) => setCampo('phone', e.target.value)}
-                  placeholder="+52 …"
-                />
-              </div>
+              <Input
+                id="perfil-nombre"
+                label="Nombre completo"
+                required
+                value={perfil.name} onChange={(e) => setCampo('name', e.target.value)}
+              />
+              <Input
+                id="perfil-email"
+                label="Correo"
+                required
+                type="email" value={perfil.email} onChange={(e) => setCampo('email', e.target.value)}
+              />
+              <Input
+                id="perfil-especialidad"
+                label="Especialidad"
+                value={perfil.specialty} onChange={(e) => setCampo('specialty', e.target.value)} placeholder="Ej. nutrición clínica"
+              />
+              <Input
+                id="perfil-telefono"
+                label="Teléfono"
+                type="tel" value={perfil.phone} onChange={(e) => setCampo('phone', e.target.value)} placeholder="+52 …"
+              />
             </div>
           </FormSection>
 
@@ -132,20 +104,11 @@ export default function Profile() {
         <Card as="form" onSubmit={guardarPassword} className="space-y-6">
           <FormSection title="Cambiar contraseña" description="Mínimo 6 caracteres. Cerrarás sesión en otros dispositivos la próxima vez que expire su token.">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="form-group">
-                <label className="label" htmlFor="pass-nueva">
-                  Nueva contraseña
-                </label>
-                <input
-                  id="pass-nueva"
-                  type="password"
-                  minLength={6}
-                  className="input"
-                  autoComplete="new-password"
-                  value={password.nueva}
-                  onChange={(e) => setPassword((p) => ({ ...p, nueva: e.target.value }))}
-                />
-              </div>
+              <Input
+                id="pass-nueva"
+                label="Nueva contraseña"
+                type="password" minLength={6} autoComplete="new-password" value={password.nueva} onChange={(e) => setPassword((p) => ({ ...p, nueva: e.target.value }))}
+              />
               <div className="form-group">
                 <label className="label" htmlFor="pass-confirmar">
                   Confirmar contraseña

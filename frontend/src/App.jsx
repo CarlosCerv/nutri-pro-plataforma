@@ -11,6 +11,7 @@ import Topbar from './design-system/components/Topbar';
 // Lazy pages
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const LandingView = lazy(() => import('./features/landing/LandingView'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Patients = lazy(() => import('./pages/Patients'));
 const NewPatient = lazy(() => import('./pages/NewPatient'));
@@ -107,6 +108,8 @@ function App() {
         <Suspense fallback={<PageFallback fullScreen />}>
           <Routes>
             {/* ── Public Routes ── */}
+            <Route path="/" element={<LandingView />} />
+            <Route path="/landing" element={<LandingView />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
@@ -172,8 +175,7 @@ function App() {
             ))}
             <Route path="/patients/:id" element={<Navigate to="/pacientes/:id" replace />} />
 
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

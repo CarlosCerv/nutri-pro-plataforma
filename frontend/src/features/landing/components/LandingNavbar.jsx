@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 /**
  * Barra de navegación superior fija para la Landing Page de NutriPro.
- * Aplica el efecto de vidrio esmerilado (glassmorphism) de Apple, con
+ * Aplica el efecto de vidrio esmerilado (glassmorphism), con
  * navegación anclada suave y botones de acción tipo píldora.
  */
 export default function LandingNavbar({ onCtaClick }) {

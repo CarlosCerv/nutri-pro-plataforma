@@ -11,6 +11,7 @@ import Badge from '../design-system/components/Badge.jsx';
 import SaveBar from '../design-system/components/SaveBar.jsx';
 import useSaveState from '../hooks/useSaveState';
 import { EmptyState } from '../design-system/components/StateViews.jsx';
+import { Input, Textarea } from '../design-system/components';
 
 /**
  * Finanzas de la consulta.
@@ -247,34 +248,17 @@ export default function Finance() {
           />
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="form-group">
-              <label className="label" htmlFor="cobro-importe">
-                Importe (MXN) <span className="text-[var(--danger)]">*</span>
-              </label>
-              <input
-                id="cobro-importe"
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                className="input"
-                value={form.amount}
-                onChange={(e) => set('amount', e.target.value)}
-                placeholder="600"
-              />
-            </div>
-            <div className="form-group">
-              <label className="label" htmlFor="cobro-fecha">
-                Fecha
-              </label>
-              <input
-                id="cobro-fecha"
-                type="date"
-                className="input"
-                value={form.date}
-                onChange={(e) => set('date', e.target.value)}
-              />
-            </div>
+            <Input
+              id="cobro-importe"
+              label="Importe (MXN)"
+              required
+              type="number" min="0" step="0.01" value={form.amount} onChange={(e) => set('amount', e.target.value)} placeholder="600"
+            />
+            <Input
+              id="cobro-fecha"
+              label="Fecha"
+              type="date" value={form.date} onChange={(e) => set('date', e.target.value)}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -282,19 +266,11 @@ export default function Finance() {
             <Combobox name="method" label="Método" options={METODOS} value={form.method} onChange={onSelect} />
           </div>
 
-          <div className="form-group">
-            <label className="label" htmlFor="cobro-notas">
-              Notas
-            </label>
-            <textarea
-              id="cobro-notas"
-              rows="2"
-              className="input"
-              value={form.notes}
-              onChange={(e) => set('notes', e.target.value)}
-              placeholder="Consulta de seguimiento…"
-            />
-          </div>
+          <Textarea
+            id="cobro-notas"
+            label="Notas"
+            rows="2" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Consulta de seguimiento…"
+          />
 
           <SaveBar
             saving={saving}
