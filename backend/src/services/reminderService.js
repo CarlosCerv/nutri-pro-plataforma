@@ -3,6 +3,7 @@ import Patient from '../models/Patient.js';
 import User from '../models/User.js';
 import * as emailService from './emailService.js';
 import * as smsService from './smsService.js';
+import * as whatsappService from './whatsappService.js';
 
 /**
  * Check for appointments that need reminders and send them
@@ -65,6 +66,7 @@ export const checkAndSendReminders = async () => {
 
 
                 let emailSent = false;
+                let whatsappSent = false;
                 let smsSent = false;
 
                 // Try to send email reminder
@@ -78,25 +80,36 @@ export const checkAndSendReminders = async () => {
                     console.warn(`[Reminder Service] ⚠️  Patient has no email address`);
                 }
 
-                // Try to send SMS reminder
+                // WhatsApp es el canal preferido para el aviso de cita; SMS
+                // solo entra si WhatsApp no está configurado o falló (número
+                // no habilitado para WhatsApp, plantilla rechazada, etc.) —
+                // así la transición a WhatsApp no deja pacientes sin aviso.
                 if (patient.phone) {
-                    smsSent = await smsService.sendAppointmentReminder(
+                    whatsappSent = await whatsappService.sendAppointmentReminder(
                         patient,
                         appointment,
                         nutritionist
                     );
+                    if (!whatsappSent) {
+                        smsSent = await smsService.sendAppointmentReminder(
+                            patient,
+                            appointment,
+                            nutritionist
+                        );
+                    }
                 } else {
                     console.warn(`[Reminder Service] ⚠️  Patient has no phone number`);
                 }
 
                 // Update appointment with reminder status
                 // Mark as sent if at least one notification method succeeded
-                const reminderSent = emailSent || smsSent;
+                const reminderSent = emailSent || whatsappSent || smsSent;
 
                 await Appointment.findByIdAndUpdate(appointment._id, {
                     reminderSent: reminderSent,
                     reminderSentAt: reminderSent ? new Date() : null,
                     reminderEmail: emailSent,
+                    reminderWhatsApp: whatsappSent,
                     reminderSMS: smsSent,
                 });
 

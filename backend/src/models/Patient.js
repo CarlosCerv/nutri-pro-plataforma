@@ -257,6 +257,16 @@ const patientSchema = new mongoose.Schema({
         default: 'active',
     },
 
+    // Portal ligero del paciente: token permanente (no expira, se regenera a
+    // demanda) que da acceso de solo lectura a su plan activo y lista de
+    // compras sin necesitar cuenta ni contraseña. Vive aquí y no en una
+    // colección aparte porque es 1:1 con el paciente — el cuestionario
+    // pre-consulta sí usa una colección propia (`PreConsultationToken`)
+    // porque ahí un mismo paciente puede tener varios tokens en el tiempo,
+    // cada uno expirable y de un solo uso.
+    portalToken: { type: String, index: true, unique: true, sparse: true },
+    preConsultationCompletedAt: { type: Date },
+
     createdAt: {
         type: Date,
         default: Date.now,

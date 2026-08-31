@@ -1,7 +1,7 @@
 /**
  * El panel distingue "fallo" de "sin datos".
  *
- * Las cinco secciones se pedian con `.catch(() => ({ data: { data: [] } }))`,
+ * Las cuatro secciones se pedian con `.catch(() => ({ data: { data: [] } }))`,
  * asi que un 500 se pintaba igual que una consulta recien creada sin
  * pacientes: grafica en blanco y ninguna señal. Estas pruebas fijan esa
  * diferencia, que es justo la que no se ve mirando la pantalla.
@@ -19,7 +19,7 @@ vi.mock('../services/api', () => ({ default: { get } }));
 
 import DashboardInsights from '../components/Dashboard/DashboardInsights.jsx';
 
-const SECCIONES = 5;
+const SECCIONES = 4;
 const pintar = () =>
   render(
     <MemoryRouter>
@@ -62,7 +62,7 @@ describe('Panel: fallo frente a vacio', () => {
       url.includes('weight-data')
         ? Promise.reject({ isAxiosError: true, response: { status: 500, data: {} } })
         : Promise.resolve({
-            data: { data: url.includes('pathology') ? [{ name: 'Diabetes', value: 40 }] : [] },
+            data: { data: url.includes('macro-data') ? [{ name: 'Proteína', valor: 30 }] : [] },
           })
     );
     pintar();
@@ -70,6 +70,6 @@ describe('Panel: fallo frente a vacio', () => {
     // La seccion rota avisa...
     await waitFor(() => expect(screen.getAllByText(/El servidor tuvo un problema/i)).toHaveLength(1));
     // ...y la que respondio bien sigue pintando sus datos.
-    expect(screen.getByText('Diabetes')).toBeInTheDocument();
+    expect(screen.getByText('Proteína')).toBeInTheDocument();
   });
 });

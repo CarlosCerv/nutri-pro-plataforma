@@ -70,6 +70,28 @@ const appointmentSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    reminderWhatsApp: {
+        type: Boolean,
+        default: false,
+    },
+    // Respuesta del paciente al recordatorio de WhatsApp (webhook de Twilio).
+    // Independiente de `status`: una cita puede seguir "scheduled" y ya estar
+    // confirmada por el paciente, o el webhook puede cancelarla directamente
+    // (ver whatsappWebhook.controller.js), caso en el que sí cambia `status`.
+    confirmedByPatient: {
+        type: Boolean,
+        default: false,
+    },
+    confirmedAt: {
+        type: Date,
+    },
+    // De dónde vino la cita: 'public-booking' es la única fuente distinta de
+    // "la capturó el nutriólogo a mano" (página pública de agendamiento).
+    source: {
+        type: String,
+        enum: ['manual', 'public-booking'],
+        default: 'manual',
+    },
     createdAt: {
         type: Date,
         default: Date.now,
