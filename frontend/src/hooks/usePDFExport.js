@@ -1,9 +1,13 @@
 import { useState, useRef, useCallback } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 /**
  * Exporta el nodo referenciado (plantilla PDF en DOM) a un archivo PDF.
+ *
+ * jsPDF y html2canvas se cargan con `import()` dinamico, no al montar. Juntas
+ * pesan 588 KB y estaban entrando en el bundle de cualquier pantalla que
+ * importara este hook — Dietas y el expediente — aunque el usuario no llegara
+ * a exportar nada. Ahora se descargan al pulsar el boton; `isGenerating` ya
+ * cubre esa espera, asi que no hace falta un estado nuevo.
  */
 const usePDFExport = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -20,6 +24,11 @@ const usePDFExport = () => {
     setError(null);
 
     try {
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas'),
+      ]);
+
       const element = pdfRef.current;
       await new Promise((r) => setTimeout(r, 200));
 

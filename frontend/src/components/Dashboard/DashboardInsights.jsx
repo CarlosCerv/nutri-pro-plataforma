@@ -6,6 +6,8 @@ import {
 import { Users, Salad, Clock, ChevronRight, FileText, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import { getApiErrorMessage } from '../../lib/apiError';
+import { ErrorState } from '../../design-system/components/StateViews';
 
 const ESTADO_COLORS = { confirmada: 'badge-success', pendiente: 'badge-warning', cancelada: 'badge-danger' };
 
@@ -52,45 +54,72 @@ const SectionHeader = ({ title, subtitle, action, actionTo }) => (
   </div>
 );
 
+/**
+ * Las cinco secciones se piden a la vez pero fallan por separado.
+ *
+ * Antes cada peticion llevaba `.catch(() => ({ data: { data: [] } }))`, con lo
+ * que un 500 quedaba indistinguible de "todavia no hay datos": la grafica se
+ * pintaba vacia y no habia forma de saber que el servidor habia contestado
+ * mal. Con `allSettled` cada seccion conserva su propio resultado, y la que
+ * falla muestra el error con su boton de reintento en vez de un hueco mudo.
+ */
+const FUENTES = [
+  ['weight', '/api/dashboard/weight-data'],
+  ['pathology', '/api/dashboard/pathology-data'],
+  ['macro', '/api/dashboard/macro-data'],
+  ['appointments', '/api/appointments/today'],
+  ['activity', '/api/dashboard/activity'],
+];
+
 export default function DashboardInsights() {
   const [weightData, setWeightData] = useState([]);
   const [pathologyData, setPathologyData] = useState([]);
   const [macroData, setMacroData] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [activity, setActivity] = useState([]);
+  const [fallos, setFallos] = useState({});
   const [loading, setLoading] = useState(true);
+  const [recarga, setRecarga] = useState(0);
 
   useEffect(() => {
-    const fetchInsightsData = async () => {
-      try {
-        const [
-          weightRes,
-          pathologyRes,
-          macroRes,
-          appointmentsRes,
-          activityRes,
-        ] = await Promise.all([
-          api.get('/api/dashboard/weight-data').catch(() => ({ data: { data: [] } })),
-          api.get('/api/dashboard/pathology-data').catch(() => ({ data: { data: [] } })),
-          api.get('/api/dashboard/macro-data').catch(() => ({ data: { data: [] } })),
-          api.get('/api/appointments/today').catch(() => ({ data: { data: [] } })),
-          api.get('/api/dashboard/activity').catch(() => ({ data: { data: [] } })),
-        ]);
+    let cancelado = false;
 
-        setWeightData(weightRes.data.data || []);
-        setPathologyData(conColor(pathologyRes.data.data || []));
-        setMacroData(conColor(macroRes.data.data || []));
-        setAppointments(appointmentsRes.data.data || []);
-        setActivity(activityRes.data.data || []);
-      } catch (error) {
-        console.error('Error fetching insights data:', error);
-      } finally {
-        setLoading(false);
-      }
+    Promise.allSettled(FUENTES.map(([, url]) => api.get(url))).then((resultados) => {
+      if (cancelado) return;
+
+      const datos = {};
+      const errores = {};
+
+      resultados.forEach((resultado, i) => {
+        const [clave] = FUENTES[i];
+        if (resultado.status === 'fulfilled') {
+          datos[clave] = resultado.value.data?.data || [];
+        } else {
+          errores[clave] = getApiErrorMessage(resultado.reason, 'No se pudo cargar esta seccion.');
+        }
+      });
+
+      setWeightData(datos.weight || []);
+      setPathologyData(conColor(datos.pathology || []));
+      setMacroData(conColor(datos.macro || []));
+      setAppointments(datos.appointments || []);
+      setActivity(datos.activity || []);
+      setFallos(errores);
+      setLoading(false);
+    });
+
+    return () => {
+      cancelado = true;
     };
+  }, [recarga]);
 
-    fetchInsightsData();
-  }, []);
+  // `setLoading` vive aqui y no dentro del efecto: llamarlo en el cuerpo del
+  // efecto encadena un render de mas, y en la primera carga no hace falta
+  // porque `loading` ya arranca en true.
+  const reintentar = () => {
+    setLoading(true);
+    setRecarga((n) => n + 1);
+  };
 
   if (loading) {
     return (
@@ -112,7 +141,9 @@ export default function DashboardInsights() {
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 card">
-          {weightData && weightData.length > 0 ? (
+          {fallos.weight ? (
+            <ErrorState message={fallos.weight} onRetry={reintentar} className="min-h-[280px]" />
+          ) : weightData.length > 0 ? (
             <>
               <SectionHeader title="Evolución de Peso" subtitle="Promedio de todos los pacientes — últimas 8 semanas" />
               <ResponsiveContainer width="100%" height={220}>
@@ -139,7 +170,9 @@ export default function DashboardInsights() {
         </div>
 
         <div className="card">
-          {pathologyData && pathologyData.length > 0 ? (
+          {fallos.pathology ? (
+            <ErrorState message={fallos.pathology} onRetry={reintentar} className="min-h-[280px]" />
+          ) : pathologyData.length > 0 ? (
             <>
               <SectionHeader title="Patologías" subtitle="Distribución de pacientes" />
               <ResponsiveContainer width="100%" height={160}>
@@ -174,7 +207,9 @@ export default function DashboardInsights() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="card">
-          {macroData && macroData.length > 0 ? (
+          {fallos.macro ? (
+            <ErrorState message={fallos.macro} onRetry={reintentar} className="min-h-[220px]" />
+          ) : macroData.length > 0 ? (
             <>
               <SectionHeader title="Distribución Calórica" subtitle="% adherencia por macro (promedio)" />
               <div className="space-y-3">
@@ -199,7 +234,9 @@ export default function DashboardInsights() {
         </div>
 
         <div className="lg:col-span-2 card">
-          {appointments && appointments.length > 0 ? (
+          {fallos.appointments ? (
+            <ErrorState message={fallos.appointments} onRetry={reintentar} className="min-h-[220px]" />
+          ) : appointments.length > 0 ? (
             <>
               <SectionHeader title="Agenda de Hoy" subtitle={`${appointments.length} consultas programadas`} action="Ver calendario" actionTo="/agenda" />
               <div className="space-y-2">
@@ -234,7 +271,9 @@ export default function DashboardInsights() {
       </div>
 
       <div className="card">
-        {activity && activity.length > 0 ? (
+        {fallos.activity ? (
+          <ErrorState message={fallos.activity} onRetry={reintentar} className="min-h-[240px]" />
+        ) : activity.length > 0 ? (
           <>
             <SectionHeader title="Actividad Reciente" subtitle="Últimas acciones del sistema" />
             <div className="space-y-1">
