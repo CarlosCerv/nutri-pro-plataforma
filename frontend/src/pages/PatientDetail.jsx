@@ -1,11 +1,14 @@
 import { Suspense, lazy, useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, NavLink, useLocation, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Edit3, Download, Salad, AlertCircle, RefreshCw,
+  ArrowLeft, Edit3, Download, Salad, AlertCircle, RefreshCw, Trash2,
   User, Activity, Heart,
 } from 'lucide-react';
 import api from '../services/api';
 import PatientAlertPanel from '../components/PatientAlertPanel';
+import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
+import { useToast } from '../contexts/ToastContext';
+import { patientsAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
 
 const GeneralDataTab = lazy(() => import('./patient-tabs/GeneralDataTab'));
@@ -73,6 +76,8 @@ export default function PatientDetail() {
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmarBorrado, setConfirmarBorrado] = useState(false);
+  const toast = useToast();
 
   const activeTab = useMemo(() => tabFromPath(pathname, id), [pathname, id]);
 
@@ -162,6 +167,16 @@ export default function PatientDetail() {
   // El avatar no codifica información clínica: superficie neutra, no una
   // paleta de cuatro colores que el usuario podría leer como un estado.
   const avatarColor = 'var(--surface-strong)';
+
+  const borrarPaciente = async () => {
+    try {
+      await patientsAPI.delete(id);
+      toast.success(`${nombre} fue eliminado.`);
+      navigate('/pacientes');
+    } catch (err) {
+      throw { mensaje: getApiErrorMessage(err, 'No se pudo eliminar al paciente.') };
+    }
+  };
 
   const TAB_COMPONENTS = {
     general: GeneralDataTab,
@@ -257,6 +272,15 @@ export default function PatientDetail() {
             <Link to={`/pacientes/${id}/dietas`} className="btn btn-secondary btn-sm gap-1.5">
               <Download size={13} strokeWidth={1.75} /> Exportar PDF
             </Link>
+            {/* `patientsAPI.delete` existía sin que ninguna pantalla lo
+                expusiera: no había forma de dar de baja a un paciente. */}
+            <button
+              type="button"
+              onClick={() => setConfirmarBorrado(true)}
+              className="btn btn-ghost btn-sm gap-1.5 text-[var(--danger)] hover:bg-[rgba(196,30,22,0.08)]"
+            >
+              <Trash2 size={13} strokeWidth={1.75} /> Eliminar
+            </button>
           </div>
         </div>
       </div>
@@ -309,6 +333,14 @@ export default function PatientDetail() {
           <PatientAlertPanel patient={patient} />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmarBorrado}
+        onClose={() => setConfirmarBorrado(false)}
+        onConfirm={borrarPaciente}
+        title="Eliminar paciente"
+        descripcion={`Se eliminará el expediente de ${nombre} de forma permanente: sus mediciones, laboratorios, notas clínicas y planes asociados dejarán de ser accesibles. Esta acción no se puede deshacer.`}
+      />
     </div>
   );
 }

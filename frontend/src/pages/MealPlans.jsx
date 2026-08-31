@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Plus, Search, Download, Salad, Calendar, Loader,
+  Plus, Search, Download, Salad, Calendar, Loader, Trash2,
 } from 'lucide-react';
 import { mealPlansAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import { getApiErrorMessage } from '../lib/apiError';
 import PDFMealPlan from '../components/PDFMealPlan';
 import usePDFExport from '../hooks/usePDFExport';
+import ConfirmDialog from '../design-system/components/ConfirmDialog.jsx';
 
 export default function MealPlans() {
   const { user } = useAuth();
@@ -15,7 +18,9 @@ export default function MealPlans() {
   const [search, setSearch] = useState('');
   const [planForPdf, setPlanForPdf] = useState(null);
   const [pdfErr, setPdfErr] = useState('');
+  const [planABorrar, setPlanABorrar] = useState(null);
   const { pdfRef, isGenerating, error, generatePDF } = usePDFExport();
+  const toast = useToast();
 
   const fetchDietas = useCallback(async () => {
     try {
@@ -74,6 +79,17 @@ export default function MealPlans() {
 
   const kcal = (d) => Math.round(d.nutrition?.totalCalories || 0);
 
+  const borrarPlan = async () => {
+    try {
+      await mealPlansAPI.delete(planABorrar._id);
+      setDietas((lista) => lista.filter((d) => d._id !== planABorrar._id));
+      toast.success('Plan eliminado.');
+    } catch (err) {
+      // ConfirmDialog muestra el mensaje y mantiene el diálogo abierto.
+      throw { mensaje: getApiErrorMessage(err, 'No se pudo eliminar el plan.') };
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -122,22 +138,37 @@ export default function MealPlans() {
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--surface-muted)] text-[var(--accent)]">
                   <Salad size={20} />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPdfErr('');
-                    setPlanForPdf(dieta);
-                  }}
-                  disabled={isGenerating}
-                  className="rounded-lg p-2 text-[var(--text-tertiary)] hover:bg-[var(--surface-muted)] hover:text-[var(--accent)]"
-                  title="Descargar PDF"
-                >
-                  {isGenerating && planForPdf?._id === dieta._id ? (
-                    <Loader className="animate-spin" size={18} />
-                  ) : (
-                    <Download size={18} />
-                  )}
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPdfErr('');
+                      setPlanForPdf(dieta);
+                    }}
+                    disabled={isGenerating}
+                    className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--accent)]"
+                    title="Descargar PDF"
+                    aria-label={`Descargar PDF de ${dieta.name || 'el plan'}`}
+                  >
+                    {isGenerating && planForPdf?._id === dieta._id ? (
+                      <Loader className="animate-spin" size={18} />
+                    ) : (
+                      <Download size={18} />
+                    )}
+                  </button>
+                  {/* `mealPlansAPI.delete` existía desde el principio sin que
+                      ninguna pantalla lo expusiera: no había forma de borrar
+                      un plan desde la interfaz. */}
+                  <button
+                    type="button"
+                    onClick={() => setPlanABorrar(dieta)}
+                    className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[rgba(196,30,22,0.08)] hover:text-[var(--danger)]"
+                    title="Eliminar plan"
+                    aria-label={`Eliminar ${dieta.name || 'el plan'}`}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
 
               <div className="min-w-0 flex-1">
@@ -208,6 +239,14 @@ export default function MealPlans() {
           />
         </div>
       )}
+
+      <ConfirmDialog
+        open={Boolean(planABorrar)}
+        onClose={() => setPlanABorrar(null)}
+        onConfirm={borrarPlan}
+        title="Eliminar plan"
+        descripcion={`Se eliminará «${planABorrar?.name || 'este plan'}» de forma permanente, junto con los tiempos de comida y los totales que tiene calculados. Los planes exportados a PDF no se ven afectados.`}
+      />
     </div>
   );
 }
