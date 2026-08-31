@@ -106,7 +106,7 @@ export default function Patients() {
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--ink-muted)]">
           {patients.length} {patients.length === 1 ? 'paciente registrado' : 'pacientes registrados'}
         </p>
         <Link to="/pacientes/nuevo" className="btn btn-primary gap-2 self-start sm:self-auto">
@@ -124,14 +124,14 @@ export default function Patients() {
         ].map(s => (
           <div key={s.label} className="card p-4 !hover:shadow-none">
             <div className="font-mono text-2xl font-medium" style={{ color: s.color }}>{s.value}</div>
-            <div className="text-xs text-[var(--text-tertiary)] mt-0.5">{s.label}</div>
+            <div className="text-xs text-[var(--ink-secondary)] mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-3 lg:items-center">
         <div className="relative flex-1 min-w-0">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] pointer-events-none" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)] pointer-events-none" />
           <input
             type="text"
             placeholder="Buscar por nombre, email o teléfono"
@@ -164,7 +164,7 @@ export default function Patients() {
               {['Paciente', 'Objetivo', 'IMC', 'Última consulta', 'Estado', ''].map((h) => (
                 <div
                   key={h || 'acciones'}
-                  className="text-2xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)] last:text-right last:pr-0.5"
+                  className="text-2xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)] last:text-right last:pr-0.5"
                 >
                   {h}
                 </div>
@@ -177,10 +177,10 @@ export default function Patients() {
               <div className="empty-state">
                 <div className="empty-state-icon"><Users size={28} /></div>
                 <div>
-                  <div className="text-sm font-semibold text-[var(--text-primary)]">
+                  <div className="text-sm font-semibold text-[var(--ink)]">
                     {search ? 'Sin resultados' : 'Sin pacientes aún'}
                   </div>
-                  <div className="text-xs text-[var(--text-secondary)] mt-1 max-w-sm mx-auto">
+                  <div className="text-xs text-[var(--ink-muted)] mt-1 max-w-sm mx-auto">
                     {search ? 'Prueba con otro término de búsqueda' : 'Agrega tu primer paciente para comenzar'}
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function Patients() {
                     key={p._id}
                     to={`/pacientes/${p._id}`}
                     className={`${TABLE_GRID} px-4 py-3 border-b border-[var(--border-soft)] last:border-0
-                      hover:bg-[var(--surface-muted)] transition-colors group`}
+                      hover:bg-[var(--surface-alt)] transition-colors group`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
@@ -218,10 +218,10 @@ export default function Patients() {
                         }
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--accent)] transition-colors">
+                        <div className="text-sm font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors">
                           {p.firstName} {p.lastName}
                         </div>
-                        <div className="text-xs text-[var(--text-secondary)] truncate hidden sm:block">{p.email}</div>
+                        <div className="text-xs text-[var(--ink-muted)] truncate hidden sm:block">{p.email}</div>
                       </div>
                     </div>
 
@@ -233,12 +233,12 @@ export default function Patients() {
                       {imc ? (
                         <div className="flex items-center gap-1.5">
                           <div className="w-2 h-2 rounded-full shrink-0" style={{ background: imcStyle?.color || '#86868b' }} />
-                          <span className="font-mono text-sm text-[var(--text-primary)]">{imc}</span>
+                          <span className="font-mono text-sm text-[var(--ink)]">{imc}</span>
                         </div>
-                      ) : <span className="text-xs text-[var(--text-tertiary)]">—</span>}
+                      ) : <span className="text-xs text-[var(--ink-secondary)]">—</span>}
                     </div>
 
-                    <div className="text-xs text-[var(--text-secondary)] justify-self-start tabular-nums">
+                    <div className="text-xs text-[var(--ink-muted)] justify-self-start tabular-nums">
                       {diasDesde !== null
                         ? diasDesde === 0 ? 'Hoy'
                           : diasDesde === 1 ? 'Ayer'
@@ -254,7 +254,7 @@ export default function Patients() {
                     </div>
 
                     <div className="flex justify-end">
-                      <ChevronRight size={16} className="text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors shrink-0" />
+                      <ChevronRight size={16} className="text-[var(--ink-secondary)] group-hover:text-[var(--accent)] transition-colors shrink-0" />
                     </div>
                   </Link>
                 );
@@ -265,16 +265,16 @@ export default function Patients() {
       </div>
 
       {filtered.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[var(--text-secondary)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
           <span>Mostrando {filtered.length} de {patients.length}</span>
           <div className="flex gap-1">
-            <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors">
+            <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--ink-muted)] hover:bg-[var(--surface-alt)] transition-colors">
               Anterior
             </button>
             <button type="button" className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white font-semibold">
               1
             </button>
-            <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] transition-colors">
+            <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--ink-muted)] hover:bg-[var(--surface-alt)] transition-colors">
               Siguiente
             </button>
           </div>

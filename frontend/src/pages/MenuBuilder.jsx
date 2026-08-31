@@ -350,7 +350,7 @@ export default function MenuBuilder() {
 
   if (loadingPlan) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[var(--text-secondary)]">
+      <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[var(--ink-muted)]">
         <Loader className="animate-spin" size={24} />
         Cargando dieta…
       </div>
@@ -361,7 +361,7 @@ export default function MenuBuilder() {
     return (
       <div className="mx-auto max-w-lg rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] p-8 text-center">
         <AlertCircle className="mx-auto mb-3 text-[var(--danger)]" size={40} />
-        <p className="text-[var(--text-secondary)]">{loadError}</p>
+        <p className="text-[var(--ink-muted)]">{loadError}</p>
         <Link to="/dietas" className="btn btn-primary mt-4">Volver a dietas</Link>
       </div>
     );
@@ -370,7 +370,7 @@ export default function MenuBuilder() {
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link to="/dietas" className="btn btn-ghost btn-sm w-fit gap-2 text-[var(--text-secondary)]">
+        <Link to="/dietas" className="btn btn-ghost btn-sm w-fit gap-2 text-[var(--ink-muted)]">
           <ArrowLeft size={18} /> Volver
         </Link>
         <button
@@ -407,7 +407,7 @@ export default function MenuBuilder() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
           <div className="card p-5">
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
               Nombre del plan
             </label>
             <input
@@ -418,7 +418,7 @@ export default function MenuBuilder() {
               placeholder="Ej. Plan control glucémico"
             />
             {linkedPatientId && (
-              <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+              <p className="mt-2 text-xs text-[var(--ink-secondary)]">
                 Asociado al paciente (ID en URL). Puedes abrir el paciente desde Pacientes.
               </p>
             )}
@@ -438,8 +438,8 @@ export default function MenuBuilder() {
                   slot.items.map((item, idx) => (
                     <div key={`${slot.slotKey}-${idx}`} className="flex flex-wrap items-center gap-3 px-5 py-3">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-[var(--text-primary)]">{item.foodName}</p>
-                        <p className="text-xs text-[var(--text-tertiary)]">
+                        <p className="truncate font-medium text-[var(--ink)]">{item.foodName}</p>
+                        <p className="text-xs text-[var(--ink-secondary)]">
                           {item.calories} kcal · P {item.protein}g · HC {item.carbohydrates}g · G {item.fats}g
                         </p>
                       </div>
@@ -451,11 +451,11 @@ export default function MenuBuilder() {
                           value={item.quantityGrams ?? ''}
                           onChange={(e) => updateItemGrams(slot.slotKey, idx, e.target.value)}
                         />
-                        <span className="text-xs text-[var(--text-tertiary)]">g</span>
+                        <span className="text-xs text-[var(--ink-secondary)]">g</span>
                         <button
                           type="button"
                           onClick={() => removeItem(slot.slotKey, idx)}
-                          className="rounded-lg p-2 text-[var(--text-tertiary)] hover:bg-[rgba(255,59,48,0.08)] hover:text-[var(--danger)]"
+                          className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[rgba(255,59,48,0.08)] hover:text-[var(--danger)]"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -470,9 +470,9 @@ export default function MenuBuilder() {
 
         <div className="lg:col-span-1">
           <div className="card sticky top-24 p-5">
-            <h3 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">Alimentos</h3>
+            <h3 className="mb-3 text-sm font-semibold text-[var(--ink)]">Alimentos</h3>
             <div className="relative mb-3">
-              <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+              <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]" />
               <input
                 type="text"
                 className="input w-full py-2 pl-9 text-sm"
@@ -482,7 +482,7 @@ export default function MenuBuilder() {
               />
             </div>
             {foodsLoading ? (
-              <div className="flex items-center gap-2 py-8 text-sm text-[var(--text-secondary)]">
+              <div className="flex items-center gap-2 py-8 text-sm text-[var(--ink-muted)]">
                 <Loader className="animate-spin" size={18} /> Cargando…
               </div>
             ) : (
@@ -499,7 +499,7 @@ export default function MenuBuilder() {
                           key={s.slotKey}
                           type="button"
                           onClick={() => addFoodToSlot(s.slotKey, food)}
-                          className="rounded-md border border-[var(--border-soft)] bg-[var(--surface-muted)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                          className="rounded-md border border-[var(--border-soft)] bg-[var(--surface-alt)] px-2 py-0.5 text-[10px] font-medium text-[var(--ink-muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
                         >
                           + {s.slotLabel}
                         </button>

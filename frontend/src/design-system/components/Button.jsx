@@ -19,7 +19,7 @@ const SPINNER_CLASS = {
   primary: 'border-white/35 border-t-white',
   secondary: 'border-white/35 border-t-white',
   outline: 'border-[var(--accent)]/30 border-t-[var(--accent)]',
-  ghost: 'border-[var(--text-secondary)]/30 border-t-[var(--text-secondary)]',
+  ghost: 'border-[var(--ink-muted)]/30 border-t-[var(--ink-muted)]',
   danger: 'border-[var(--danger)]/30 border-t-[var(--danger)]',
 };
 

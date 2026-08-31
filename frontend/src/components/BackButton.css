@@ -4,19 +4,19 @@
     gap: 0.5rem;
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: var(--ink-muted);
     font-size: 0.95rem;
     font-weight: 500;
     cursor: pointer;
     padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-s);
     transition: all 0.2s ease;
     margin-right: 1rem;
 }
 
 .back-button:hover {
-    color: var(--primary-color);
-    background-color: var(--primary-light);
+    color: var(--accent);
+    background-color: var(--accent-soft);
 }
 
 .back-button svg {

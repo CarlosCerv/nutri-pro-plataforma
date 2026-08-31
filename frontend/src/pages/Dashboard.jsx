@@ -43,7 +43,7 @@ const KPICard = ({ label, value, delta, deltaLabel, icon, color, loading }) => {
         <div className="kpi-value" style={{ color }}>{value ?? '—'}</div>
         <div className="kpi-label mt-1.5">{label}</div>
         {deltaLabel && (
-          <div className="mt-1 text-xs text-[#1d1d1f]/30">{deltaLabel}</div>
+          <div className="mt-1 text-xs text-[var(--ink-secondary)]">{deltaLabel}</div>
         )}
       </>
     )}
@@ -85,7 +85,7 @@ export default function Dashboard() {
           <h1 className="page-title font-display text-2xl md:text-3xl">
             {saludo}, {nombreCorto}
           </h1>
-          <p className="text-sm text-[#1d1d1f]/30 mt-0.5">
+          <p className="text-sm text-[var(--ink-secondary)] mt-0.5">
             {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>

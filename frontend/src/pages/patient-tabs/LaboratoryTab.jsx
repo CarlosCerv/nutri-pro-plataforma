@@ -88,8 +88,8 @@ const SemaforoBadge = ({ nivel }) => {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[var(--surface-muted)] border border-[var(--border-soft)] rounded-xl px-3 py-2 shadow-card text-xs">
-      <div className="text-[#1d1d1f]/40 mb-1">{label}</div>
+    <div className="bg-[var(--surface-alt)] border border-[var(--border-soft)] rounded-xl px-3 py-2 shadow-card text-xs">
+      <div className="text-[var(--ink-secondary)] mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="font-mono font-medium" style={{ color: p.color }}>
           {p.value} {p.name}
@@ -165,14 +165,14 @@ export default function LaboratoryTab({ patient }) {
             { key: 'fr',          label: 'F.R.',  unit: 'rpm', ph: '16'  },
           ].map(s => (
             <div key={s.key} className="flex items-center gap-2">
-              <label className="text-xs text-[#1d1d1f]/40">{s.label}</label>
+              <label className="text-xs text-[var(--ink-secondary)]">{s.label}</label>
               <div className="relative">
                 <input type="number" step="0.1"
                   className="input !w-24 py-1.5 pr-8 text-center font-mono text-sm"
                   value={signos[s.key]}
                   onChange={e => setSignos(v => ({ ...v, [s.key]: e.target.value }))}
                   placeholder={s.ph} />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-2xs text-[#1d1d1f]/25">{s.unit}</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-2xs text-[var(--ink-secondary)]">{s.unit}</span>
               </div>
             </div>
           ))}
@@ -198,11 +198,11 @@ export default function LaboratoryTab({ patient }) {
                     ${nivel === 'normal'   ? 'bg-success/5  border-success/15'
                     : nivel === 'warning'  ? 'bg-warning/5  border-warning/15'
                     : nivel === 'critical' ? 'bg-danger/5   border-danger/15'
-                    : 'bg-[var(--surface-muted)] border-[var(--border-soft)]'}`}>
+                    : 'bg-[var(--surface-alt)] border-[var(--border-soft)]'}`}>
                   <SemaforoIcon nivel={nivel} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-[#1d1d1f]/80">{campo.label}</div>
-                    {refText && <div className="text-2xs text-[#1d1d1f]/25 mt-0.5">{refText}</div>}
+                    <div className="text-sm text-[var(--ink-muted)]">{campo.label}</div>
+                    {refText && <div className="text-2xs text-[var(--ink-secondary)] mt-0.5">{refText}</div>}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <SemaforoBadge nivel={nivel} />
@@ -214,7 +214,7 @@ export default function LaboratoryTab({ patient }) {
                         onChange={e => set(campo.key, e.target.value)}
                         placeholder="—"
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-2xs text-[#1d1d1f]/25 pointer-events-none">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-2xs text-[var(--ink-secondary)] pointer-events-none">
                         {campo.unit}
                       </span>
                     </div>

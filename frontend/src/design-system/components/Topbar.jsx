@@ -45,12 +45,12 @@ export default function Topbar({ onMenuToggle }) {
           </button>
 
           <div className="min-w-0 flex-1 space-y-1">
-            <h1 className="text-base md:text-lg font-semibold text-[var(--text-primary)] tracking-apple-tight leading-snug">
+            <h1 className="text-base md:text-lg font-semibold text-[var(--ink)] tracking-apple-tight leading-snug">
               {meta.title}
             </h1>
 
             {meta.subtitle ? (
-              <p className="text-2xs md:text-xs text-[var(--text-secondary)] leading-relaxed max-w-2xl">
+              <p className="text-2xs md:text-xs text-[var(--ink-muted)] leading-relaxed max-w-2xl">
                 {meta.subtitle}
               </p>
             ) : null}
@@ -70,7 +70,7 @@ export default function Topbar({ onMenuToggle }) {
             {quickOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-40 bg-[var(--text-primary)]/[0.04]"
+                  className="fixed inset-0 z-40 bg-[var(--ink)]/[0.04]"
                   onClick={() => setQuickOpen(false)}
                   aria-hidden
                 />
@@ -84,7 +84,7 @@ export default function Topbar({ onMenuToggle }) {
                       role="menuitem"
                       to={a.to}
                       onClick={() => setQuickOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-3.5 min-h-[48px] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-colors border-b border-[var(--border-soft)] last:border-0"
+                      className="flex items-center gap-2.5 px-4 py-3.5 min-h-[48px] text-sm text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-alt)] transition-colors border-b border-[var(--border-soft)] last:border-0"
                     >
                       <Plus size={14} className="text-[var(--accent)] shrink-0" strokeWidth={1.75} />
                       <span className="truncate">{a.label}</span>

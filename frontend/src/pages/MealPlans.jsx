@@ -93,7 +93,7 @@ export default function MealPlans() {
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--ink-muted)]">
           Planes guardados en tu cuenta.
         </p>
         <div className="flex flex-wrap gap-2">
@@ -110,7 +110,7 @@ export default function MealPlans() {
       )}
 
       <div className="relative max-w-md">
-        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-secondary)]" />
         <input
           type="text"
           className="input w-full pl-10"
@@ -122,20 +122,20 @@ export default function MealPlans() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
-          <div className="col-span-full flex items-center justify-center gap-2 py-12 text-[var(--text-secondary)]">
+          <div className="col-span-full flex items-center justify-center gap-2 py-12 text-[var(--ink-muted)]">
             <Loader className="animate-spin" size={22} />
             Cargando…
           </div>
         ) : filtered.length === 0 ? (
           <div className="col-span-full empty-state">
             <div className="empty-state-icon"><Salad size={28} /></div>
-            <div className="text-sm text-[var(--text-secondary)]">No hay planes. Crea uno nuevo.</div>
+            <div className="text-sm text-[var(--ink-muted)]">No hay planes. Crea uno nuevo.</div>
           </div>
         ) : (
           filtered.map((dieta) => (
             <div key={dieta._id} className="card flex h-full flex-col p-5">
               <div className="mb-3 flex items-start justify-between gap-2">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--surface-muted)] text-[var(--accent)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--surface-alt)] text-[var(--accent)]">
                   <Salad size={20} />
                 </div>
                 <div className="flex items-center gap-1">
@@ -172,18 +172,18 @@ export default function MealPlans() {
               </div>
 
               <div className="min-w-0 flex-1">
-                <h3 className="mb-1 line-clamp-2 text-base font-semibold text-[var(--text-primary)]">
+                <h3 className="mb-1 line-clamp-2 text-base font-semibold text-[var(--ink)]">
                   {dieta.name || 'Sin nombre'}
                 </h3>
                 {dieta.patient?._id ? (
                   <Link
                     to={`/pacientes/${dieta.patient._id}`}
-                    className="mb-3 block truncate text-xs text-[var(--text-secondary)] hover:text-[var(--accent)]"
+                    className="mb-3 block truncate text-xs text-[var(--ink-muted)] hover:text-[var(--accent)]"
                   >
                     {dieta.patient.firstName} {dieta.patient.lastName}
                   </Link>
                 ) : (
-                  <p className="mb-3 text-xs text-[var(--text-tertiary)]">Plantilla / sin paciente</p>
+                  <p className="mb-3 text-xs text-[var(--ink-secondary)]">Plantilla / sin paciente</p>
                 )}
 
                 <div className="mb-4 flex flex-wrap gap-2">
@@ -193,7 +193,7 @@ export default function MealPlans() {
                 </div>
               </div>
 
-              <div className="mt-auto flex items-center justify-between border-t border-[var(--border-soft)] pt-4 text-xs text-[var(--text-tertiary)]">
+              <div className="mt-auto flex items-center justify-between border-t border-[var(--border-soft)] pt-4 text-xs text-[var(--ink-secondary)]">
                 <span className="flex items-center gap-1">
                   <Calendar size={13} />
                   {dieta.updatedAt

@@ -75,13 +75,13 @@ export default function GeneralDataTab({ patient, onUpdate }) {
     <form onSubmit={handleSave} className="space-y-8">
       {/* Foto de perfil */}
       <div className="flex items-center gap-5">
-        <div className="w-20 h-20 rounded-2xl bg-[var(--surface-muted)] border-2 border-dashed border-[var(--border-soft)] flex flex-col items-center justify-center cursor-pointer hover:border-emerald/40 transition-colors group">
-          <Camera size={20} className="text-[#1d1d1f]/20 group-hover:text-emerald/50 transition-colors" />
-          <span className="text-2xs text-[#1d1d1f]/20 mt-1">Foto</span>
+        <div className="w-20 h-20 rounded-2xl bg-[var(--surface-alt)] border-2 border-dashed border-[var(--border-soft)] flex flex-col items-center justify-center cursor-pointer hover:border-emerald/40 transition-colors group">
+          <Camera size={20} className="text-[var(--ink-secondary)] group-hover:text-emerald/50 transition-colors" />
+          <span className="text-2xs text-[var(--ink-secondary)] mt-1">Foto</span>
         </div>
         <div>
-          <div className="text-sm font-semibold text-[#1d1d1f] mb-0.5">Foto del paciente</div>
-          <div className="text-xs text-[#1d1d1f]/30">PNG, JPG hasta 5 MB</div>
+          <div className="text-sm font-semibold text-[var(--ink)] mb-0.5">Foto del paciente</div>
+          <div className="text-xs text-[var(--ink-secondary)]">PNG, JPG hasta 5 MB</div>
         </div>
       </div>
 
@@ -100,7 +100,7 @@ export default function GeneralDataTab({ patient, onUpdate }) {
             <input type="date" className="input" value={form.dob} onChange={e => set('dob', e.target.value)} required />
           </Field>
           <Field label="Edad calculada">
-            <div className="input bg-white/94 cursor-default text-[#1d1d1f]/50 font-mono">
+            <div className="input bg-white/94 cursor-default text-[var(--ink-secondary)] font-mono">
               {calcEdad() ? `${calcEdad()} años` : '—'}
             </div>
           </Field>
@@ -144,7 +144,7 @@ export default function GeneralDataTab({ patient, onUpdate }) {
                 className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all duration-200
                   ${form[f.key]
                     ? 'bg-emerald/10 border-emerald/30 text-emerald'
-                    : 'bg-[var(--surface-muted)] border-[var(--border-soft)] text-[#1d1d1f]/50 hover:border-[var(--border-soft)]'
+                    : 'bg-[var(--surface-alt)] border-[var(--border-soft)] text-[var(--ink-secondary)] hover:border-[var(--border-soft)]'
                   }`}>
                 <input type="checkbox" className="hidden" checked={form[f.key]} onChange={e => set(f.key, e.target.checked)} />
                 <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border

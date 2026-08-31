@@ -73,7 +73,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
            ${
              isActive
                ? 'bg-[rgba(0,113,227,0.1)] text-[var(--accent)] border-[rgba(0,113,227,0.2)]'
-               : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)]'
+               : 'text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-alt)]'
            }`
         }
       >
@@ -87,7 +87,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
           <div
             className="
             absolute left-[calc(100%+10px)] px-2.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap
-            bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border-soft)] shadow-card
+            bg-[var(--surface)] text-[var(--ink)] border border-[var(--border-soft)] shadow-card
             opacity-0 pointer-events-none z-50 transition-all duration-150 ease-apple translate-x-0.5
             group-hover:opacity-100 group-hover:translate-x-0
           "
@@ -138,7 +138,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
         <button
           type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-muted)] transition-all duration-200 ease-apple"
+          className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg text-[var(--ink-secondary)] hover:text-[var(--ink)] hover:bg-[var(--surface-alt)] transition-all duration-200 ease-apple"
           aria-label={collapsed ? 'Expandir menú' : 'Contraer menú'}
         >
           {collapsed ? <ChevronRight size={16} strokeWidth={1.75} /> : <ChevronLeft size={16} strokeWidth={1.75} />}
@@ -149,7 +149,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
         {NAV_ITEMS.map((group) => (
           <div key={group.section} className="mb-4">
             {!collapsed && (
-              <div className="px-3 mb-1.5 text-2xs font-semibold uppercase tracking-[0.06em] text-[var(--text-tertiary)]">
+              <div className="px-3 mb-1.5 text-2xs font-semibold uppercase tracking-[0.06em] text-[var(--ink-secondary)]">
                 {group.section}
               </div>
             )}
@@ -162,15 +162,15 @@ export default function Sidebar({ mobileOpen, onClose }) {
         ))}
       </nav>
 
-      <div className="px-2 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-[var(--border-soft)] bg-[var(--surface-muted)]/40">
+      <div className="px-2 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-[var(--border-soft)] bg-[var(--surface-alt)]/40">
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-1'} mb-2`}>
           <div className="w-9 h-9 rounded-full bg-[var(--accent)] text-white flex-shrink-0 flex items-center justify-center shadow-card">
             <span className="text-xs font-bold font-mono">{initials}</span>
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-[var(--text-primary)] truncate">{user?.name || 'Nutrición'}</div>
-              <div className="text-2xs text-[var(--text-tertiary)] truncate">{user?.email || ''}</div>
+              <div className="text-xs font-semibold text-[var(--ink)] truncate">{user?.name || 'Nutrición'}</div>
+              <div className="text-2xs text-[var(--ink-secondary)] truncate">{user?.email || ''}</div>
             </div>
           )}
         </div>
@@ -179,7 +179,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
           onClick={logout}
           className={`
             flex items-center gap-2.5 w-full px-3 py-3 rounded-xl border border-transparent min-h-11
-            text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[rgba(196,30,22,0.08)]
+            text-xs font-semibold text-[var(--ink-muted)] hover:text-[var(--danger)] hover:bg-[rgba(196,30,22,0.08)]
             transition-all duration-200 ease-apple
             ${collapsed ? 'justify-center' : ''}
           `}
@@ -197,7 +197,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-[var(--text-primary)]/10 backdrop-blur-sm lg:hidden" onClick={onClose} />
+          <div className="fixed inset-0 z-40 bg-[var(--ink)]/10 backdrop-blur-sm lg:hidden" onClick={onClose} />
           <div className="fixed inset-y-0 left-0 z-50 flex lg:hidden animate-slide-in-left shadow-card-hover max-w-[min(100vw,20rem)] w-full pl-[env(safe-area-inset-left)]">
             {renderSidebar(true)}
           </div>

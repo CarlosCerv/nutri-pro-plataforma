@@ -15,11 +15,11 @@ const Field = ({ label, unit, children, hint }) => (
   <div className="form-group">
     <label className="label flex items-center gap-1.5">
       {label}
-      {unit && <span className="text-[#1d1d1f]/30 normal-case">({unit})</span>}
+      {unit && <span className="text-[var(--ink-secondary)] normal-case">({unit})</span>}
       {hint && (
         <div className="group relative">
-          <Info size={12} className="text-[#1d1d1f]/20 cursor-help" />
-          <div className="absolute bottom-5 left-0 z-10 w-48 px-2.5 py-1.5 bg-[var(--surface-muted)] border border-[var(--border-soft)] rounded-lg text-2xs text-[#1d1d1f]/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-card">
+          <Info size={12} className="text-[var(--ink-secondary)] cursor-help" />
+          <div className="absolute bottom-5 left-0 z-10 w-48 px-2.5 py-1.5 bg-[var(--surface-alt)] border border-[var(--border-soft)] rounded-lg text-2xs text-[var(--ink-secondary)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-card">
             {hint}
           </div>
         </div>
@@ -42,8 +42,8 @@ const FORMULAS_GRASA = [
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[var(--surface-muted)] border border-[var(--border-soft)] rounded-xl px-3 py-2 shadow-card text-xs">
-      <div className="text-[#1d1d1f]/40 mb-1">{label}</div>
+    <div className="bg-[var(--surface-alt)] border border-[var(--border-soft)] rounded-xl px-3 py-2 shadow-card text-xs">
+      <div className="text-[var(--ink-secondary)] mb-1">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="font-mono font-medium" style={{ color: p.color }}>
           {p.value} {p.name}
@@ -193,10 +193,10 @@ export default function MeasurementsTab({ patient }) {
 
         {/* IMC visual */}
         {imc && (
-          <div className="p-4 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border-soft)] space-y-3">
+          <div className="p-4 rounded-2xl bg-[var(--surface-alt)] border border-[var(--border-soft)] space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs text-[#1d1d1f]/40">IMC calculado</span>
+                <span className="text-xs text-[var(--ink-secondary)]">IMC calculado</span>
                 <div className="flex items-center gap-3 mt-0.5">
                   <span className="font-mono text-3xl font-medium" style={{ color: imcCI?.color }}>{imc.toFixed(1)}</span>
                   <span className="badge" style={{ background: `${imcCI?.color}20`, color: imcCI?.color, borderColor: `${imcCI?.color}30` }}>
@@ -206,8 +206,8 @@ export default function MeasurementsTab({ patient }) {
               </div>
               {icc && (
                 <div className="text-right">
-                  <span className="text-xs text-[#1d1d1f]/40">ICC (Cintura/Cadera)</span>
-                  <div className="font-mono text-xl font-medium text-[#1d1d1f]/80 mt-0.5">{icc}</div>
+                  <span className="text-xs text-[var(--ink-secondary)]">ICC (Cintura/Cadera)</span>
+                  <div className="font-mono text-xl font-medium text-[var(--ink-muted)] mt-0.5">{icc}</div>
                 </div>
               )}
             </div>
@@ -222,7 +222,7 @@ export default function MeasurementsTab({ patient }) {
               <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg"
                 style={{ left: `${Math.min(imcPct, 98)}%`, transform: 'translateX(-50%)' }} />
             </div>
-            <div className="flex justify-between text-2xs text-[#1d1d1f]/25">
+            <div className="flex justify-between text-2xs text-[var(--ink-secondary)]">
               <span>16</span><span>18.5</span><span>25</span><span>30</span><span>35</span><span>40+</span>
             </div>
           </div>
@@ -253,14 +253,14 @@ export default function MeasurementsTab({ patient }) {
         </div>
 
         {/* Selector de fórmula + resultados */}
-        <div className="p-4 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border-soft)]">
+        <div className="p-4 rounded-2xl bg-[var(--surface-alt)] border border-[var(--border-soft)]">
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="text-xs font-semibold text-[#1d1d1f]/60">Fórmula:</span>
+            <span className="text-xs font-semibold text-[var(--ink-secondary)]">Fórmula:</span>
             {FORMULAS_GRASA.map(f => (
               <button key={f.key} type="button"
                 onClick={() => setFormulaGrasa(f.key)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all
-                  ${formulaGrasa === f.key ? 'bg-emerald text-navy-950' : 'bg-[var(--surface-strong)] text-[#1d1d1f]/50 hover:text-[#1d1d1f]'}`}>
+                  ${formulaGrasa === f.key ? 'bg-emerald text-navy-950' : 'bg-[var(--surface-strong)] text-[var(--ink-secondary)] hover:text-[var(--ink)]'}`}>
                 {f.label}
                 <span className="ml-1 opacity-50">({f.pliegues})</span>
               </button>
@@ -277,12 +277,12 @@ export default function MeasurementsTab({ patient }) {
               ].map(r => (
                 <div key={r.label} className="text-center p-3 rounded-xl bg-white/94">
                   <div className="font-mono text-xl font-medium" style={{ color: r.color }}>{r.value || '—'}</div>
-                  <div className="text-2xs text-[#1d1d1f]/30 mt-0.5">{r.label}</div>
+                  <div className="text-2xs text-[var(--ink-secondary)] mt-0.5">{r.label}</div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-[#1d1d1f]/30 text-center py-2">Ingresa los pliegues para calcular % de grasa</p>
+            <p className="text-xs text-[var(--ink-secondary)] text-center py-2">Ingresa los pliegues para calcular % de grasa</p>
           )}
         </div>
       </div>
@@ -316,7 +316,7 @@ export default function MeasurementsTab({ patient }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Peso */}
             <div className="card !p-4">
-              <div className="text-xs font-semibold text-[#1d1d1f]/40 mb-3">Peso (kg)</div>
+              <div className="text-xs font-semibold text-[var(--ink-secondary)] mb-3">Peso (kg)</div>
               <ResponsiveContainer width="100%" height={140}>
                 <LineChart data={historico}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -329,7 +329,7 @@ export default function MeasurementsTab({ patient }) {
             </div>
             {/* % Grasa */}
             <div className="card !p-4">
-              <div className="text-xs font-semibold text-[#1d1d1f]/40 mb-3">% Grasa Corporal</div>
+              <div className="text-xs font-semibold text-[var(--ink-secondary)] mb-3">% Grasa Corporal</div>
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={historico}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />

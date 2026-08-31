@@ -1,6 +1,6 @@
 /* NewAppointment Redesign - Spacious & Aligned */
 .new-appointment-page {
-    padding: var(--space-xl) var(--space-2xl);
+    padding: var(--space-4) var(--space-5);
     max-width: 860px;
     margin: 0 auto;
 }
@@ -9,7 +9,7 @@
     padding: 0;
     overflow: hidden;
     background: white;
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-l);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
 }
 
@@ -19,7 +19,7 @@
 }
 
 .form-card-section {
-    padding: var(--space-xl) var(--space-2xl);
+    padding: var(--space-4) var(--space-5);
     border-bottom: 1px solid var(--gray-50);
 }
 
@@ -35,8 +35,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-xl);
-    gap: var(--space-lg);
+    margin-bottom: var(--space-4);
+    gap: var(--space-4);
 }
 
 .section-header-compact h3 {
@@ -48,7 +48,7 @@
 .section-title-simple {
     font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-4);
     color: var(--gray-800);
 }
 
@@ -56,14 +56,14 @@
 .form-fields-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-xl);
+    gap: var(--space-4);
 }
 
 .guest-fields-container {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-xl);
+    gap: var(--space-4);
 }
 
 .form-field {
@@ -90,7 +90,7 @@
 .field-input {
     padding: 0.75rem 1rem;
     border: 1.5px solid var(--gray-200);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-m);
     font-size: 0.95rem;
     transition: all 0.2s;
     background: white;
@@ -190,7 +190,7 @@ input:checked+.slider:before {
     padding: 0.625rem 1rem;
     background: white;
     border: 1.5px solid var(--gray-200);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-m);
     cursor: pointer;
     transition: all 0.2s;
     min-height: 48px;
@@ -251,7 +251,7 @@ input:checked+.slider:before {
     right: 0;
     background: white;
     border: 1px solid var(--gray-100);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-m);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     z-index: 50;
     overflow: hidden;
@@ -365,11 +365,11 @@ input:checked+.slider:before {
 
 /* Actions Footer */
 .form-footer-actions {
-    padding: var(--space-xl) var(--space-2xl);
+    padding: var(--space-4) var(--space-5);
     background: var(--gray-50);
     display: flex;
     justify-content: flex-end;
-    gap: var(--space-lg);
+    gap: var(--space-4);
 }
 
 .btn-v2-primary,
@@ -378,7 +378,7 @@ input:checked+.slider:before {
     align-items: center;
     gap: 10px;
     padding: 0.75rem 1.75rem;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-m);
     font-weight: 700;
     font-size: 0.95rem;
     cursor: pointer;
@@ -427,28 +427,28 @@ input:checked+.slider:before {
 /* Responsive Overhaul */
 @media (max-width: 768px) {
     .new-appointment-page {
-        padding: var(--space-md);
+        padding: var(--space-3);
     }
 
     .form-card-section {
-        padding: var(--space-lg);
+        padding: var(--space-4);
     }
 
     .section-header-compact {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--space-md);
+        gap: var(--space-3);
     }
 
     .form-fields-grid,
     .guest-fields-container {
         grid-template-columns: 1fr;
-        gap: var(--space-lg);
+        gap: var(--space-4);
     }
 
     .form-footer-actions {
         flex-direction: column;
-        padding: var(--space-lg);
+        padding: var(--space-4);
     }
 
     .btn-v2-primary,

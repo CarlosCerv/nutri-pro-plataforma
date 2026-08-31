@@ -45,10 +45,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-[var(--surface-alt)] flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-[var(--border)] border-t-[var(--accent)] rounded-full animate-spin" />
-          <span className="text-sm text-[var(--text-secondary)]">Cargando NutriPro…</span>
+          <span className="text-sm text-[var(--ink-muted)]">Cargando NutriPro…</span>
         </div>
       </div>
     );
@@ -63,11 +63,11 @@ const ProtectedRoute = ({ children }) => {
 
 const PageFallback = ({ fullScreen = false }) => (
   <div
-    className={`${fullScreen ? 'min-h-screen' : 'min-h-[40vh]'} bg-[var(--bg-primary)] flex items-center justify-center font-sans`}
+    className={`${fullScreen ? 'min-h-screen' : 'min-h-[40vh]'} bg-[var(--surface-alt)] flex items-center justify-center font-sans`}
   >
     <div className="flex flex-col items-center gap-4">
       <div className="w-10 h-10 border-2 border-[var(--border)] border-t-[var(--accent)] rounded-full animate-spin" />
-      <span className="text-sm text-[var(--text-secondary)]">Cargando vista…</span>
+      <span className="text-sm text-[var(--ink-muted)]">Cargando vista…</span>
     </div>
   </div>
 );

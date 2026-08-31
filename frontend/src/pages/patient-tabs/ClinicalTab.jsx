@@ -62,7 +62,7 @@ export default function ClinicalTab({ patient }) {
         className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 border
           ${active
             ? 'bg-emerald/15 text-emerald border-emerald/30'
-            : 'bg-[var(--surface-muted)] text-[#1d1d1f]/40 border-[var(--border-soft)] hover:border-[var(--border-soft)] hover:text-[#1d1d1f]/70'
+            : 'bg-[var(--surface-alt)] text-[var(--ink-secondary)] border-[var(--border-soft)] hover:border-[var(--border-soft)] hover:text-[var(--ink-muted)]'
           }`}>
         {active && <span className="mr-1">✓</span>}
         {valor}
@@ -82,7 +82,7 @@ export default function ClinicalTab({ patient }) {
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border
                 ${form.diagnosticoNutricional === d
                   ? 'bg-gold/15 text-gold border-gold/30'
-                  : 'bg-[var(--surface-muted)] text-[#1d1d1f]/40 border-[var(--border-soft)] hover:text-[#1d1d1f]/70 hover:border-[var(--border-soft)]'
+                  : 'bg-[var(--surface-alt)] text-[var(--ink-secondary)] border-[var(--border-soft)] hover:text-[var(--ink-muted)] hover:border-[var(--border-soft)]'
                 }`}>
               {d}
             </button>
@@ -95,7 +95,7 @@ export default function ClinicalTab({ patient }) {
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Patologías Presentes</h3>
         {PATOLOGIAS.map(grupo => (
           <div key={grupo.grupo}>
-            <div className="text-2xs font-bold text-[#1d1d1f]/25 uppercase tracking-wider mb-2">{grupo.grupo}</div>
+            <div className="text-2xs font-bold text-[var(--ink-secondary)] uppercase tracking-wider mb-2">{grupo.grupo}</div>
             <div className="flex flex-wrap gap-2">
               {grupo.items.map(p => <ChipToggle key={p} campo="patologias" valor={p} />)}
             </div>
@@ -113,7 +113,7 @@ export default function ClinicalTab({ patient }) {
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border
                 ${(form.sintomasGI || []).includes(s)
                   ? 'bg-warning/15 text-warning border-warning/30'
-                  : 'bg-[var(--surface-muted)] text-[#1d1d1f]/40 border-[var(--border-soft)] hover:text-[#1d1d1f]/70 hover:border-[var(--border-soft)]'
+                  : 'bg-[var(--surface-alt)] text-[var(--ink-secondary)] border-[var(--border-soft)] hover:text-[var(--ink-muted)] hover:border-[var(--border-soft)]'
                 }`}>
               {(form.sintomasGI || []).includes(s) && '⚠ '}{s}
             </button>

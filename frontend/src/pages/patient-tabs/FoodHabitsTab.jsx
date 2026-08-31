@@ -48,7 +48,7 @@ export default function FoodHabitsTab({ patient }) {
       {/* ── Recordatorio de 24 horas ── */}
       <div className="space-y-3">
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Recordatorio de 24 Horas</h3>
-        <p className="text-xs text-[#1d1d1f]/30">Registra todos los alimentos y bebidas consumidos en las últimas 24 horas</p>
+        <p className="text-xs text-[var(--ink-secondary)]">Registra todos los alimentos y bebidas consumidos en las últimas 24 horas</p>
         <textarea
           className="input min-h-[120px] resize-none font-mono text-sm"
           value={form.recordatorio24h}
@@ -62,7 +62,7 @@ export default function FoodHabitsTab({ patient }) {
         <h3 className="section-title text-base border-b border-[var(--border-soft)] pb-2">Horarios Habituales de Comida</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {form.horariosComida.map((t, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-soft)]">
+            <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-alt)] border border-[var(--border-soft)]">
               <input
                 type="time"
                 className="input !w-auto !py-1.5 font-mono text-sm flex-shrink-0"
@@ -112,19 +112,19 @@ export default function FoodHabitsTab({ patient }) {
           {GRUPOS_FRECUENCIA.map(grupo => {
             const val = form.frecuencias[grupo] || 'Nunca';
             return (
-              <div key={grupo} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface-muted)] transition-colors">
-                <span className="text-sm text-[#1d1d1f]/70 flex-1 min-w-0 truncate">{grupo}</span>
+              <div key={grupo} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--surface-alt)] hover:bg-[var(--surface-alt)] transition-colors">
+                <span className="text-sm text-[var(--ink-muted)] flex-1 min-w-0 truncate">{grupo}</span>
                 <div className="flex gap-1.5 flex-shrink-0">
                   {FRECUENCIAS.map(f => (
                     <button key={f} type="button"
                       onClick={() => setFreq(grupo, f)}
                       className={`px-2.5 py-1 rounded-lg text-2xs font-bold transition-all
                         ${val === f
-                          ? f === 'Nunca'     ? 'bg-[var(--surface-strong)] text-[var(--text-secondary)]'
+                          ? f === 'Nunca'     ? 'bg-[var(--surface-strong)] text-[var(--ink-muted)]'
                           : f === 'Ocasional' ? 'bg-info/20 text-info border border-info/30'
                           : f === 'Semanal'   ? 'bg-warning/20 text-warning border border-warning/30'
                           : 'bg-emerald/20 text-emerald border border-emerald/30'
-                          : 'bg-transparent text-[#1d1d1f]/25 hover:text-[#1d1d1f]/50'
+                          : 'bg-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-secondary)]'
                         }`}>
                       {f}
                     </button>

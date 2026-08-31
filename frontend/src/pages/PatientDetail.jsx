@@ -39,7 +39,7 @@ const calcIMC = (peso, talla) => {
 };
 
 const clasificarIMC = (imc) => {
-  if (!imc) return { cat: '—', color: 'var(--text-tertiary)' };
+  if (!imc) return { cat: '—', color: 'var(--ink-secondary)' };
   const v = parseFloat(imc);
   if (v < 18.5) return { cat: 'Bajo peso', color: 'var(--chart-blue)' };
   if (v < 25) return { cat: 'Normal', color: 'var(--chart-green)' };
@@ -126,7 +126,7 @@ export default function PatientDetail() {
         <div className="empty-state-icon">
           <AlertCircle size={28} />
         </div>
-        <div className="text-sm text-[var(--text-secondary)]">{error}</div>
+        <div className="text-sm text-[var(--ink-muted)]">{error}</div>
         <div className="flex gap-2">
           <button type="button" onClick={fetchPatient} className="btn btn-primary btn-sm gap-2">
             <RefreshCw size={14} />
@@ -146,7 +146,7 @@ export default function PatientDetail() {
         <div className="empty-state-icon">
           <User size={28} />
         </div>
-        <div className="text-sm text-[var(--text-secondary)]">Paciente no encontrado</div>
+        <div className="text-sm text-[var(--ink-muted)]">Paciente no encontrado</div>
         <Link to="/pacientes" className="btn btn-outline btn-sm">
           ← Volver
         </Link>
@@ -187,23 +187,23 @@ export default function PatientDetail() {
 
   return (
     <div className="space-y-5 animate-fade-up">
-      <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
+      <div className="flex items-center gap-2 text-xs text-[var(--ink-secondary)]">
         <button
           type="button"
           onClick={() => navigate('/pacientes')}
-          className="hover:text-[var(--text-primary)] transition-colors flex items-center gap-1"
+          className="hover:text-[var(--ink)] transition-colors flex items-center gap-1"
         >
           <ArrowLeft size={13} strokeWidth={1.75} /> Pacientes
         </button>
         <span aria-hidden>/</span>
-        <span className="text-[var(--text-secondary)]">{nombre}</span>
+        <span className="text-[var(--ink-muted)]">{nombre}</span>
       </div>
 
       <div className="card">
         <div className="flex flex-col sm:flex-row gap-5">
           <div className="flex-shrink-0">
             <div
-              className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-2xl font-semibold font-display text-[#1d1d1f]"
+              className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-2xl font-semibold font-display text-[var(--ink)]"
               style={{ background: avatarColor }}
             >
               {patient.photoUrl ? (
@@ -216,14 +216,14 @@ export default function PatientDetail() {
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-start gap-3 mb-2">
-              <h1 className="font-display text-2xl text-[var(--text-primary)] tracking-apple-tight">{nombre}</h1>
+              <h1 className="font-display text-2xl text-[var(--ink)] tracking-apple-tight">{nombre}</h1>
               <span
                 className={`badge self-center ${patient.active !== false ? 'badge-success' : 'badge-neutral'}`}
               >
                 {patient.active !== false ? 'Activo' : 'Inactivo'}
               </span>
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-sm text-[var(--text-secondary)]">
+            <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-sm text-[var(--ink-muted)]">
               {edad != null && <span>{edad} años</span>}
               <span>{sexLabel(patient.sex)}</span>
               {patient.email && <span>{patient.email}</span>}
@@ -244,12 +244,12 @@ export default function PatientDetail() {
             ].map((k) => (
               <div
                 key={k.label}
-                className="text-center px-4 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-soft)] min-w-[70px]"
+                className="text-center px-4 py-2 rounded-xl bg-[var(--surface-alt)] border border-[var(--border-soft)] min-w-[70px]"
               >
                 <div className="font-mono text-lg font-medium" style={{ color: k.color }}>
                   {k.value}
                 </div>
-                <div className="text-2xs text-[var(--text-tertiary)] mt-0.5">{k.label}</div>
+                <div className="text-2xs text-[var(--ink-secondary)] mt-0.5">{k.label}</div>
                 {k.sub && (
                   <div className="text-2xs mt-0.5 font-semibold" style={{ color: k.color }}>
                     {k.sub}

@@ -95,7 +95,7 @@ const Appointments = () => {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 animate-fade-up">
         <div className="h-9 w-9 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-        <p className="text-sm text-[var(--text-secondary)]">Cargando agenda…</p>
+        <p className="text-sm text-[var(--ink-muted)]">Cargando agenda…</p>
       </div>
     );
   }
@@ -103,7 +103,7 @@ const Appointments = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-[var(--ink-muted)]">
           {appointments.length}{' '}
           {appointments.length === 1 ? 'cita en total' : 'citas en total'}
         </p>
@@ -131,16 +131,16 @@ const Appointments = () => {
       </div>
 
       {groupedList.length === 0 ? (
-        <div className="empty-state rounded-xl border border-dashed border-[var(--border-soft)] bg-[var(--surface-muted)]/50">
+        <div className="empty-state rounded-xl border border-dashed border-[var(--border-soft)] bg-[var(--surface-alt)]/50">
           <div className="empty-state-icon">
             <CalendarIcon size={28} strokeWidth={1.5} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[var(--text-primary)]">
+            <p className="text-sm font-semibold text-[var(--ink)]">
               No hay citas {activeTab === 'upcoming' ? 'próximas' : 'en el historial'}
             </p>
             {activeTab === 'upcoming' && (
-              <p className="mt-1 text-xs text-[var(--text-secondary)] max-w-xs mx-auto">
+              <p className="mt-1 text-xs text-[var(--ink-muted)] max-w-xs mx-auto">
                 Programa consultas desde aquí.
               </p>
             )}
@@ -156,7 +156,7 @@ const Appointments = () => {
         <div className="space-y-8">
           {groupedList.map((group) => (
             <section key={group.date} className="space-y-3">
-              <h2 className="border-l-[3px] border-[var(--accent)] pl-3 text-sm font-semibold capitalize text-[var(--text-primary)] tracking-tight">
+              <h2 className="border-l-[3px] border-[var(--accent)] pl-3 text-sm font-semibold capitalize text-[var(--ink)] tracking-tight">
                 {group.title}
               </h2>
               <ul className="flex flex-col gap-3">
@@ -167,19 +167,19 @@ const Appointments = () => {
                   >
                     <div className="grid gap-4 p-4 md:grid-cols-[minmax(0,5.5rem)_1fr_auto] md:items-center md:gap-5">
                       <div className="flex flex-row items-center gap-3 border-b border-[var(--border-soft)] pb-3 md:flex-col md:border-b-0 md:border-r md:pb-0 md:pr-5 md:text-center">
-                        <div className="flex items-center gap-1.5 font-semibold tabular-nums text-[var(--text-primary)] md:flex-col md:gap-0">
-                          <Clock size={15} className="text-[var(--text-tertiary)] md:hidden" strokeWidth={1.75} />
+                        <div className="flex items-center gap-1.5 font-semibold tabular-nums text-[var(--ink)] md:flex-col md:gap-0">
+                          <Clock size={15} className="text-[var(--ink-secondary)] md:hidden" strokeWidth={1.75} />
                           <span className="text-lg leading-none">{appointment.time}</span>
                         </div>
-                        <span className="text-2xs font-medium text-[var(--text-tertiary)] md:mt-1">
+                        <span className="text-2xs font-medium text-[var(--ink-secondary)] md:mt-1">
                           {appointment.duration} min
                         </span>
                       </div>
 
                       <div className="min-w-0 space-y-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <User size={16} className="shrink-0 text-[var(--text-tertiary)]" strokeWidth={1.75} />
-                          <span className="truncate text-base font-semibold text-[var(--text-primary)]">
+                          <User size={16} className="shrink-0 text-[var(--ink-secondary)]" strokeWidth={1.75} />
+                          <span className="truncate text-base font-semibold text-[var(--ink)]">
                             {patientLabel(appointment)}
                           </span>
                         </div>
