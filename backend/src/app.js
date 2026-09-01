@@ -79,6 +79,34 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+/**
+ * Espera la conexión a Mongo antes de dejar pasar la petición a cualquier
+ * ruta.
+ *
+ * `connectDB()` arriba se llamaba sin `await`: en una función serverless en
+ * frío, Express quedaba listo para atender peticiones antes de que la
+ * conexión real terminara. La primera consulta (`User.findOne`, etc.)
+ * entonces se quedaba en el buffer de comandos de Mongoose esperando una
+ * conexión que sí llegaba — pero después de los 10 s que Mongoose espera por
+ * defecto (`bufferTimeoutMS`), así que la petición fallaba con
+ * "buffering timed out" aunque la base de datos funcionara bien. Al esperar
+ * aquí explícitamente, la primera petición paga el costo real de conectar
+ * (cacheado para las siguientes, ver `config/database.js`) en vez de perder
+ * contra un reloj que no tiene relación con cuánto tarda Atlas de verdad.
+ */
+app.use(async (req, res, next) => {
+  if (req.method === 'OPTIONS') return next(); // preflight de CORS no toca la base de datos
+
+  const conn = await connectDB();
+  if (!conn) {
+    return res.status(503).json({
+      success: false,
+      message: 'No se pudo conectar a la base de datos. Intenta de nuevo en unos segundos.',
+    });
+  }
+  next();
+});
+
 // Serve uploaded files (only works in local environment with disk storage)
 try {
   app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
