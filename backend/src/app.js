@@ -25,8 +25,13 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '../../backend/.env') });
 
-// Connect to the database early.
-connectDB();
+// Arranca la conexión lo antes posible (se reutiliza vía caché en
+// config/database.js); el `.catch` es obligatorio ahora que connectDB()
+// puede rechazar — el middleware de abajo es quien de verdad maneja el
+// fallo por petición, esto solo evita un unhandled rejection en el arranque.
+connectDB().catch((error) => {
+  console.error(`❌ Error connecting to MongoDB: ${error.message}`);
+});
 
 const app = express();
 
@@ -97,14 +102,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(async (req, res, next) => {
   if (req.method === 'OPTIONS') return next(); // preflight de CORS no toca la base de datos
 
-  const conn = await connectDB();
-  if (!conn) {
-    return res.status(503).json({
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error(`❌ Error connecting to MongoDB: ${error.message}`);
+    // El motivo va en la respuesta (no solo en logs de Vercel que hay que ir
+    // a buscar) porque es exactamente lo que hace falta para diagnosticar
+    // esto desde afuera; se le quita cualquier credencial que la URI de
+    // conexión pudiera traer metida en el mensaje de error del driver.
+    const motivo = String(error.message || '').replace(/\/\/[^:]+:[^@]+@/, '//***:***@');
+    res.status(503).json({
       success: false,
-      message: 'No se pudo conectar a la base de datos. Intenta de nuevo en unos segundos.',
+      message: 'No se pudo conectar a la base de datos.',
+      reason: motivo,
     });
   }
-  next();
 });
 
 // Serve uploaded files (only works in local environment with disk storage)

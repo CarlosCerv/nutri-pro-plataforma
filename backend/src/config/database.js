@@ -11,8 +11,7 @@ const connectDB = async () => {
   }
 
   if (!process.env.MONGODB_URI) {
-    console.error('❌ MONGODB_URI is not defined. Please configure your database connection string.');
-    return null;
+    throw new Error('MONGODB_URI no está configurada en este entorno.');
   }
 
   if (!cached.promise) {
@@ -25,14 +24,9 @@ const connectDB = async () => {
     });
   }
 
-  try {
-    cached.conn = await cached.promise;
-    console.log(`✅ MongoDB Connected: ${cached.conn.connection.host}`);
-    return cached.conn;
-  } catch (error) {
-    console.error(`❌ Error connecting to MongoDB: ${error.message}`);
-    return null;
-  }
+  cached.conn = await cached.promise;
+  console.log(`✅ MongoDB Connected: ${cached.conn.connection.host}`);
+  return cached.conn;
 };
 
 export default connectDB;
