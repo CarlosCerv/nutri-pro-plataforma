@@ -28,7 +28,7 @@ export const DAYS = [
 ];
 
 let uidCounter = 0;
-/** Id local estable para drag & drop (@dnd-kit necesita un id que sobreviva reordenamientos). */
+/** Id local estable para cada alimento agregado — clave de React y ancla para actualizar/mover/eliminar esa fila. */
 export function newUid() {
   uidCounter += 1;
   return `f${Date.now().toString(36)}${uidCounter}`;

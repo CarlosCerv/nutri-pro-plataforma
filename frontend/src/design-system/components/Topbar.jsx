@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Menu, Plus } from 'lucide-react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { ChevronRight, Menu, Plus } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { getPageMeta } from '../../lib/pageMeta';
 import GlobalSearch from './GlobalSearch.jsx';
@@ -26,8 +26,37 @@ export default function Topbar({ onMenuToggle }) {
   const meta = getPageMeta(location.pathname);
   const hideToolbarSearch = HIDE_TOOLBAR_SEARCH.some((re) => re.test(location.pathname));
 
+  const headerRef = useRef(null);
+
+  // El alto del topbar varía por página (con o sin subtítulo/breadcrumb, con
+  // o sin buscador) y por ancho de pantalla — no es un número fijo. Cualquier
+  // barra sticky de la página (el Creador de Dietas trae una) que asumiera un
+  // alto a ojo quedaba mal alineada en las páginas donde el topbar medía
+  // distinto. Aquí se mide de verdad con ResizeObserver y se publica como
+  // variable CSS en la raíz, para que cualquier sticky de más abajo la lea en
+  // vez de adivinar.
+  // `useLayoutEffect`, no `useEffect`: mide y publica el alto ANTES de que el
+  // navegador pinte. Con `useEffect` el primer valor visible sería el
+  // fallback de --root (64px) durante un frame y luego saltaría al real —
+  // perceptible sobre todo en páginas con breadcrumb (más altas que el
+  // fallback), que es justo el caso de esta ruta.
+  useLayoutEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+
+    const actualizar = () => {
+      document.documentElement.style.setProperty('--app-topbar-h', `${el.offsetHeight}px`);
+    };
+    actualizar();
+
+    const observer = new ResizeObserver(actualizar);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [meta.title, meta.subtitle, meta.trail, hideToolbarSearch]);
+
   return (
     <header
+      ref={headerRef}
       className="
       flex-shrink-0 sticky top-0 z-30 supports-[padding:max(0px)]:pt-[env(safe-area-inset-top)]
       border-b border-[var(--border-soft)]
@@ -46,7 +75,20 @@ export default function Topbar({ onMenuToggle }) {
           </button>
 
           <div className="min-w-0 flex-1 space-y-1">
-            <h1 className="text-base md:text-lg font-semibold text-[var(--ink)] tracking-apple-tight leading-snug">
+            {meta.trail?.length ? (
+              <nav aria-label="Ruta de navegación" className="flex items-center gap-1 text-2xs font-medium text-[var(--ink-secondary)]">
+                {meta.trail.map((crumb) => (
+                  <span key={crumb.to} className="flex items-center gap-1 min-w-0">
+                    <Link to={crumb.to} className="truncate hover:text-[var(--ink)] transition-colors">
+                      {crumb.label}
+                    </Link>
+                    <ChevronRight size={11} strokeWidth={2} className="shrink-0" aria-hidden="true" />
+                  </span>
+                ))}
+              </nav>
+            ) : null}
+
+            <h1 className="truncate text-base md:text-lg font-semibold text-[var(--ink)] tracking-apple-tight leading-snug">
               {meta.title}
             </h1>
 
@@ -62,7 +104,7 @@ export default function Topbar({ onMenuToggle }) {
               type="button"
               onClick={() => setQuickOpen(!quickOpen)}
               aria-expanded={quickOpen}
-              aria-haspopup="menu" className="min-h-11 px-3 md:inline-flex gap-1.5">
+              aria-haspopup="menu" className="min-h-11 px-3 gap-1.5">
               <Plus size={16} strokeWidth={1.75} />
               <span className="hidden sm:inline">Nuevo</span>
             </Button>

@@ -1,27 +1,63 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ArrowLeftRight, GripVertical, Minus, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, ChevronDown, ChevronUp, Minus, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import { gramsToPortions, portionsToGrams, smaeGroup } from '../../lib/smae';
 import { macrosForGrams } from '../../lib/mealPlanSlots';
+
+/** Botón de una línea dentro del menú "⋯" — mismo patrón visual en las tres secciones. */
+function MenuButton({ icon: Icon, label, onClick, disabled, tone }) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm transition-colors duration-micro disabled:cursor-not-allowed disabled:opacity-40 ${
+        tone === 'danger'
+          ? 'text-[var(--danger)] hover:bg-[rgba(196,30,22,0.06)]'
+          : 'text-[var(--ink-muted)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)]'
+      }`}
+    >
+      {Icon ? <Icon size={15} className="shrink-0" strokeWidth={1.75} /> : null}
+      <span className="truncate">{label}</span>
+    </button>
+  );
+}
+
+MenuButton.propTypes = {
+  icon: PropTypes.elementType,
+  label: PropTypes.node.isRequired,
+  onClick: PropTypes.func,
+  disabled: PropTypes.bool,
+  tone: PropTypes.oneOf(['default', 'danger']),
+};
 
 /**
  * Fila de alimento del Creador Híbrido de Dietas.
  *
- * El control numérico edita gramos, porciones SMAE o "unidades" del alimento
- * (pieza, taza…) según el modo activo, pero `quantityGrams` sigue siendo la
- * única fuente de verdad: los otros dos son solo la forma de editarla.
+ * Reordenar y mover de tiempo de comida se resuelven con botones, no
+ * arrastrando: en un teléfono, arrastrar con precisión mientras la página
+ * puede hacer scroll es de las interacciones táctiles menos confiables que
+ * hay, y en escritorio no aporta nada que un par de flechas y un menú no
+ * resuelvan igual de rápido — con la ventaja de que aquí funcionan idéntico
+ * en los dos.
  */
-export default function FoodRow({ item, food, portionMode, onUpdate, onRemove, onOpenSubstitutes }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: `item:${item.uid}`,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+export default function FoodRow({
+  item,
+  food,
+  portionMode,
+  onUpdate,
+  onRemove,
+  onOpenSubstitutes,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+  otherSlots,
+  onMoveToSlot,
+}) {
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const [submenuMover, setSubmenuMover] = useState(false);
 
   const category = food?.category || item.foodCategory;
   const servingSizes = food?.servingSizes || [];
@@ -64,105 +100,140 @@ export default function FoodRow({ item, food, portionMode, onUpdate, onRemove, o
     onUpdate(patch);
   };
 
-  const changeUnit = (unitName) => {
+  const cerrarMenu = () => {
+    setMenuAbierto(false);
+    setSubmenuMover(false);
+  };
+
+  const cambiarUnidad = (unitName) => {
     // Mantiene los gramos actuales y solo recalcula cómo se muestran.
     onUpdate({ unitName, quantityLabel: null });
+    cerrarMenu();
+  };
+
+  const conAccion = (fn) => () => {
+    fn?.();
+    cerrarMenu();
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex flex-col gap-2.5 px-4 py-3 bg-[var(--surface)] sm:flex-row sm:items-center sm:gap-3 sm:px-5"
-    >
-      {/* Fila 1 en móvil / bloque izquierdo en escritorio: asa + nombre. */}
-      <div className="flex min-w-0 items-center gap-2 sm:min-w-0 sm:flex-1">
-        <button
-          type="button"
-          className="-ml-1 shrink-0 cursor-grab touch-none rounded-lg p-2.5 text-[var(--ink-secondary)] hover:text-[var(--ink)] active:cursor-grabbing"
-          aria-label={`Reordenar ${item.foodName}`}
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical size={16} />
-        </button>
-
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-[var(--ink)]">{item.foodName}</p>
-          <p className="text-xs text-[var(--ink-secondary)]">
-            {item.calories} kcal · P {item.protein}g · HC {item.carbohydrates}g · G {item.fats}g
-          </p>
-        </div>
+    <div className="flex flex-col gap-2 bg-[var(--surface)] px-4 py-3 sm:flex-row sm:items-center sm:gap-3 sm:px-5">
+      <div className="min-w-0 sm:flex-1">
+        <p className="truncate font-medium text-[var(--ink)]">{item.foodName}</p>
+        <p className="text-xs text-[var(--ink-secondary)]">
+          {item.calories} kcal · P {item.protein}g · HC {item.carbohydrates}g · G {item.fats}g
+        </p>
       </div>
 
-      {/* Fila 2 en móvil / bloque derecho en escritorio: cantidad y acciones. */}
-      <div className="flex items-center justify-between gap-2 pl-11 sm:shrink-0 sm:justify-end sm:gap-1.5 sm:pl-0">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => applyCount(Math.max(0, count - step))}
-            className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)] active:bg-[var(--surface-alt)]"
-            aria-label="Disminuir"
-          >
-            <Minus size={14} />
-          </button>
-          <input
-            type="number"
-            min={0}
-            step={step}
-            className="input w-16 py-1.5 text-center text-sm"
-            value={count}
-            onChange={(e) => applyCount(Number(e.target.value) || 0)}
-          />
-          <button
-            type="button"
-            onClick={() => applyCount(count + step)}
-            className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)] active:bg-[var(--surface-alt)]"
-            aria-label="Aumentar"
-          >
-            <Plus size={14} />
-          </button>
+      <div className="flex items-center justify-between gap-2 sm:shrink-0 sm:justify-end sm:gap-3">
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => applyCount(Math.max(0, count - step))}
+              className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)] active:bg-[var(--surface-alt)]"
+              aria-label="Disminuir"
+            >
+              <Minus size={14} />
+            </button>
+            <input
+              type="number"
+              min={0}
+              step={step}
+              className="input w-16 py-1.5 text-center text-sm"
+              value={count}
+              onChange={(e) => applyCount(Number(e.target.value) || 0)}
+            />
+            <button
+              type="button"
+              onClick={() => applyCount(count + step)}
+              className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)] active:bg-[var(--surface-alt)]"
+              aria-label="Aumentar"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+          <span className="w-14 shrink-0 truncate text-xs text-[var(--ink-secondary)]" title={unitLabel}>
+            {unitLabel}
+          </span>
         </div>
 
-        <div className="flex items-center gap-0.5">
-          {portionMode === 'smae' ? (
-            <span className="w-16 shrink-0 truncate text-right text-xs text-[var(--ink-secondary)] sm:w-28 sm:text-left" title={unitLabel}>
-              {unitLabel}
-            </span>
-          ) : servingSizes.length > 0 ? (
-            <select
-              className="input w-20 py-1.5 text-xs sm:w-24"
-              value={item.unitName || 'g'}
-              onChange={(e) => changeUnit(e.target.value)}
-              aria-label={`Unidad de ${item.foodName}`}
-            >
-              <option value="g">g</option>
-              {servingSizes.map((s) => (
-                <option key={s.name} value={s.name}>{s.name}</option>
-              ))}
-            </select>
-          ) : (
-            <span className="w-6 shrink-0 text-xs text-[var(--ink-secondary)]">{unitLabel}</span>
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => setMenuAbierto((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={menuAbierto}
+            aria-label={`Más acciones para ${item.foodName}`}
+            className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)]"
+          >
+            <MoreHorizontal size={18} />
+          </button>
+
+          {menuAbierto && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={cerrarMenu} aria-hidden />
+              <div
+                role="menu"
+                className="absolute right-0 top-10 z-50 w-60 max-w-[calc(100vw-2rem)] overflow-hidden rounded-[var(--radius-m)] border border-[var(--border-soft)] bg-[var(--surface)] py-1 shadow-card animate-scale-in"
+              >
+                {!submenuMover ? (
+                  <>
+                    {servingSizes.length > 0 && portionMode !== 'smae' && (
+                      <div className="border-b border-[var(--border-soft)] px-4 py-2.5">
+                        <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">Unidad</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[{ name: 'g' }, ...servingSizes].map((s) => (
+                            <button
+                              key={s.name}
+                              type="button"
+                              onClick={() => cambiarUnidad(s.name)}
+                              className={`rounded-full border px-2.5 py-1 text-2xs font-semibold transition-colors duration-micro ${
+                                (item.unitName || 'g') === s.name
+                                  ? 'border-[var(--accent)] bg-[var(--accent)] text-white'
+                                  : 'border-[var(--border-soft)] text-[var(--ink-muted)]'
+                              }`}
+                            >
+                              {s.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <MenuButton icon={ChevronUp} label="Subir" onClick={conAccion(onMoveUp)} disabled={!canMoveUp} />
+                    <MenuButton icon={ChevronDown} label="Bajar" onClick={conAccion(onMoveDown)} disabled={!canMoveDown} />
+
+                    {otherSlots.length > 0 && (
+                      <MenuButton
+                        icon={ArrowRight}
+                        label="Mover a otro tiempo"
+                        onClick={() => setSubmenuMover(true)}
+                      />
+                    )}
+
+                    <div className="mt-1 border-t border-[var(--border-soft)] pt-1">
+                      <MenuButton icon={ArrowLeftRight} label="Sustitutos sugeridos" onClick={conAccion(onOpenSubstitutes)} />
+                      <MenuButton icon={Trash2} label="Eliminar" tone="danger" onClick={conAccion(onRemove)} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setSubmenuMover(false)}
+                      className="flex w-full items-center gap-1.5 border-b border-[var(--border-soft)] px-4 py-2.5 text-left text-2xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)] hover:text-[var(--ink)]"
+                    >
+                      <ChevronUp size={13} className="-rotate-90" /> Mover a…
+                    </button>
+                    {otherSlots.map((s) => (
+                      <MenuButton key={s.key} label={s.label} onClick={conAccion(() => onMoveToSlot(s.key))} />
+                    ))}
+                  </>
+                )}
+              </div>
+            </>
           )}
-
-          <button
-            type="button"
-            onClick={onOpenSubstitutes}
-            className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[var(--accent-tint)] hover:text-[var(--accent)] active:bg-[var(--accent-tint)]"
-            aria-label={`Sustitutos sugeridos para ${item.foodName}`}
-            title="Sustitutos sugeridos"
-          >
-            <ArrowLeftRight size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={onRemove}
-            className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[rgba(196,30,22,0.08)] hover:text-[var(--danger)] active:bg-[rgba(196,30,22,0.08)]"
-            aria-label={`Quitar ${item.foodName}`}
-          >
-            <Trash2 size={18} />
-          </button>
         </div>
       </div>
     </div>
@@ -188,4 +259,10 @@ FoodRow.propTypes = {
   onUpdate: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
   onOpenSubstitutes: PropTypes.func.isRequired,
+  onMoveUp: PropTypes.func.isRequired,
+  onMoveDown: PropTypes.func.isRequired,
+  canMoveUp: PropTypes.bool.isRequired,
+  canMoveDown: PropTypes.bool.isRequired,
+  otherSlots: PropTypes.arrayOf(PropTypes.shape({ key: PropTypes.string, label: PropTypes.string })).isRequired,
+  onMoveToSlot: PropTypes.func.isRequired,
 };

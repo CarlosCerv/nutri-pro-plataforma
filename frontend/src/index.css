@@ -15,6 +15,12 @@
   --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
 
+  /* Alto real del topbar, medido por Topbar.jsx (ResizeObserver) y publicado
+     aquí — cambia por página (con/sin subtítulo o breadcrumb) y por ancho de
+     pantalla, así que no es un número fijo. Este valor es solo el fallback
+     antes de que el observer corra en el primer render. */
+  --app-topbar-h: 64px;
+
   /* Tinta. `--ink-muted` es una adición al set de la skill: la aplicación ya
      usaba tres niveles de texto y colapsarlos a dos perdía jerarquía en las
      tablas clínicas, que son densas por naturaleza. */

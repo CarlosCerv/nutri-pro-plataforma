@@ -1,14 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import {
-  DndContext,
-  DragOverlay,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
 import { ArrowLeft, Save, Loader, AlertCircle } from 'lucide-react';
 import { mealPlansAPI, foodsAPI, patientsAPI, dietTemplatesAPI } from '../services/api';
 import { getApiErrorMessage } from '../lib/apiError';
@@ -27,7 +18,6 @@ import {
 import { DEFAULT_META, metaDesdeExpediente } from '../lib/dietGoal';
 import StickyMacroBar from '../components/MenuBuilder/StickyMacroBar';
 import MealSlotCard from '../components/MenuBuilder/MealSlotCard';
-import FoodBrowserPanel from '../components/MenuBuilder/FoodBrowserPanel';
 import SubstitutesModal from '../components/MenuBuilder/SubstitutesModal';
 import MetaModal from '../components/MenuBuilder/MetaModal';
 
@@ -49,25 +39,28 @@ function insertFoodAt(daySlots, slotKey, index, food) {
   });
 }
 
-function moveItemInDay(daySlots, uid, targetSlotKey, targetIndex) {
-  const sourceSlot = daySlots.find((s) => s.items.some((it) => it.uid === uid));
-  if (!sourceSlot) return daySlots;
-  const item = sourceSlot.items.find((it) => it.uid === uid);
+/** Intercambia un alimento con su vecino inmediato (-1 sube, +1 baja). Reemplaza el arrastre para reordenar. */
+function reorderItemInSlot(daySlots, slotKey, uid, direction) {
   return daySlots.map((s) => {
-    if (s.slotKey === sourceSlot.slotKey && s.slotKey === targetSlotKey) {
-      const without = s.items.filter((it) => it.uid !== uid);
-      const idx = Math.min(targetIndex, without.length);
-      without.splice(idx, 0, item);
-      return { ...s, items: without };
-    }
-    if (s.slotKey === sourceSlot.slotKey) {
-      return { ...s, items: s.items.filter((it) => it.uid !== uid) };
-    }
-    if (s.slotKey === targetSlotKey) {
-      const items = [...s.items];
-      items.splice(Math.min(targetIndex, items.length), 0, item);
-      return { ...s, items };
-    }
+    if (s.slotKey !== slotKey) return s;
+    const idx = s.items.findIndex((it) => it.uid === uid);
+    const destino = idx + direction;
+    if (idx === -1 || destino < 0 || destino >= s.items.length) return s;
+    const items = [...s.items];
+    [items[idx], items[destino]] = [items[destino], items[idx]];
+    return { ...s, items };
+  });
+}
+
+/** Mueve un alimento a otro tiempo de comida (al final). Reemplaza soltar sobre otro tiempo al arrastrar. */
+function moveItemBetweenSlots(daySlots, uid, fromSlotKey, toSlotKey) {
+  if (fromSlotKey === toSlotKey) return daySlots;
+  const origen = daySlots.find((s) => s.slotKey === fromSlotKey);
+  const item = origen?.items.find((it) => it.uid === uid);
+  if (!item) return daySlots;
+  return daySlots.map((s) => {
+    if (s.slotKey === fromSlotKey) return { ...s, items: s.items.filter((it) => it.uid !== uid) };
+    if (s.slotKey === toSlotKey) return { ...s, items: [...s.items, item] };
     return s;
   });
 }
@@ -92,24 +85,13 @@ export default function MenuBuilder() {
 
   const [patient, setPatient] = useState(null);
   const [foods, setFoods] = useState([]);
-  const [foodsLoading, setFoodsLoading] = useState(true);
-  const [foodSearch, setFoodSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(!!mealPlanId);
   const [loadError, setLoadError] = useState('');
   const [saveError, setSaveError] = useState('');
-  const [activeDragLabel, setActiveDragLabel] = useState(null);
   const navigate = useNavigate();
 
-  // El sensor de puntero exige 6 px de desplazamiento antes de iniciar un
-  // arrastre, para que un clic en el asa no cuente como arrastre accidental.
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(KeyboardSensor)
-  );
-
   const loadFoods = useCallback(async () => {
-    setFoodsLoading(true);
     try {
       const res = await foodsAPI.getAll({ limit: 500 });
       const list = res.data?.data || res.data || [];
@@ -117,8 +99,6 @@ export default function MenuBuilder() {
     } catch (e) {
       console.error(e);
       setFoods([]);
-    } finally {
-      setFoodsLoading(false);
     }
   }, []);
 
@@ -252,6 +232,20 @@ export default function MenuBuilder() {
     [updateActiveDay]
   );
 
+  const reorderItemInActiveDay = useCallback(
+    (slotKey, uid, direction) => {
+      updateActiveDay((slots) => reorderItemInSlot(slots, slotKey, uid, direction));
+    },
+    [updateActiveDay]
+  );
+
+  const moveItemToSlotInActiveDay = useCallback(
+    (uid, fromSlotKey, toSlotKey) => {
+      updateActiveDay((slots) => moveItemBetweenSlots(slots, uid, fromSlotKey, toSlotKey));
+    },
+    [updateActiveDay]
+  );
+
   const handleCopyDay = useCallback(
     (targetKeys) => {
       setDaysState((prev) => {
@@ -281,75 +275,6 @@ export default function MenuBuilder() {
       setSubstitutesItem(null);
     },
     [substitutesItem, updateItemInActiveDay]
-  );
-
-  const handleDragStart = useCallback(
-    ({ active }) => {
-      const activeId = String(active.id);
-      if (activeId.startsWith('food:')) {
-        setActiveDragLabel(active.data.current?.food?.name || null);
-      } else if (activeId.startsWith('item:')) {
-        const uid = activeId.slice(5);
-        const item = daysState[activeDay].flatMap((s) => s.items).find((it) => it.uid === uid);
-        setActiveDragLabel(item?.foodName || null);
-      }
-    },
-    [daysState, activeDay]
-  );
-
-  const handleDragEnd = useCallback(
-    ({ active, over }) => {
-      setActiveDragLabel(null);
-      if (!over) return;
-      const activeId = String(active.id);
-      const overId = String(over.id);
-
-      if (activeId.startsWith('food:')) {
-        const food = active.data.current?.food;
-        if (!food) return;
-        updateActiveDay((slots) => {
-          let targetSlotKey;
-          let targetIndex;
-          if (overId.startsWith('slot:')) {
-            targetSlotKey = overId.slice(5);
-            targetIndex = slots.find((s) => s.slotKey === targetSlotKey).items.length;
-          } else if (overId.startsWith('item:')) {
-            const overUid = overId.slice(5);
-            const slot = slots.find((s) => s.items.some((it) => it.uid === overUid));
-            if (!slot) return slots;
-            targetSlotKey = slot.slotKey;
-            targetIndex = slot.items.findIndex((it) => it.uid === overUid);
-          } else {
-            return slots;
-          }
-          return insertFoodAt(slots, targetSlotKey, targetIndex, food);
-        });
-        return;
-      }
-
-      if (activeId.startsWith('item:')) {
-        const uid = activeId.slice(5);
-        updateActiveDay((slots) => {
-          let targetSlotKey;
-          let targetIndex;
-          if (overId.startsWith('slot:')) {
-            targetSlotKey = overId.slice(5);
-            targetIndex = slots.find((s) => s.slotKey === targetSlotKey).items.length;
-          } else if (overId.startsWith('item:')) {
-            const overUid = overId.slice(5);
-            if (overUid === uid) return slots;
-            const slot = slots.find((s) => s.items.some((it) => it.uid === overUid));
-            if (!slot) return slots;
-            targetSlotKey = slot.slotKey;
-            targetIndex = slot.items.findIndex((it) => it.uid === overUid);
-          } else {
-            return slots;
-          }
-          return moveItemInDay(slots, uid, targetSlotKey, targetIndex);
-        });
-      }
-    },
-    [updateActiveDay]
   );
 
   const handleSave = async () => {
@@ -410,7 +335,7 @@ export default function MenuBuilder() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-5 animate-fade-up sm:space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Button as={Link} variant="ghost" size="sm" to="/dietas" className="w-fit gap-2 text-[var(--ink-muted)]">
           <ArrowLeft size={18} /> Volver
@@ -434,7 +359,7 @@ export default function MenuBuilder() {
         </div>
       ) : null}
 
-      <Card className="p-5">
+      <Card className="p-4 sm:p-5">
         <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
           Nombre del plan
         </label>
@@ -464,55 +389,26 @@ export default function MenuBuilder() {
         onCopyDay={handleCopyDay}
       />
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragCancel={() => setActiveDragLabel(null)}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-4">
-            {activeSlots.map((slot) => (
-              <MealSlotCard
-                key={slot.slotKey}
-                slot={slot}
-                foods={foods}
-                portionMode={portionMode}
-                onAddFood={(food) => addFoodToActiveDay(slot.slotKey, food)}
-                onUpdateItem={updateItemInActiveDay}
-                onRemoveItem={removeItemInActiveDay}
-                onOpenSubstitutes={setSubstitutesItem}
-              />
-            ))}
-          </div>
-
-          {/* El panel de arrastre es una vía adicional a la del buscador de
-              cada tiempo de comida, pensada para mouse y teclado: en un
-              celular, arrastrar un alimento a través de una pantalla que
-              además hace scroll es incómodo, y obligaba a bajar más allá de
-              los 6 tiempos de comida solo para encontrar el panel. Cada
-              MealSlotCard ya trae su propio buscador — se esconde aquí en vez
-              de duplicar esa función con peor ergonomía. */}
-          <div className="hidden lg:col-span-1 lg:block">
-            <FoodBrowserPanel
-              foods={foods}
-              loading={foodsLoading}
-              search={foodSearch}
-              onSearchChange={setFoodSearch}
-              onQuickAdd={addFoodToActiveDay}
-            />
-          </div>
-        </div>
-
-        <DragOverlay dropAnimation={null}>
-          {activeDragLabel ? (
-            <div className="rounded-[var(--radius-m)] border border-[var(--accent)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--ink)] shadow-card">
-              {activeDragLabel}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+      {/* Un solo tiempo de comida por ancho de pantalla: sin panel lateral de
+          arrastre que alimentar, no hay nada que ganar partiendo la pantalla
+          en columnas — y una sola columna es exactamente el mismo flujo en
+          celular, tablet o escritorio. */}
+      <div className="mx-auto max-w-3xl space-y-4">
+        {activeSlots.map((slot) => (
+          <MealSlotCard
+            key={slot.slotKey}
+            slot={slot}
+            foods={foods}
+            portionMode={portionMode}
+            onAddFood={(food) => addFoodToActiveDay(slot.slotKey, food)}
+            onUpdateItem={updateItemInActiveDay}
+            onRemoveItem={removeItemInActiveDay}
+            onOpenSubstitutes={setSubstitutesItem}
+            onReorderItem={reorderItemInActiveDay}
+            onMoveItemToSlot={moveItemToSlotInActiveDay}
+          />
+        ))}
+      </div>
 
       <MetaModal
         open={metaModalOpen}

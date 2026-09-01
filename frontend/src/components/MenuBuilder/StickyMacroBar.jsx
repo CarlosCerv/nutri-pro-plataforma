@@ -56,8 +56,8 @@ export default function StickyMacroBar({
 
   return (
     <div
-      className="sticky top-16 z-20 space-y-2.5 rounded-[var(--radius-m)] border border-[var(--border-soft)] px-3 py-2.5 shadow-card backdrop-blur-[20px] backdrop-saturate-[180%] sm:top-24 sm:space-y-3 sm:px-6 sm:py-3"
-      style={{ background: 'rgba(255,255,255,0.82)' }}
+      className="sticky z-20 space-y-2.5 rounded-[var(--radius-m)] border border-[var(--border-soft)] px-3 py-2.5 shadow-card backdrop-blur-[20px] backdrop-saturate-[180%] sm:space-y-3 sm:px-6 sm:py-3"
+      style={{ background: 'rgba(255,255,255,0.82)', top: 'var(--app-topbar-h)' }}
     >
       {/* Días: fila propia siempre — en móvil competía por espacio con los
           controles y se quedaba con dos o tres días visibles. El difuminado
