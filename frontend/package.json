@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "vite build",
     "icons:build": "node scripts/build-favicon.mjs",
-    "prebuild": "node scripts/build-favicon.mjs",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
