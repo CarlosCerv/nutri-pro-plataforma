@@ -143,6 +143,22 @@ export default function Finance() {
     { key: 'amount', header: 'Importe', align: 'right', render: (p) => <span className="font-mono">{MXN.format(p.amount)}</span> },
   ];
 
+  const tarjetaMovil = (p) => (
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-[var(--ink)]">
+          {p.patient ? `${p.patient.firstName} ${p.patient.lastName}` : 'Sin paciente'}
+        </p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-[var(--ink-secondary)]">
+          <span>{new Date(p.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+          <span>· {ETIQUETA_METODO[p.method] || p.method}</span>
+        </p>
+        <Badge variant={BADGE_ESTADO[p.status] || 'neutral'} className="mt-1.5">{ETIQUETA_ESTADO[p.status] || p.status}</Badge>
+      </div>
+      <span className="shrink-0 font-mono text-sm font-semibold text-[var(--ink)]">{MXN.format(p.amount)}</span>
+    </div>
+  );
+
   const mes = resumen?.mes;
   const variacion = mes?.variacionVsMesAnterior;
 
@@ -208,6 +224,7 @@ export default function Finance() {
         loading={loading}
         error={error}
         onRetry={reintentar}
+        mobileCard={tarjetaMovil}
         empty={
           <EmptyState
             icon={<Wallet size={26} strokeWidth={1.5} />}

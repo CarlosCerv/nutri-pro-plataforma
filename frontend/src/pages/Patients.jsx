@@ -153,130 +153,197 @@ export default function Patients() {
         </div>
       </div>
 
-      <Card className="!p-0 overflow-hidden border border-[var(--border-soft)] bg-[var(--surface)]">
-        <div className="overflow-x-auto">
-          <div className="min-w-[680px]">
-            <div
-              className={`${TABLE_GRID} px-4 py-2.5 border-b border-[var(--border-soft)] bg-[var(--surface)]`}
-              role="row"
-            >
-              {['Paciente', 'Objetivo', 'IMC', 'Última consulta', 'Estado', ''].map((h) => (
-                <div
-                  key={h || 'acciones'}
-                  className="text-2xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)] last:text-right last:pr-0.5"
-                >
-                  {h}
+      {loading ? (
+        <Card className="!p-0 overflow-hidden border border-[var(--border-soft)] bg-[var(--surface)]">
+          <div className="hidden sm:block">
+            {Array.from({ length: 5 }).map((_, i) => <RowSkeleton key={i} />)}
+          </div>
+          <div className="space-y-3 p-4 sm:hidden">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="skeleton h-11 w-11 shrink-0 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="skeleton h-3.5 w-32 rounded" />
+                  <div className="skeleton h-3 w-20 rounded" />
                 </div>
-              ))}
-            </div>
-
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => <RowSkeleton key={i} />)
-            ) : filtered.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon"><Users size={28} /></div>
-                <div>
-                  <div className="text-sm font-semibold text-[var(--ink)]">
-                    {search ? 'Sin resultados' : 'Sin pacientes aún'}
-                  </div>
-                  <div className="text-xs text-[var(--ink-muted)] mt-1 max-w-sm mx-auto">
-                    {search ? 'Prueba con otro término de búsqueda' : 'Agrega tu primer paciente para comenzar'}
-                  </div>
-                </div>
-                {!search && (
-                  <Button as={Link} size="sm" to="/pacientes/nuevo" className="gap-1.5 mt-2">
-                    <Plus size={13} /> Nuevo paciente
-                  </Button>
-                )}
               </div>
-            ) : (
-              filtered.map((p) => {
-                const imc = imcDe(p.lastWeight, p.height);
-                const imcStyle = imc ? clasificarIMC(parseFloat(imc)) : null;
-                const fg = colorFor(p.firstName);
-                const diasDesde = p.lastConsult
-                  ? Math.floor((Date.now() - new Date(p.lastConsult)) / 86400000)
-                  : null;
+            ))}
+          </div>
+        </Card>
+      ) : filtered.length === 0 ? (
+        <Card className="border border-[var(--border-soft)] bg-[var(--surface)]">
+          <div className="empty-state">
+            <div className="empty-state-icon"><Users size={28} /></div>
+            <div>
+              <div className="text-sm font-semibold text-[var(--ink)]">
+                {search ? 'Sin resultados' : 'Sin pacientes aún'}
+              </div>
+              <div className="text-xs text-[var(--ink-muted)] mt-1 max-w-sm mx-auto">
+                {search ? 'Prueba con otro término de búsqueda' : 'Agrega tu primer paciente para comenzar'}
+              </div>
+            </div>
+            {!search && (
+              <Button as={Link} size="sm" to="/pacientes/nuevo" className="gap-1.5 mt-2">
+                <Plus size={13} /> Nuevo paciente
+              </Button>
+            )}
+          </div>
+        </Card>
+      ) : (
+        <>
+          {/* Escritorio/tablet: tabla de verdad, sin necesidad de scroll
+              horizontal — las seis columnas caben desde `sm`. */}
+          <Card className="hidden !p-0 overflow-hidden border border-[var(--border-soft)] bg-[var(--surface)] sm:block">
+            <div className="overflow-x-auto">
+              <div className="min-w-[680px]">
+                <div
+                  className={`${TABLE_GRID} px-4 py-2.5 border-b border-[var(--border-soft)] bg-[var(--surface)]`}
+                  role="row"
+                >
+                  {['Paciente', 'Objetivo', 'IMC', 'Última consulta', 'Estado', ''].map((h) => (
+                    <div
+                      key={h || 'acciones'}
+                      className="text-2xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)] last:text-right last:pr-0.5"
+                    >
+                      {h}
+                    </div>
+                  ))}
+                </div>
 
-                return (
-                  <Link
-                    key={p._id}
-                    to={`/pacientes/${p._id}`}
-                    className={`${TABLE_GRID} px-4 py-3 border-b border-[var(--border-soft)] last:border-0
-                      hover:bg-[var(--surface-alt)] transition-colors group`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold text-[var(--ink-muted)]"
-                        style={{ background: fg }}
-                      >
-                        {p.photoUrl
-                          ? <img src={p.photoUrl} alt="" className="w-9 h-9 rounded-full object-cover" />
-                          : initials(p)
+                {filtered.map((p) => {
+                  const imc = imcDe(p.lastWeight, p.height);
+                  const imcStyle = imc ? clasificarIMC(parseFloat(imc)) : null;
+                  const diasDesde = p.lastConsult
+                    ? Math.floor((Date.now() - new Date(p.lastConsult)) / 86400000)
+                    : null;
+
+                  return (
+                    <Link
+                      key={p._id}
+                      to={`/pacientes/${p._id}`}
+                      className={`${TABLE_GRID} px-4 py-3 border-b border-[var(--border-soft)] last:border-0
+                        hover:bg-[var(--surface-alt)] transition-colors group`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold text-[var(--ink-muted)]"
+                          style={{ background: colorFor() }}
+                        >
+                          {p.photoUrl
+                            ? <img src={p.photoUrl} alt="" className="w-9 h-9 rounded-full object-cover" />
+                            : initials(p)
+                          }
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors">
+                            {p.firstName} {p.lastName}
+                          </div>
+                          <div className="text-xs text-[var(--ink-muted)] truncate hidden sm:block">{p.email}</div>
+                        </div>
+                      </div>
+
+                      <div className="min-w-0 justify-self-start">
+                        <span className="badge badge-neutral text-xs truncate max-w-full inline-block">{p.objective || '—'}</span>
+                      </div>
+
+                      <div className="justify-self-start">
+                        {imc ? (
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full shrink-0" style={{ background: imcStyle?.color || 'var(--ink-secondary)' }} />
+                            <span className="font-mono text-sm text-[var(--ink)]">{imc}</span>
+                          </div>
+                        ) : <span className="text-xs text-[var(--ink-secondary)]">—</span>}
+                      </div>
+
+                      <div className="text-xs text-[var(--ink-muted)] justify-self-start tabular-nums">
+                        {diasDesde !== null
+                          ? diasDesde === 0 ? 'Hoy'
+                            : diasDesde === 1 ? 'Ayer'
+                            : `Hace ${diasDesde}d`
+                          : '—'
                         }
                       </div>
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold text-[var(--ink)] truncate group-hover:text-[var(--accent)] transition-colors">
-                          {p.firstName} {p.lastName}
-                        </div>
-                        <div className="text-xs text-[var(--ink-muted)] truncate hidden sm:block">{p.email}</div>
+
+                      <div className="justify-self-start">
+                        <span className={`badge text-xs ${p.active !== false ? 'badge-success' : 'badge-neutral'}`}>
+                          {p.active !== false ? 'Activo' : 'Inactivo'}
+                        </span>
                       </div>
-                    </div>
 
-                    <div className="min-w-0 justify-self-start">
-                      <span className="badge badge-neutral text-xs truncate max-w-full inline-block">{p.objective || '—'}</span>
-                    </div>
+                      <div className="flex justify-end">
+                        <ChevronRight size={16} className="text-[var(--ink-secondary)] group-hover:text-[var(--accent)] transition-colors shrink-0" />
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </Card>
 
-                    <div className="justify-self-start">
-                      {imc ? (
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: imcStyle?.color || 'var(--ink-secondary)' }} />
-                          <span className="font-mono text-sm text-[var(--ink)]">{imc}</span>
-                        </div>
-                      ) : <span className="text-xs text-[var(--ink-secondary)]">—</span>}
-                    </div>
+          {/* Móvil: tarjeta apilada por paciente — la misma información, sin
+              obligar a deslizar el dedo en horizontal para verla completa. */}
+          <div className="space-y-2.5 sm:hidden">
+            {filtered.map((p) => {
+              const imc = imcDe(p.lastWeight, p.height);
+              const imcStyle = imc ? clasificarIMC(parseFloat(imc)) : null;
+              const diasDesde = p.lastConsult
+                ? Math.floor((Date.now() - new Date(p.lastConsult)) / 86400000)
+                : null;
 
-                    <div className="text-xs text-[var(--ink-muted)] justify-self-start tabular-nums">
-                      {diasDesde !== null
-                        ? diasDesde === 0 ? 'Hoy'
-                          : diasDesde === 1 ? 'Ayer'
-                          : `Hace ${diasDesde}d`
-                        : '—'
-                      }
-                    </div>
+              return (
+                <Link
+                  key={p._id}
+                  to={`/pacientes/${p._id}`}
+                  className="card flex items-center gap-3 p-3.5 active:bg-[var(--surface-alt)]"
+                >
+                  <div
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-[var(--ink-muted)]"
+                    style={{ background: colorFor() }}
+                  >
+                    {p.photoUrl
+                      ? <img src={p.photoUrl} alt="" className="h-11 w-11 rounded-full object-cover" />
+                      : initials(p)
+                    }
+                  </div>
 
-                    <div className="justify-self-start">
-                      <span className={`badge text-xs ${p.active !== false ? 'badge-success' : 'badge-neutral'}`}>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-[var(--ink)]">
+                      {p.firstName} {p.lastName}
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="badge badge-neutral text-2xs">{p.objective || 'Sin objetivo'}</span>
+                      <span className={`badge text-2xs ${p.active !== false ? 'badge-success' : 'badge-neutral'}`}>
                         {p.active !== false ? 'Activo' : 'Inactivo'}
                       </span>
                     </div>
-
-                    <div className="flex justify-end">
-                      <ChevronRight size={16} className="text-[var(--ink-secondary)] group-hover:text-[var(--accent)] transition-colors shrink-0" />
+                    <div className="mt-1 flex items-center gap-3 text-2xs text-[var(--ink-secondary)]">
+                      {imc ? (
+                        <span className="flex items-center gap-1">
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: imcStyle?.color || 'var(--ink-secondary)' }} />
+                          IMC {imc}
+                        </span>
+                      ) : null}
+                      <span className="tabular-nums">
+                        {diasDesde !== null
+                          ? diasDesde === 0 ? 'Consulta hoy'
+                            : diasDesde === 1 ? 'Consulta ayer'
+                            : `Hace ${diasDesde}d`
+                          : 'Sin consultas'
+                        }
+                      </span>
                     </div>
-                  </Link>
-                );
-              })
-            )}
+                  </div>
+
+                  <ChevronRight size={18} className="shrink-0 text-[var(--ink-secondary)]" />
+                </Link>
+              );
+            })}
           </div>
-        </div>
-      </Card>
+        </>
+      )}
 
       {filtered.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
-          <span>Mostrando {filtered.length} de {patients.length}</span>
-          <div className="flex gap-1">
-            <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--ink-muted)] hover:bg-[var(--surface-alt)] transition-colors">
-              Anterior
-            </button>
-            <button type="button" className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white font-semibold">
-              1
-            </button>
-            <button type="button" className="px-3 py-1.5 rounded-lg border border-[var(--border-soft)] bg-[var(--surface)] text-[var(--ink-muted)] hover:bg-[var(--surface-alt)] transition-colors">
-              Siguiente
-            </button>
-          </div>
-        </div>
+        <p className="text-xs text-[var(--ink-muted)]">Mostrando {filtered.length} de {patients.length}</p>
       )}
     </div>
   );

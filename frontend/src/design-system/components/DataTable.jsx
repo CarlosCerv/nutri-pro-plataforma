@@ -9,6 +9,13 @@ import { EmptyState, ErrorState, Skeleton } from './StateViews.jsx';
  * que una lista sin resultados. Aquí los tres estados son parte del contrato.
  *
  * `columns` describe cada columna con `{ key, header, render, align, width }`.
+ *
+ * `mobileCard`, si se pasa, dibuja cada fila como tarjeta apilada por debajo
+ * de `sm` en vez de la tabla con scroll horizontal — cuatro o más columnas no
+ * caben en un teléfono sin deslizar el dedo, y eso deja de sentirse premium
+ * muy rápido. Es opcional (no toda tabla angosta lo necesita) para no obligar
+ * a cada pantalla que ya usa `DataTable` a escribir una tarjeta que no le hace
+ * falta.
  */
 export default function DataTable({
   columns,
@@ -19,6 +26,7 @@ export default function DataTable({
   onRetry,
   empty,
   onRowClick,
+  mobileCard,
   className = '',
 }) {
   if (error) {
@@ -39,8 +47,8 @@ export default function DataTable({
     return empty || <EmptyState title="Sin resultados" description="No hay datos que mostrar todavía." />;
   }
 
-  return (
-    <div className={['table-wrapper', className].filter(Boolean).join(' ')}>
+  const tabla = (
+    <div className={['table-wrapper', mobileCard ? 'hidden sm:block' : '', className].filter(Boolean).join(' ')}>
       <table className="table">
         <thead>
           <tr>
@@ -69,6 +77,33 @@ export default function DataTable({
       </table>
     </div>
   );
+
+  if (!mobileCard) return tabla;
+
+  return (
+    <>
+      {tabla}
+      <div className="space-y-2.5 sm:hidden">
+        {rows.map((row, i) => {
+          const contenido = mobileCard(row);
+          return onRowClick ? (
+            <button
+              key={rowKey(row, i)}
+              type="button"
+              onClick={() => onRowClick(row)}
+              className="card block w-full p-3.5 text-left active:bg-[var(--surface-alt)]"
+            >
+              {contenido}
+            </button>
+          ) : (
+            <div key={rowKey(row, i)} className="card p-3.5">
+              {contenido}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
 }
 
 DataTable.propTypes = {
@@ -88,5 +123,6 @@ DataTable.propTypes = {
   onRetry: PropTypes.func,
   empty: PropTypes.node,
   onRowClick: PropTypes.func,
+  mobileCard: PropTypes.func,
   className: PropTypes.string,
 };

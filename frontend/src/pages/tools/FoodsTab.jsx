@@ -103,6 +103,25 @@ export default function FoodsTab() {
     { key: 'fat', header: 'Lípidos (g)', align: 'right', render: (f) => numero(f.nutrition?.fat) },
   ];
 
+  const tarjetaMovil = (f) => (
+    <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-[var(--ink)]">{f.name}</p>
+          <p className="text-2xs text-[var(--ink-secondary)]">
+            {ETIQUETA_CATEGORIA[f.category] || f.category || '—'} · {f.portionSize?.name ? `Porción: ${f.portionSize.name}` : 'Por 100 g'}
+          </p>
+        </div>
+        <span className="shrink-0 font-mono text-sm font-semibold text-[var(--ink)]">{numero(f.nutrition?.energy, 0)} kcal</span>
+      </div>
+      <div className="mt-2 flex gap-3 text-2xs text-[var(--ink-secondary)]">
+        <span>P {numero(f.nutrition?.protein)}g</span>
+        <span>HC {numero(f.nutrition?.carbohydrates)}g</span>
+        <span>G {numero(f.nutrition?.fat)}g</span>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -144,6 +163,7 @@ export default function FoodsTab() {
         loading={loading}
         error={error}
         onRetry={() => setRecarga((n) => n + 1)}
+        mobileCard={tarjetaMovil}
         empty={
           <EmptyState
             icon={<Apple size={26} strokeWidth={1.5} />}
