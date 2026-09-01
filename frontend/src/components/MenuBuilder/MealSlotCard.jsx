@@ -32,7 +32,7 @@ export default function MealSlotCard({ slot, foods, portionMode, onAddFood, onUp
       ref={setNodeRef}
       className={`card overflow-hidden transition-colors duration-micro ${isOver ? 'border-[var(--accent)] bg-[var(--accent-soft)]' : ''}`}
     >
-      <div className="border-b border-[var(--border-soft)] bg-[var(--surface-alt)] px-5 py-3">
+      <div className="border-b border-[var(--border-soft)] bg-[var(--surface-alt)] px-4 py-3 sm:px-5">
         <h3 className="mb-2 text-sm font-semibold text-[var(--ink)]">{slot.slotLabel}</h3>
         <Combobox
           searchable
@@ -52,7 +52,11 @@ export default function MealSlotCard({ slot, foods, portionMode, onAddFood, onUp
         <EmptyState
           icon={<UtensilsCrossed size={22} strokeWidth={1.5} />}
           title="Sin alimentos"
-          description="Búscalos arriba o arrástralos desde el panel de la derecha."
+          description={
+            <>
+              Búscalos arriba<span className="hidden lg:inline"> o arrástralos desde el panel de la derecha</span>.
+            </>
+          }
           className="py-8"
         />
       ) : (

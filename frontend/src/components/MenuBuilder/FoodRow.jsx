@@ -73,90 +73,98 @@ export default function FoodRow({ item, food, portionMode, onUpdate, onRemove, o
     <div
       ref={setNodeRef}
       style={style}
-      className="flex flex-wrap items-center gap-3 px-5 py-3 bg-[var(--surface)]"
+      className="flex flex-col gap-2.5 px-4 py-3 bg-[var(--surface)] sm:flex-row sm:items-center sm:gap-3 sm:px-5"
     >
-      <button
-        type="button"
-        className="cursor-grab touch-none rounded p-0.5 text-[var(--ink-secondary)] hover:text-[var(--ink)] active:cursor-grabbing"
-        aria-label={`Reordenar ${item.foodName}`}
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical size={16} />
-      </button>
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-[var(--ink)]">{item.foodName}</p>
-        <p className="text-xs text-[var(--ink-secondary)]">
-          {item.calories} kcal · P {item.protein}g · HC {item.carbohydrates}g · G {item.fats}g
-        </p>
-      </div>
-
-      <div className="flex items-center gap-1">
+      {/* Fila 1 en móvil / bloque izquierdo en escritorio: asa + nombre. */}
+      <div className="flex min-w-0 items-center gap-2 sm:min-w-0 sm:flex-1">
         <button
           type="button"
-          onClick={() => applyCount(Math.max(0, count - step))}
-          className="rounded-full p-1.5 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)]"
-          aria-label="Disminuir"
+          className="-ml-1 shrink-0 cursor-grab touch-none rounded-lg p-2.5 text-[var(--ink-secondary)] hover:text-[var(--ink)] active:cursor-grabbing"
+          aria-label={`Reordenar ${item.foodName}`}
+          {...attributes}
+          {...listeners}
         >
-          <Minus size={14} />
+          <GripVertical size={16} />
         </button>
-        <input
-          type="number"
-          min={0}
-          step={step}
-          className="input w-16 py-1.5 text-center text-sm"
-          value={count}
-          onChange={(e) => applyCount(Number(e.target.value) || 0)}
-        />
-        <button
-          type="button"
-          onClick={() => applyCount(count + step)}
-          className="rounded-full p-1.5 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)]"
-          aria-label="Aumentar"
-        >
-          <Plus size={14} />
-        </button>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-[var(--ink)]">{item.foodName}</p>
+          <p className="text-xs text-[var(--ink-secondary)]">
+            {item.calories} kcal · P {item.protein}g · HC {item.carbohydrates}g · G {item.fats}g
+          </p>
+        </div>
       </div>
 
-      {portionMode === 'smae' ? (
-        <span className="w-28 shrink-0 truncate text-xs text-[var(--ink-secondary)]" title={unitLabel}>
-          {unitLabel}
-        </span>
-      ) : servingSizes.length > 0 ? (
-        <select
-          className="input w-24 py-1.5 text-xs"
-          value={item.unitName || 'g'}
-          onChange={(e) => changeUnit(e.target.value)}
-          aria-label={`Unidad de ${item.foodName}`}
-        >
-          <option value="g">g</option>
-          {servingSizes.map((s) => (
-            <option key={s.name} value={s.name}>{s.name}</option>
-          ))}
-        </select>
-      ) : (
-        <span className="w-8 shrink-0 text-xs text-[var(--ink-secondary)]">{unitLabel}</span>
-      )}
+      {/* Fila 2 en móvil / bloque derecho en escritorio: cantidad y acciones. */}
+      <div className="flex items-center justify-between gap-2 pl-11 sm:shrink-0 sm:justify-end sm:gap-1.5 sm:pl-0">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => applyCount(Math.max(0, count - step))}
+            className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)] active:bg-[var(--surface-alt)]"
+            aria-label="Disminuir"
+          >
+            <Minus size={14} />
+          </button>
+          <input
+            type="number"
+            min={0}
+            step={step}
+            className="input w-16 py-1.5 text-center text-sm"
+            value={count}
+            onChange={(e) => applyCount(Number(e.target.value) || 0)}
+          />
+          <button
+            type="button"
+            onClick={() => applyCount(count + step)}
+            className="rounded-full p-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-alt)] hover:text-[var(--ink)] active:bg-[var(--surface-alt)]"
+            aria-label="Aumentar"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
 
-      <button
-        type="button"
-        onClick={onOpenSubstitutes}
-        className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[var(--accent-tint)] hover:text-[var(--accent)]"
-        aria-label={`Sustitutos sugeridos para ${item.foodName}`}
-        title="Sustitutos sugeridos"
-      >
-        <ArrowLeftRight size={16} />
-      </button>
+        <div className="flex items-center gap-0.5">
+          {portionMode === 'smae' ? (
+            <span className="w-16 shrink-0 truncate text-right text-xs text-[var(--ink-secondary)] sm:w-28 sm:text-left" title={unitLabel}>
+              {unitLabel}
+            </span>
+          ) : servingSizes.length > 0 ? (
+            <select
+              className="input w-20 py-1.5 text-xs sm:w-24"
+              value={item.unitName || 'g'}
+              onChange={(e) => changeUnit(e.target.value)}
+              aria-label={`Unidad de ${item.foodName}`}
+            >
+              <option value="g">g</option>
+              {servingSizes.map((s) => (
+                <option key={s.name} value={s.name}>{s.name}</option>
+              ))}
+            </select>
+          ) : (
+            <span className="w-6 shrink-0 text-xs text-[var(--ink-secondary)]">{unitLabel}</span>
+          )}
 
-      <button
-        type="button"
-        onClick={onRemove}
-        className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[rgba(196,30,22,0.08)] hover:text-[var(--danger)]"
-        aria-label={`Quitar ${item.foodName}`}
-      >
-        <Trash2 size={18} />
-      </button>
+          <button
+            type="button"
+            onClick={onOpenSubstitutes}
+            className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[var(--accent-tint)] hover:text-[var(--accent)] active:bg-[var(--accent-tint)]"
+            aria-label={`Sustitutos sugeridos para ${item.foodName}`}
+            title="Sustitutos sugeridos"
+          >
+            <ArrowLeftRight size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={onRemove}
+            className="rounded-lg p-2 text-[var(--ink-secondary)] hover:bg-[rgba(196,30,22,0.08)] hover:text-[var(--danger)] active:bg-[rgba(196,30,22,0.08)]"
+            aria-label={`Quitar ${item.foodName}`}
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

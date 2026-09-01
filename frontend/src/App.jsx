@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useCallback, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -82,10 +82,17 @@ const PageFallback = ({ fullScreen = false }) => (
 // ── Main App Layout ───────────────────────────────────────────────
 const AppLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Referencia estable a propósito: Sidebar la mete en las dependencias de un
+  // efecto que cierra el drawer al cambiar de ruta. Una arrow function nueva
+  // en cada render de AppLayout (como antes) hacía que ese efecto se
+  // disparara en CADA render, no solo al navegar — así que el drawer se
+  // cerraba solo un instante después de abrirse, y el botón de hamburguesa
+  // parecía no hacer nada.
+  const closeMobileMenu = useCallback(() => setMobileOpen(false), []);
 
   return (
     <div className="app-layout">
-      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <Sidebar mobileOpen={mobileOpen} onClose={closeMobileMenu} />
       <div className="main-content">
         <Topbar onMenuToggle={setMobileOpen} />
         <main className="content-area" id="main-content">

@@ -52,6 +52,19 @@ export default function Sidebar({ mobileOpen, onClose }) {
     onClose?.();
   }, [location.pathname, onClose]);
 
+  // Bloquea el scroll del contenido detrás del drawer mientras está abierto
+  // en móvil — igual que Modal.jsx. Sin esto, un dedo que arranca el gesto
+  // sobre el drawer podía terminar moviendo el contenido de atrás, que es
+  // exactamente la sensación de "el scroll no funciona bien" en un celular.
+  useEffect(() => {
+    if (!mobileOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileOpen]);
+
   useEffect(() => {
     const check = () => {
       if (window.innerWidth < 1024) setCollapsed(false);

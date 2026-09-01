@@ -487,7 +487,14 @@ export default function MenuBuilder() {
             ))}
           </div>
 
-          <div className="lg:col-span-1">
+          {/* El panel de arrastre es una vía adicional a la del buscador de
+              cada tiempo de comida, pensada para mouse y teclado: en un
+              celular, arrastrar un alimento a través de una pantalla que
+              además hace scroll es incómodo, y obligaba a bajar más allá de
+              los 6 tiempos de comida solo para encontrar el panel. Cada
+              MealSlotCard ya trae su propio buscador — se esconde aquí en vez
+              de duplicar esa función con peor ergonomía. */}
+          <div className="hidden lg:col-span-1 lg:block">
             <FoodBrowserPanel
               foods={foods}
               loading={foodsLoading}
