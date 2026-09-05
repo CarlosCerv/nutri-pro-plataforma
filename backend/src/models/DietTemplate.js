@@ -158,6 +158,16 @@ const dietTemplateSchema = new mongoose.Schema({
         default: false,
     },
 
+    // Identifica qué generador automático creó esta plantilla (p.ej.
+    // 'meal-algebra-v1' para las de scripts/seedGeneratedTemplates.js), para
+    // poder reemplazar solo esas en una re-corrida sin afectar las plantillas
+    // manuales de seedTemplates.js, que también son isSystemTemplate: true
+    // pero no traen este campo.
+    generatorTag: {
+        type: String,
+        default: null,
+    },
+
     // Usage tracking
     usageCount: {
         type: Number,

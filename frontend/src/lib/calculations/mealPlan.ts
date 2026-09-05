@@ -1,9 +1,16 @@
 /**
- * utils/calculations.ts
- * Funciones de cálculo para macronutrientes en NutriPro
+ * lib/calculations/mealPlan.ts
+ * Funciones de cálculo para macronutrientes del planificador de comidas.
+ *
+ * Antes vivía en `utils/calculations.ts`. Se movió aquí para que exista una
+ * sola carpeta raíz de "motores de cálculo" en el frontend — no porque
+ * duplicara algo de imc.js/tmb.js/bodyFat.js/idr.js: ese módulo agrega
+ * macros de alimentos ya elegidos (para el planificador de comidas),
+ * mientras que el resto de `lib/calculations/` resuelve fórmulas clínicas
+ * antropométricas (IMC, TMB, % grasa, IDR). Ver docs/CONTEXTO-PLATAFORMA.md.
  */
 
-import type { MacroNutrients, AddedFood, MealTime, DailyMealPlan } from '../types/nutrition';
+import type { MacroNutrients, AddedFood, MealTime, DailyMealPlan } from '../../types/nutrition';
 
 /**
  * Calcula los macronutrientes totales multiplicando la porción base por el número de porciones

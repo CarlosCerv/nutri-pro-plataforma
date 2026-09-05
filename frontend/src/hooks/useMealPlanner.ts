@@ -10,7 +10,7 @@ import {
   calculateMealTimeTotals,
   calculateDailyTotals,
   roundNutrients,
-} from '../utils/calculations';
+} from '../lib/calculations/mealPlan';
 
 const DEFAULT_MEAL_TIMES: MealTime[] = [
   {

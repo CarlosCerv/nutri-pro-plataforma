@@ -1,14 +1,17 @@
 import twilio from 'twilio';
 import dotenv from 'dotenv';
+import { createModuleLogger } from '../config/logger.js';
 
 dotenv.config();
+
+const logger = createModuleLogger('whatsapp');
 
 let twilioClient = null;
 
 const getTwilioClient = () => {
     if (!twilioClient) {
         if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
-            console.warn('[WhatsApp Service] Twilio no configurado. Define TWILIO_ACCOUNT_SID y TWILIO_AUTH_TOKEN.');
+            logger.warn('Twilio no configurado. Define TWILIO_ACCOUNT_SID y TWILIO_AUTH_TOKEN.');
             return null;
         }
         twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -42,13 +45,13 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
 
         const to = toE164(patient.phone);
         if (!to) {
-            console.warn(`[WhatsApp Service] ${patient.firstName} ${patient.lastName} no tiene teléfono — se omite.`);
+            logger.warn({ patientId: patient._id }, 'Paciente sin teléfono — se omite.');
             return false;
         }
 
         const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER;
         if (!fromNumber) {
-            console.error('[WhatsApp Service] TWILIO_WHATSAPP_NUMBER no está configurado.');
+            logger.error('TWILIO_WHATSAPP_NUMBER no está configurado.');
             return false;
         }
 
@@ -77,7 +80,7 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
                 4: nutriNombre,
             });
         } else {
-            console.warn('[WhatsApp Service] Sin TWILIO_WHATSAPP_CONTENT_SID: enviando cuerpo libre (solo válido en sandbox o dentro de una sesión de 24 h).');
+            logger.warn('Sin TWILIO_WHATSAPP_CONTENT_SID: enviando cuerpo libre (solo válido en sandbox o dentro de una sesión de 24 h).');
             payload.body =
                 `Hola ${patient.firstName}, te recordamos tu cita con ${nutriNombre} el ${fecha} a las ${appointment.time}.\n\n` +
                 `Responde *SI* para confirmar o *CANCELAR* si no podrás asistir.`;
@@ -86,7 +89,7 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
         await client.messages.create(payload);
         return true;
     } catch (error) {
-        console.error('[WhatsApp Service] ❌ Error enviando WhatsApp:', error.message);
+        logger.error({ err: error }, 'Error enviando WhatsApp');
         return false;
     }
 };

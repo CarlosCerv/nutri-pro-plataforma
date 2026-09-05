@@ -2,6 +2,9 @@ import twilio from 'twilio';
 import Appointment from '../models/Appointment.js';
 import Patient from '../models/Patient.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('whatsapp-webhook');
 
 const CONFIRM_WORDS = ['si', 'confirmo', 'confirmar', 'confirmado', '1', 'yes', 'ok'];
 const CANCEL_WORDS = ['no', 'cancelar', 'cancela', 'cancelo', '2'];
@@ -45,7 +48,7 @@ export const handleWhatsAppReply = asyncHandler(async (req, res) => {
     // Sin TWILIO_AUTH_TOKEN no hay forma de validar la firma: se rechaza en
     // vez de procesar un webhook que cualquiera podría falsificar.
     if (!authToken) {
-        console.error('[WhatsApp Webhook] TWILIO_AUTH_TOKEN no configurado — se rechaza.');
+        logger.error('TWILIO_AUTH_TOKEN no configurado — se rechaza.');
         return res.status(500).send(buildTwimlReply(''));
     }
 

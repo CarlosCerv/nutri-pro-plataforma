@@ -2,6 +2,9 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isCloudinaryConfigured, uploadBuffer } from '../services/cloudinaryService.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('upload');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,9 +74,7 @@ export const getFileUrl = async (file) => {
   if (isVercel) {
     // In Vercel, files are in memory only
     // Return a warning or placeholder
-    console.warn(
-      '⚠️  File uploads in Vercel are temporary. Configure CLOUDINARY_* para persistirlos.'
-    );
+    logger.warn('File uploads in Vercel are temporary. Configure CLOUDINARY_* para persistirlos.');
     return `/uploads/temp-${file.filename || 'file'}`;
   }
 

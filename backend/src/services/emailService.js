@@ -1,7 +1,10 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { createModuleLogger } from '../config/logger.js';
 
 dotenv.config();
+
+const logger = createModuleLogger('email');
 
 // Create reusable transporter
 let transporter = null;
@@ -10,7 +13,7 @@ const getTransporter = () => {
     if (!transporter) {
         // Check if email is configured
         if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER) {
-            console.warn('Email service not configured. Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD in .env');
+            logger.warn('Email service not configured. Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD in .env');
             return null;
         }
 
@@ -39,12 +42,12 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
         const transport = getTransporter();
 
         if (!transport) {
-            console.warn('[Email Service] Email not configured - skipping email reminder');
+            logger.warn('Email not configured - skipping email reminder');
             return false;
         }
 
         if (!patient.email) {
-            console.warn(`[Email Service] Patient ${patient.firstName} ${patient.lastName} has no email - skipping`);
+            logger.warn({ patientId: patient._id }, 'Patient has no email - skipping');
             return false;
         }
 
@@ -158,7 +161,7 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
 
         return true;
     } catch (error) {
-        console.error('[Email Service] ❌ Error sending email:', error.message);
+        logger.error({ err: error }, 'Error sending email');
         return false;
     }
 };

@@ -1,3 +1,5 @@
+import logger from '../config/logger.js';
+
 /**
  * Envuelve un controlador async para no repetir try/catch en cada uno.
  * Conserva el status HTTP y el mensaje que cada ruta ya usaba: ambos se
@@ -10,7 +12,7 @@ const asyncHandler = (fn, { status = 500, message = 'Server error' } = {}) =>
         try {
             await fn(req, res, next);
         } catch (error) {
-            console.error(`${message}:`, error);
+            logger.error({ err: error }, message);
             res.status(status).json({
                 success: false,
                 message,

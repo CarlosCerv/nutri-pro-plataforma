@@ -1,4 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('cloudinary');
 
 /**
  * Igual que emailService/smsService: si las credenciales no estan en el
@@ -18,7 +21,7 @@ if (isConfigured) {
         api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 } else {
-    console.warn('[Cloudinary] Not configured — file uploads will use the local/temporary fallback.');
+    logger.warn('Not configured — file uploads will use the local/temporary fallback.');
 }
 
 export const isCloudinaryConfigured = () => isConfigured;
@@ -39,7 +42,7 @@ export const uploadBuffer = (buffer, options = {}) =>
             { resource_type: 'auto', folder: 'nutripro', ...options },
             (error, result) => {
                 if (error) {
-                    console.error('[Cloudinary] Upload failed:', error.message);
+                    logger.error({ err: error }, 'Upload failed');
                     reject(error);
                     return;
                 }

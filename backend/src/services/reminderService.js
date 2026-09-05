@@ -4,6 +4,9 @@ import User from '../models/User.js';
 import * as emailService from './emailService.js';
 import * as smsService from './smsService.js';
 import * as whatsappService from './whatsappService.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('reminder-service');
 
 /**
  * Check for appointments that need reminders and send them
@@ -58,7 +61,7 @@ export const checkAndSendReminders = async () => {
                 const nutritionist = appointment.nutritionist;
 
                 if (!patient || !nutritionist) {
-                    console.error(`[Reminder Service] ❌ Missing patient or nutritionist for appointment ${appointment._id}`);
+                    logger.error({ appointmentId: appointment._id }, 'Missing patient or nutritionist for appointment');
                     failedCount++;
                     continue;
                 }
@@ -77,7 +80,7 @@ export const checkAndSendReminders = async () => {
                         nutritionist
                     );
                 } else {
-                    console.warn(`[Reminder Service] ⚠️  Patient has no email address`);
+                    logger.warn({ patientId: patient._id }, 'Patient has no email address');
                 }
 
                 // WhatsApp es el canal preferido para el aviso de cita; SMS
@@ -98,7 +101,7 @@ export const checkAndSendReminders = async () => {
                         );
                     }
                 } else {
-                    console.warn(`[Reminder Service] ⚠️  Patient has no phone number`);
+                    logger.warn({ patientId: patient._id }, 'Patient has no phone number');
                 }
 
                 // Update appointment with reminder status
@@ -118,11 +121,11 @@ export const checkAndSendReminders = async () => {
 
                 } else {
                     failedCount++;
-                    console.error(`[Reminder Service] ❌ Failed to send any reminder (no email or phone)\n`);
+                    logger.error({ appointmentId: appointment._id }, 'Failed to send any reminder (no email or phone)');
                 }
 
             } catch (error) {
-                console.error(`[Reminder Service] ❌ Error processing appointment ${appointment._id}:`, error.message);
+                logger.error({ err: error, appointmentId: appointment._id }, 'Error processing appointment');
                 failedCount++;
             }
         }
@@ -136,7 +139,7 @@ export const checkAndSendReminders = async () => {
         };
 
     } catch (error) {
-        console.error('[Reminder Service] ❌ Error in checkAndSendReminders:', error);
+        logger.error({ err: error }, 'Error in checkAndSendReminders');
         throw error;
     }
 };

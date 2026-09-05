@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pinoHttp from 'pino-http';
 
 import connectDB from './config/database.js';
+import logger from './config/logger.js';
 import authRoutes from './routes/auth.js';
 import patientRoutes from './routes/patients.js';
 import appointmentRoutes from './routes/appointments.js';
@@ -30,17 +32,15 @@ dotenv.config({ path: path.join(__dirname, '../../backend/.env') });
 // puede rechazar — el middleware de abajo es quien de verdad maneja el
 // fallo por petición, esto solo evita un unhandled rejection en el arranque.
 connectDB().catch((error) => {
-  console.error(`❌ Error connecting to MongoDB: ${error.message}`);
+  logger.error({ err: error }, 'Error connecting to MongoDB');
 });
 
 const app = express();
 
-app.use((req, res, next) => {
-  if (process.env.NODE_ENV !== 'test') {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin || 'No Origin'}`);
-  }
-  next();
-});
+app.use(pinoHttp({
+  logger,
+  autoLogging: { ignore: () => process.env.NODE_ENV === 'test' },
+}));
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -70,11 +70,11 @@ app.use(cors({
       if (isAllowed) {
         callback(null, true);
       } else {
-        console.warn(`[CORS] Blocked origin: ${origin}`);
+        logger.warn({ module: 'cors', origin }, 'Blocked origin');
         callback(null, false);
       }
     } catch (corsError) {
-      console.error('[CORS] Middleware error:', corsError);
+      logger.error({ module: 'cors', err: corsError }, 'CORS middleware error');
       callback(null, false);
     }
   },
@@ -106,12 +106,14 @@ app.use(async (req, res, next) => {
     await connectDB();
     next();
   } catch (error) {
-    console.error(`❌ Error connecting to MongoDB: ${error.message}`);
     // El motivo va en la respuesta (no solo en logs de Vercel que hay que ir
     // a buscar) porque es exactamente lo que hace falta para diagnosticar
     // esto desde afuera; se le quita cualquier credencial que la URI de
     // conexión pudiera traer metida en el mensaje de error del driver.
     const motivo = String(error.message || '').replace(/\/\/[^:]+:[^@]+@/, '//***:***@');
+    // No se pasa `err: error` crudo al logger: el serializer por defecto de
+    // pino incluiría el mensaje del driver tal cual, con la URI sin sanear.
+    logger.error({ reason: motivo }, 'Error connecting to MongoDB');
     res.status(503).json({
       success: false,
       message: 'No se pudo conectar a la base de datos.',
@@ -124,7 +126,7 @@ app.use(async (req, res, next) => {
 try {
   app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 } catch (err) {
-  console.warn('⚠️  Uploads directory not available. Ensure /uploads folder exists in production.');
+  logger.warn({ module: 'uploads' }, 'Uploads directory not available. Ensure /uploads folder exists in production.');
 }
 
 app.use('/api/auth', authRoutes);
@@ -158,7 +160,7 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  logger.error({ err }, 'Unhandled error');
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',

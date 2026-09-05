@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useMealPlanner } from '../hooks/useMealPlanner';
-import { calculateMacroPercentages, roundNutrients } from '../utils/calculations';
+import { calculateMacroPercentages, roundNutrients } from '../lib/calculations/mealPlan';
 import type { FoodItem } from '../types/nutrition';
 
 const TORTILLA: FoodItem = {
@@ -125,7 +125,7 @@ describe('useMealPlanner', () => {
   });
 });
 
-describe('utils/calculations', () => {
+describe('lib/calculations/mealPlan', () => {
   it('reparte el porcentaje calórico entre los tres macronutrientes', () => {
     // 100 g de proteína y 100 g de carbohidrato aportan 400 kcal cada uno;
     // 100 g de grasa aportan 900 kcal. Total 1700 kcal.

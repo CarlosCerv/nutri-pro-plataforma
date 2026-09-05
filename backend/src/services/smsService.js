@@ -1,7 +1,10 @@
 import twilio from 'twilio';
 import dotenv from 'dotenv';
+import { createModuleLogger } from '../config/logger.js';
 
 dotenv.config();
+
+const logger = createModuleLogger('sms');
 
 // Create Twilio client
 let twilioClient = null;
@@ -10,7 +13,7 @@ const getTwilioClient = () => {
     if (!twilioClient) {
         // Check if Twilio is configured
         if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
-            console.warn('Twilio service not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in .env');
+            logger.warn('Twilio service not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in .env');
             return null;
         }
 
@@ -34,17 +37,17 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
         const client = getTwilioClient();
 
         if (!client) {
-            console.warn('[SMS Service] Twilio not configured - skipping SMS reminder');
+            logger.warn('Twilio not configured - skipping SMS reminder');
             return false;
         }
 
         if (!patient.phone) {
-            console.warn(`[SMS Service] Patient ${patient.firstName} ${patient.lastName} has no phone - skipping`);
+            logger.warn({ patientId: patient._id }, 'Patient has no phone - skipping');
             return false;
         }
 
         if (!process.env.TWILIO_PHONE_NUMBER) {
-            console.error('[SMS Service] TWILIO_PHONE_NUMBER not set in .env');
+            logger.error('TWILIO_PHONE_NUMBER not set in .env');
             return false;
         }
 
@@ -76,10 +79,7 @@ export const sendAppointmentReminder = async (patient, appointment, nutritionist
 
         return true;
     } catch (error) {
-        console.error('[SMS Service] ❌ Error sending SMS:', error.message);
-        if (error.code) {
-            console.error(`[SMS Service] Twilio error code: ${error.code}`);
-        }
+        logger.error({ err: error, twilioErrorCode: error.code }, 'Error sending SMS');
         return false;
     }
 };

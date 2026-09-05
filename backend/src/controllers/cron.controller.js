@@ -1,5 +1,8 @@
 import reminderService from '../services/reminderService.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('cron');
 
 /**
  * Endpoint HTTP para el cron de recordatorios (reemplaza a node-cron en
@@ -13,7 +16,7 @@ export const runReminders = asyncHandler(async (req, res) => {
     const expectedSecret = process.env.CRON_SECRET;
 
     if (!expectedSecret) {
-        console.error('[Cron] CRON_SECRET no esta configurado — rechazando por seguridad.');
+        logger.error('CRON_SECRET no esta configurado — rechazando por seguridad.');
         return res.status(500).json({
             success: false,
             message: 'CRON_SECRET is not configured',

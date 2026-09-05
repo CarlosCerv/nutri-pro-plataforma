@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import logger from './logger.js';
 
 let cached = global.mongoose;
 if (!cached) {
@@ -25,7 +26,7 @@ const connectDB = async () => {
   }
 
   cached.conn = await cached.promise;
-  console.log(`✅ MongoDB Connected: ${cached.conn.connection.host}`);
+  logger.info({ host: cached.conn.connection.host }, 'MongoDB connected');
   return cached.conn;
 };
 
