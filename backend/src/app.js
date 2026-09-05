@@ -113,11 +113,12 @@ app.use(async (req, res, next) => {
     const motivo = String(error.message || '').replace(/\/\/[^:]+:[^@]+@/, '//***:***@');
     // No se pasa `err: error` crudo al logger: el serializer por defecto de
     // pino incluiría el mensaje del driver tal cual, con la URI sin sanear.
-    logger.error({ reason: motivo }, 'Error connecting to MongoDB');
+    logger.error({ reason: motivo, reqId: req.id }, 'Error connecting to MongoDB');
     res.status(503).json({
       success: false,
       message: 'No se pudo conectar a la base de datos.',
       reason: motivo,
+      requestId: req.id,
     });
   }
 });
@@ -160,11 +161,12 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  logger.error({ err }, 'Unhandled error');
+  logger.error({ err, reqId: req.id }, 'Unhandled error');
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err : {},
+    requestId: req.id,
   });
 });
 

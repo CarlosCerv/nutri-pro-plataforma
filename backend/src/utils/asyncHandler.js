@@ -12,11 +12,18 @@ const asyncHandler = (fn, { status = 500, message = 'Server error' } = {}) =>
         try {
             await fn(req, res, next);
         } catch (error) {
-            logger.error({ err: error }, message);
+            // `req.id` lo asigna pino-http (backend/src/app.js) y ya viaja en
+            // cada línea de log de esta petición. Incluirlo también en la
+            // respuesta es lo que permite pasar de "un usuario dijo que le
+            // dio 500 al hacer login como a las 3pm" a una búsqueda exacta en
+            // los Runtime Logs de Vercel, en vez de adivinar por ventana de
+            // tiempo (ver docs/MANEJO-DE-ERRORES.md §5, mejora #1).
+            logger.error({ err: error, reqId: req.id }, message);
             res.status(status).json({
                 success: false,
                 message,
                 error: error.message,
+                requestId: req.id,
             });
         }
     };

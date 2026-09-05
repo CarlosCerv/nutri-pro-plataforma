@@ -36,7 +36,7 @@ No hay ningún servicio de error tracking (Sentry, Bugsnag, etc.) ni alertas pro
 
 ### La limitación real: no hay forma de correlacionar un reporte con su log
 
-`pino-http` genera un `req.id` interno y lo incluye en cada línea de log de esa petición, pero **ese id nunca viaja en la respuesta al cliente**. Si un usuario dice "me dio 500 al hacer login a las 3pm", hay que buscar en los logs por ruta + ventana de tiempo aproximada y adivinar cuál línea es — no hay un identificador exacto que buscar. Esto es la causa concreta de "no hay errores claros en los requests" (ver §5, mejora recomendada #1).
+`pino-http` genera un `req.id` interno y lo incluye en cada línea de log de esa petición. **Desde 2026-09-05 este id también viaja en la respuesta al cliente** como `requestId`, tanto en `asyncHandler` como en el error handler centralizado de `app.js` — si un usuario dice "me dio 500 al hacer login", ese `requestId` de la respuesta es una búsqueda exacta en los Runtime Logs de Vercel, no una ventana de tiempo aproximada. La única excepción es el Caso 6 de §4: si el proceso muere antes de que Express responda, la respuesta es la página genérica de Vercel y no trae `requestId` — ahí no queda otra que acotar por ruta + hora.
 
 ## 3. Qué SÍ funciona bien hoy
 
@@ -83,11 +83,23 @@ Cualquier línea que aparezca del lado de `backend/package.json` y no del lado d
 
 **Causa:** el dominio desde el que se sirve el frontend no está en `allowedOrigins` (`app.js`) ni coincide con `FRONTEND_URL`. Los subdominios `*.vercel.app` y `localhost:*` están permitidos por defecto — esto casi siempre pasa con un dominio custom nuevo que no se agregó a `FRONTEND_URL` en las variables de entorno de Vercel.
 
+### Caso 6 — 500 con el JSON genérico de Vercel (`{"error":{"code":"...","message":"A server error has occurred"}}`), no con el `{success:false,...}` de esta API
+
+**Cómo distinguirlo del resto:** todos los demás casos de este catálogo devuelven el formato de esta API (`{success:false, message, error, requestId}` — ver §1). Si en cambio el body de la respuesta trae la forma `{"error":{"code","message"}}`, **el proceso de la función serverless murió antes de que Express pudiera responder** — no es un error de lógica de negocio, es un crash de plataforma. Esto es compatible con login (o cualquier ruta) funcionando perfecto en desarrollo local contra la misma base de datos, y fallando solo en producción de forma intermitente.
+
+**Causa más probable: un `EventEmitter` sin listener para `'error'` en la conexión de Mongoose cacheada entre invocaciones.** `backend/src/config/database.js` cachea la conexión en `global.mongoose` para reusarla entre invocaciones "calientes" de la misma función (evita reconectar en cada request). Si el socket subyacente se cae entre invocaciones — algo normal cuando Vercel congela/descongela la función — Mongoose emite `'error'` en el objeto de conexión que quedó vivo de una petición anterior. Node relanza un `'error'` sin listener como excepción no capturada, lo cual mata el proceso entero: de ahí la página genérica de Vercel en vez de un 500 con nuestro JSON. Corregido agregando `mongoose.connection.on('error', ...)` y `.on('disconnected', ...)` justo después del primer connect exitoso (una sola vez, no en cada llamada a `connectDB()`), invalidando la caché (`cached.conn = null; cached.promise = null`) para forzar una reconexión limpia en la siguiente petición en vez de dejar el proceso muerto o sirviendo una conexión rota.
+
+**Otras causas a descartar primero, más baratas de verificar:**
+- Caso 1 de este catálogo (dependencia faltante en el `package.json` raíz) — mismo síntoma si el crash ocurre en el import inicial en vez de a mitad de una conexión ya establecida.
+- Una variable de entorno que existe en `.env` local pero no se configuró en Vercel para el entorno correcto (Production/Preview/Development son independientes) — p. ej. `JWT_SECRET` ausente en Vercel Production haría fallar el login solo ahí. Desde `backend/src/controllers/authController.js`, `generateToken()` ahora lanza un mensaje explícito (`'JWT_SECRET no está configurado en este entorno.'`) en vez del genérico de `jsonwebtoken`, pero **ese mensaje solo llega si el proceso no murió antes** — si lo que se ve es el JSON genérico de Vercel, hay que revisar el caso de arriba primero.
+
+**Diagnóstico:** no hay forma de confirmarlo sin ver los Runtime Logs de Vercel del momento exacto del reporte (buscar una línea que corte sin el patrón habitual de `asyncHandler`/error handler, o un stack trace de Node fuera de cualquier request loggeado) — no es reproducible localmente si la base de datos y el código son los mismos, porque localmente cada arranque crea una conexión nueva en vez de reusar una cacheada entre invocaciones frías/congeladas.
+
 ## 5. Mejoras recomendadas (no implementadas — quedan como backlog)
 
 Documentado aquí para que quien retome esto no tenga que re-descubrirlo:
 
-1. **Incluir el `req.id` de pino-http en el body de toda respuesta de error** (tanto en `asyncHandler` como en el error handler centralizado), y loguearlo también. Es el cambio de mayor impacto para "no hay errores claros en los requests": convierte un reporte de usuario en una búsqueda exacta en los logs en vez de una búsqueda por ventana de tiempo.
+1. ~~Incluir el `req.id` de pino-http en el body de toda respuesta de error~~ — hecho el 2026-09-05 (`requestId` en `asyncHandler` y en el error handler centralizado; ver §2 y Caso 6 de §4).
 2. **Unificar los dos caminos de error** (`asyncHandler` vs. el middleware de 4 argumentos) para que todo pase por un solo punto con un formato de respuesta y de log verdaderamente consistente.
 3. **Distinguir errores esperados (4xx) de inesperados (5xx) en el nivel de log** — hoy varios controladores no diferencian, así que un log a nivel `error` no siempre significa "algo se rompió", a veces es "un usuario mandó datos inválidos".
 4. **Considerar un servicio de error tracking** (Sentry tiene tier gratuito e integración directa con Express) si el volumen de errores no reportados por usuarios empieza a ser un problema — hoy la única señal es que alguien se queje.

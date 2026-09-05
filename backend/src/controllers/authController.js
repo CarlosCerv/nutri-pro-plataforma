@@ -4,6 +4,15 @@ import asyncHandler from '../utils/asyncHandler.js';
 
 // Generate JWT token
 const generateToken = (id) => {
+    if (!process.env.JWT_SECRET) {
+        // Sin esto, jsonwebtoken revienta con "secretOrPrivateKey must have a
+        // value" — correcto pero no dice qué configurar ni dónde. Esto pasa
+        // típicamente cuando JWT_SECRET está en el `.env` local pero nunca se
+        // configuró en las variables de entorno de Vercel para ese entorno
+        // (Production/Preview/Development son independientes ahí), así que
+        // login funciona en desarrollo y falla solo en producción.
+        throw new Error('JWT_SECRET no está configurado en este entorno.');
+    }
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE || '7d',
     });
