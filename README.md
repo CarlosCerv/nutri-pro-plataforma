@@ -63,6 +63,8 @@ npm run install:all
 
 Esto instala las dependencias de `backend/` y `frontend/` (el `package.json` raiz solo declara las dependencias compartidas con la funcion serverless de Vercel; no hace falta correr `npm install` en la raiz para desarrollo local).
 
+> **⚠️ Cada dependencia de runtime nueva en `backend/package.json` debe agregarse tambien al `package.json` raiz.** El `vercel-build` de la raiz solo corre `npm install` dentro de `frontend/` — nunca dentro de `backend/` — asi que el bundle de la funcion serverless (`api/index.js` → `backend/src/app.js`) se arma con las dependencias que Vercel instala a partir del `package.json` de la raiz, no las de `backend/`. Si falta ahi, el import revienta en el primer cold start y **todas** las rutas de la API devuelven 500, no solo la que estabas probando (asi paso con `pino`/`pino-http`, agregados en `backend/package.json` pero no en el raiz). `devDependencies` (como `pino-pretty`) no hace falta mirrorearlas: no se usan en produccion.
+
 ### 2. Configurar variables de entorno
 
 Crea `backend/.env` y `frontend/.env` (ver [Variables de entorno](#variables-de-entorno) para el detalle de cada valor). Puedes partir de los ejemplos:

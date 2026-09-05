@@ -2,6 +2,8 @@
 
 > Documento de contexto para conversar sobre mejoras. Describe lo que **hay hoy** en el repositorio, no lo que se planeó.
 > Generado el 2026-08-31 sobre el commit `d36d8f8`; actualizado el 2026-09-04 sobre el commit `e72a393` (26 commits de diferencia — deploy, funcionalidades públicas/WhatsApp, landing page, mobile y el rediseño del constructor de dietas).
+>
+> Para diagnosticar un error operativo reportado en producción (no para entender la arquitectura general, que es lo que sigue en este documento), ve directo a `docs/MANEJO-DE-ERRORES.md` (playbook) y `docs/BITACORA-ERRORES.md` (historial). `CLAUDE.md` en la raíz del repo indexa toda la documentación del proyecto por componente.
 
 ---
 
@@ -27,6 +29,8 @@ Idioma de la interfaz: español. Idioma del código: mezclado (los modelos y la 
 | Despliegue | Vercel — `api/index.js` (con `api/[...path].js` de respaldo) exporta el `app` de Express directo como handler; el front end se sirve como estático |
 
 El monorepo tiene tres `package.json`: raíz (concurrently + dependencias que Vercel necesita en el bundle serverless), `backend/` y `frontend/`.
+
+**Toda la API caía con 500 tras agregar `pino`/`pino-http` a `backend/package.json` sin reflejarlos en el `package.json` raíz.** El `vercel-build` de la raíz solo corre `npm install` dentro de `frontend/`, nunca dentro de `backend/`, así que el bundle de la función serverless se arma con las dependencias del `package.json` raíz — no las de `backend/`. Al faltar `pino` ahí, el `import` en `config/logger.js` (cargado desde el arranque por `app.js` y `asyncHandler.js`) reventaba en el primer cold start y tumbaba la función completa: no solo login, cualquier ruta. Corregido agregando ambos paquetes al `package.json` raíz. De paso, `config/logger.js` ahora resuelve `pino-pretty` con `require.resolve` antes de pedírselo a pino como transport, así que si alguna vez vuelve a faltar una dependencia de logging en el entorno donde corre esto, cae a JSON plano en vez de tumbar el logger (y con él, la app entera). Ver la advertencia en el `README.md` raíz.
 
 **El constructor de dietas dejó de usar drag-and-drop.** El diseño con `@dnd-kit` (`DndContext` + `DragOverlay`) que describía la versión anterior de este documento se retiró (`e72a393`); la dependencia ya no está ni en `package.json`. `MenuBuilder` arma el plan con controles directos por fila (`components/MenuBuilder/`: `MealSlotCard`, `FoodRow`, `SubstitutesModal`, `MetaModal`, `StickyMacroBar`), sin arrastrar y soltar.
 
