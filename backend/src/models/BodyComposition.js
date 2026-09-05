@@ -74,6 +74,12 @@ const bodyCompositionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    // Cita de la que salió esta medición. Opcional: la valoración inicial y
+    // las mediciones fuera de sesión no tienen una que asociar.
+    appointment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment',
     }
 }, {
     timestamps: true

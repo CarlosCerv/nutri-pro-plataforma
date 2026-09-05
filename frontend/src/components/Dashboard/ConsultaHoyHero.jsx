@@ -142,7 +142,7 @@ export default function ConsultaHoyHero() {
               </div>
 
               {data.actual.patientId && (
-                <Button as={Link} to={`/pacientes/${data.actual.patientId}/evolucion`} className="shrink-0 gap-2">
+                <Button as={Link} to={`/agenda/${data.actual.id}/consulta`} className="shrink-0 gap-2">
                   <PlayCircle size={16} /> Iniciar consulta
                 </Button>
               )}

@@ -11,6 +11,12 @@ const clinicalNoteSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    // Cita de la que salió esta nota. Opcional: las notas retroactivas o
+    // capturadas fuera de la pantalla de sesión no siempre tienen una.
+    appointment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment',
+    },
     date: {
         type: Date,
         default: Date.now,

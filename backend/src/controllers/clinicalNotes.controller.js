@@ -6,7 +6,7 @@ import isOwnedBy from '../utils/ownership.js';
 // Create a new clinical note
 export const createNote = asyncHandler(async (req, res) => {
     const { patientId } = req.params;
-    const { subjective, objective, analysis, plan, followUpDate, date } = req.body;
+    const { subjective, objective, analysis, plan, followUpDate, date, appointment } = req.body;
 
     // Verify patient exists
     const patient = await Patient.findById(patientId);
@@ -27,7 +27,8 @@ export const createNote = asyncHandler(async (req, res) => {
         objective,
         analysis,
         plan,
-        followUpDate
+        followUpDate,
+        appointment: appointment || undefined,
     });
 
     await newNote.save();

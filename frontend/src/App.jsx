@@ -18,6 +18,7 @@ const NewPatient = lazy(() => import('./pages/NewPatient'));
 const PatientDetail = lazy(() => import('./pages/PatientDetail'));
 const Appointments = lazy(() => import('./pages/Appointments'));
 const NewAppointment = lazy(() => import('./pages/NewAppointment'));
+const ConsultationSession = lazy(() => import('./pages/ConsultationSession'));
 const MealPlans = lazy(() => import('./pages/MealPlans'));
 const DietTemplates = lazy(() => import('./pages/DietTemplates'));
 const MenuBuilder = lazy(() => import('./pages/MenuBuilder'));
@@ -167,6 +168,7 @@ function App() {
             {/* Agenda */}
             <Route path="/agenda" element={<ProtectedPage element={<Appointments />} />} />
             <Route path="/agenda/nueva" element={<ProtectedPage element={<NewAppointment />} />} />
+            <Route path="/agenda/:appointmentId/consulta" element={<ProtectedPage element={<ConsultationSession />} />} />
 
             {/* Dietas: planes, plantillas y catálogo de alimentos */}
             <Route path="/dietas/nueva" element={<ProtectedPage element={<MenuBuilder />} />} />

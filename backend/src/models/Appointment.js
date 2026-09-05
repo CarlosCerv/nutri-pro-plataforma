@@ -46,14 +46,6 @@ const appointmentSchema = new mongoose.Schema({
     notes: {
         type: String,
     },
-    // Consultation details
-    consultation: {
-        weight: { type: Number },
-        bloodPressure: { type: String },
-        observations: { type: String },
-        recommendations: { type: String },
-        nextSteps: { type: String },
-    },
     // Reminder tracking
     reminderSent: {
         type: Boolean,

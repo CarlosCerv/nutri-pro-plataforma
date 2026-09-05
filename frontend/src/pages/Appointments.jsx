@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI } from '../services/api';
-import { Calendar as CalendarIcon, Plus, Clock, User } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Clock, User, PlayCircle } from 'lucide-react';
 import Badge from '../design-system/components/Badge.jsx';
 import Button from '../design-system/components/Button.jsx';
 
@@ -203,7 +203,16 @@ const Appointments = () => {
                         </div>
                       </div>
 
-                      <div className="flex md:justify-end">
+                      <div className="flex flex-wrap gap-2 md:justify-end">
+                        {appointment.status === 'scheduled' && appointment.patient?._id && (
+                          <Button
+                            size="sm"
+                            className="w-full gap-1.5 md:w-auto"
+                            onClick={() => navigate(`/agenda/${appointment._id}/consulta`)}
+                          >
+                            <PlayCircle size={14} strokeWidth={1.75} /> Iniciar consulta
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
