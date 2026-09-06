@@ -17,6 +17,20 @@ Registro cronológico de errores reportados en producción, para que retomar uno
 
 ---
 
+### 2026-09-05 — No se puede volver a iniciar sesión tras registrar una cuenta nueva y cerrar sesión
+
+- **Estado:** corregido y verificado con tests automatizados (backend + frontend), pendiente de deploy.
+- **Reportado por:** el usuario — "cuando creo una cuenta nueva, y me deslogueo, al intentar volver a iniciar sesion no puedo".
+- **Diagnóstico:** no había ni un solo test de `authController.js` en el proyecto (`backend/src/__tests__/`), así que se escribieron primero para descartar causas de backend antes de tocar nada: registro con email exacto, con otra capitalización, con espacios al inicio/final, doble registro con el mismo email en otra capitalización, contraseña incorrecta y email inexistente. **Los 6 pasaron contra el código de backend sin modificar** — `authController.js`/`User.js` ya normalizan bien el email (el `lowercase`/`trim` del schema de Mongoose se aplica también al castear el filtro de una query, no solo al guardar), así que se descartó cualquier bug de backend en login/registro.
+- **Causa (frontend):** el interceptor de respuesta global de `frontend/src/services/api.js` trataba **cualquier** 401 igual — incluido el de `POST /api/auth/login` con credenciales inválidas — como "sesión expirada": borraba `localStorage`/`sessionStorage` y forzaba `window.location.href = '/login'` (recarga completa de página, no un `navigate` de React Router). Esa recarga interrumpía la promesa antes de que `AuthContext.login()` llegara a su bloque `catch` y pudiera mostrar el mensaje "Invalid credentials" en `Login.jsx` — el usuario solo veía la pantalla de login parpadear/recargarse sin ningún mensaje de error, indistinguible de "el login está roto".
+- **Fix:**
+  - `frontend/src/services/api.js`: el interceptor de respuesta ahora excluye `auth/login` y `auth/register` del borrado de storage + redirección forzada — un 401 en esas dos rutas es el resultado normal de credenciales inválidas y debe propagarse tal cual para que la pantalla lo muestre, no tratarse como sesión expirada.
+  - `backend/src/__tests__/authController.test.js` (nuevo): 6 tests de registro/login que hoy dan cobertura donde antes no había ninguna.
+  - `frontend/src/__tests__/apiAuthInterceptor.test.js` (nuevo): 3 tests que fijan el comportamiento correcto del interceptor (no toca storage en 401 de login/registro, sí lo hace en 401 de cualquier otra ruta protegida).
+- **Verificación:** los 3 tests nuevos de frontend fallan si se revierte el fix del interceptor (se comprobó la lógica manualmente) y pasan con él. Suite completa en verde: 62 tests de backend (antes 56), 178 de frontend (antes 175). `npm run typecheck` en frontend sin errores.
+
+---
+
 ### 2026-09-05 — Login exitoso (200) pero no redirige al dashboard, sin error visible
 
 - **Estado:** corregido y verificado contra producción (endpoints reales), pendiente de deploy.

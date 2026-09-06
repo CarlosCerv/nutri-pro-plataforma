@@ -1,26 +1,17 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { UtensilsCrossed } from 'lucide-react';
-import { Combobox } from '../../design-system/components';
+import { Plus, UtensilsCrossed } from 'lucide-react';
 import { EmptyState } from '../../design-system/components/StateViews';
-import { nutritionPer100g, SLOT_META } from '../../lib/mealPlanSlots';
+import { SLOT_META } from '../../lib/mealPlanSlots';
 import FoodRow from './FoodRow';
 
 /**
- * Un tiempo de comida: buscador de alta directa (Combobox + Enter) y la
- * lista de alimentos, cada uno con su menú de acciones para reordenar o
- * moverse a otro tiempo — ver FoodRow.jsx para el porqué no es arrastrable.
+ * Un tiempo de comida: botón que abre el panel único de búsqueda
+ * (AddFoodPanel, compartido por todos los tiempos) y la lista de alimentos,
+ * cada uno con su menú de acciones para reordenar o moverse a otro tiempo —
+ * ver FoodRow.jsx para el porqué no es arrastrable.
  */
-export default function MealSlotCard({ slot, foods, portionMode, onAddFood, onUpdateItem, onRemoveItem, onOpenSubstitutes, onReorderItem, onMoveItemToSlot }) {
-  const options = useMemo(
-    () => foods.map((f) => ({
-      value: f._id,
-      label: f.name,
-      description: `${nutritionPer100g(f).energy} kcal / 100 g`,
-    })),
-    [foods]
-  );
-
+export default function MealSlotCard({ slot, foods, portionMode, onOpenAddFood, onUpdateItem, onRemoveItem, onOpenSubstitutes, onReorderItem, onMoveItemToSlot }) {
   const foodsById = useMemo(() => new Map(foods.map((f) => [String(f._id), f])), [foods]);
 
   const otherSlots = useMemo(
@@ -30,20 +21,15 @@ export default function MealSlotCard({ slot, foods, portionMode, onAddFood, onUp
 
   return (
     <div className="card overflow-hidden">
-      <div className="border-b border-[var(--border-soft)] bg-[var(--surface-alt)] px-4 py-3 sm:px-5">
-        <h3 className="mb-2 text-sm font-semibold text-[var(--ink)]">{slot.slotLabel}</h3>
-        <Combobox
-          searchable
-          options={options}
-          value=""
-          onChange={(e) => {
-            const food = foodsById.get(String(e.target.value));
-            if (food) onAddFood(food);
-          }}
-          placeholder="Buscar y agregar alimento…"
-          searchPlaceholder="Escribe para buscar…"
-          id={`combo-${slot.slotKey}`}
-        />
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--border-soft)] bg-[var(--surface-alt)] px-4 py-3 sm:px-5">
+        <h3 className="text-sm font-semibold text-[var(--ink)]">{slot.slotLabel}</h3>
+        <button
+          type="button"
+          onClick={() => onOpenAddFood(slot.slotKey)}
+          className="btn btn-outline btn-sm gap-1.5 !px-3"
+        >
+          <Plus size={14} /> Agregar alimento
+        </button>
       </div>
 
       {slot.items.length === 0 ? (
@@ -86,7 +72,7 @@ MealSlotCard.propTypes = {
   }).isRequired,
   foods: PropTypes.array.isRequired,
   portionMode: PropTypes.oneOf(['grams', 'smae']).isRequired,
-  onAddFood: PropTypes.func.isRequired,
+  onOpenAddFood: PropTypes.func.isRequired,
   onUpdateItem: PropTypes.func.isRequired,
   onRemoveItem: PropTypes.func.isRequired,
   onOpenSubstitutes: PropTypes.func.isRequired,

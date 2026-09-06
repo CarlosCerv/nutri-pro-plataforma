@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Apple, Search } from 'lucide-react';
 import { foodsAPI } from '../../services/api';
 import { getApiErrorMessage } from '../../lib/apiError';
+import { CATEGORIAS, ETIQUETA_CATEGORIA } from '../../lib/foodCategories';
 import DataTable from '../../design-system/components/DataTable.jsx';
 import Button from '../../design-system/components/Button.jsx';
 import { EmptyState } from '../../design-system/components/StateViews.jsx';
@@ -15,21 +16,6 @@ import { EmptyState } from '../../design-system/components/StateViews.jsx';
  * y `foodsAPI` estaba declarado en `services/api.js` sin que nadie lo usara.
  */
 
-const CATEGORIAS = [
-  { value: '', label: 'Todos' },
-  { value: 'cereals', label: 'Cereales' },
-  { value: 'proteins', label: 'Proteínas' },
-  { value: 'dairy', label: 'Lácteos' },
-  { value: 'fruits', label: 'Frutas' },
-  { value: 'vegetables', label: 'Verduras' },
-  { value: 'legumes', label: 'Leguminosas' },
-  { value: 'fats', label: 'Grasas' },
-  { value: 'nuts', label: 'Oleaginosas' },
-  { value: 'beverages', label: 'Bebidas' },
-  { value: 'other', label: 'Otros' },
-];
-
-const ETIQUETA_CATEGORIA = Object.fromEntries(CATEGORIAS.map((c) => [c.value, c.label]));
 const LIMITE = 25;
 
 const numero = (v, decimales = 1) => (typeof v === 'number' ? v.toFixed(decimales).replace(/\.0$/, '') : '—');

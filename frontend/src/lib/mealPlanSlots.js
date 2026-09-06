@@ -60,6 +60,31 @@ export function macrosForGrams(food, grams) {
   };
 }
 
+/**
+ * Cantidad inicial sugerida al agregar un alimento desde el buscador
+ * (AddFoodPanel): su primera porción común si existe, o 100 g. Sin esto,
+ * todo alimento entraba siempre en 100 g y el nutriólogo tenía que ir luego
+ * a la fila a corregir la cantidad antes de que el plan tuviera sentido.
+ */
+export function defaultQuantityFor(food) {
+  const first = food?.servingSizes?.[0];
+  if (first) return { count: 1, unitName: first.name };
+  return { count: 100, unitName: 'g' };
+}
+
+/** Gramos reales para `count` unidades de `unitName` ('g' o el nombre de una porción común del alimento). */
+export function resolveGramsForUnit(food, unitName, count) {
+  const n = Math.max(0, Number(count) || 0);
+  if (unitName === 'g') return n;
+  const serving = food?.servingSizes?.find((s) => s.name === unitName);
+  return serving ? n * serving.grams : n;
+}
+
+/** Etiqueta legible de la cantidad ("2 piezas medianas"), o null para gramos simples. */
+export function quantityLabelForUnit(unitName, count) {
+  return unitName === 'g' ? null : `${count} ${unitName}`;
+}
+
 export function emptyDaySlots() {
   return SLOT_META.map((s) => ({ slotKey: s.key, slotLabel: s.label, items: [] }));
 }

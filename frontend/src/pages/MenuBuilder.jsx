@@ -20,16 +20,19 @@ import StickyMacroBar from '../components/MenuBuilder/StickyMacroBar';
 import MealSlotCard from '../components/MenuBuilder/MealSlotCard';
 import SubstitutesModal from '../components/MenuBuilder/SubstitutesModal';
 import MetaModal from '../components/MenuBuilder/MetaModal';
+import AddFoodPanel from '../components/MenuBuilder/AddFoodPanel';
 
-function insertFoodAt(daySlots, slotKey, index, food) {
+const MAX_RECENT_FOODS = 8;
+
+function insertFoodAt(daySlots, slotKey, index, food, grams = 100, unitName = 'g', quantityLabel = null) {
   const item = {
     uid: newUid(),
     foodRef: food._id,
     foodCategory: food.category,
     foodName: food.name,
-    unitName: 'g',
-    quantityLabel: null,
-    ...macrosForGrams(food, 100),
+    unitName,
+    quantityLabel,
+    ...macrosForGrams(food, grams),
   };
   return daySlots.map((s) => {
     if (s.slotKey !== slotKey) return s;
@@ -82,6 +85,8 @@ export default function MenuBuilder() {
   const [meta, setMeta] = useState(DEFAULT_META);
   const [metaModalOpen, setMetaModalOpen] = useState(false);
   const [substitutesItem, setSubstitutesItem] = useState(null);
+  const [addFoodSlotKey, setAddFoodSlotKey] = useState(null);
+  const [recentFoods, setRecentFoods] = useState([]);
 
   const [patient, setPatient] = useState(null);
   const [foods, setFoods] = useState([]);
@@ -205,13 +210,25 @@ export default function MenuBuilder() {
   );
 
   const addFoodToActiveDay = useCallback(
-    (slotKey, food) => {
+    (slotKey, food, grams = 100, unitName = 'g', quantityLabel = null) => {
+      // El catálogo completo de foods (hasta 500) se precarga una sola vez al
+      // montar; un alimento agregado desde AddFoodPanel puede venir de una
+      // búsqueda contra el servidor o de una alta nueva, así que se mete a
+      // esta caché local si todavía no estaba — sin esto, FoodRow no podría
+      // resolver sus porciones comunes/categoría (servingSizes) al mostrarlo.
+      setFoods((prev) => (prev.some((f) => f._id === food._id) ? prev : [...prev, food]));
+      setRecentFoods((prev) => [food, ...prev.filter((f) => f._id !== food._id)].slice(0, MAX_RECENT_FOODS));
       updateActiveDay((slots) =>
-        insertFoodAt(slots, slotKey, slots.find((s) => s.slotKey === slotKey).items.length, food)
+        insertFoodAt(slots, slotKey, slots.find((s) => s.slotKey === slotKey).items.length, food, grams, unitName, quantityLabel)
       );
     },
     [updateActiveDay]
   );
+
+  const handleCreateFood = useCallback(async (payload) => {
+    const res = await foodsAPI.create(payload);
+    return res.data?.data || res.data;
+  }, []);
 
   const updateItemInActiveDay = useCallback(
     (uid, patch) => {
@@ -400,7 +417,7 @@ export default function MenuBuilder() {
             slot={slot}
             foods={foods}
             portionMode={portionMode}
-            onAddFood={(food) => addFoodToActiveDay(slot.slotKey, food)}
+            onOpenAddFood={setAddFoodSlotKey}
             onUpdateItem={updateItemInActiveDay}
             onRemoveItem={removeItemInActiveDay}
             onOpenSubstitutes={setSubstitutesItem}
@@ -421,6 +438,16 @@ export default function MenuBuilder() {
       />
 
       <SubstitutesModal item={substitutesItem} onClose={() => setSubstitutesItem(null)} onSelect={handleSelectSubstitute} />
+
+      <AddFoodPanel
+        open={Boolean(addFoodSlotKey)}
+        targetSlotKey={addFoodSlotKey}
+        onChangeTargetSlot={setAddFoodSlotKey}
+        recentFoods={recentFoods}
+        onClose={() => setAddFoodSlotKey(null)}
+        onAddFood={addFoodToActiveDay}
+        onCreateFood={handleCreateFood}
+      />
     </div>
   );
 }

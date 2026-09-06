@@ -105,6 +105,16 @@ Cualquier línea que aparezca del lado de `backend/package.json` y no del lado d
 
 **Fix (ya aplicado el 2026-09-05):** `login()` y `register()` en `AuthContext.jsx` limpian explícitamente el almacén que no usan en cada llamada, para que nunca convivan dos tokens de sesiones distintas. Ver `docs/BITACORA-ERRORES.md` para el detalle completo de la investigación (se reprodujo el flujo end-to-end contra la API real de producción con una cuenta desechable para descartar causas de backend antes de mirar el frontend).
 
+### Caso 8 — No se puede iniciar sesión (o registrar) y no aparece ningún mensaje de error, solo un parpadeo/recarga de la pantalla de login
+
+**Cómo distinguirlo del resto:** a diferencia del Caso 7 (login exitoso que no redirige), aquí el login/registro en sí está fallando (401 con credenciales inválidas, o cualquier otro 401/400 de `/api/auth/login` o `/api/auth/register`), pero la pantalla no muestra el mensaje de error que `Login.jsx`/`Register.jsx` deberían pintar — solo parece que "no pasa nada" o que la página se recarga.
+
+**Causa (corregida el 2026-09-05):** el interceptor de respuesta global de `frontend/src/services/api.js` trataba cualquier 401 de cualquier endpoint como "sesión expirada" — borraba todo el `localStorage`/`sessionStorage` y forzaba `window.location.href = '/login'` (recarga completa de página). Como esto corría también para el propio `POST /api/auth/login`, un 401 de credenciales inválidas (el resultado normal y esperado de un login fallido) disparaba una recarga completa que interrumpía la promesa antes de que `AuthContext.login()` pudiera devolver el mensaje de error a `Login.jsx`.
+
+**Fix:** el interceptor ahora excluye explícitamente `auth/login` y `auth/register` (comparando `error.config.url`, ya normalizado sin el prefijo `api/` por el interceptor de request) del borrado de storage + redirección — esos 401 se propagan tal cual para que la pantalla los muestre. Ver `docs/BITACORA-ERRORES.md`, entrada 2026-09-05 ("No se puede volver a iniciar sesión tras registrar una cuenta nueva y cerrar sesión"), para el diagnóstico completo y los tests que fijan este comportamiento (`backend/src/__tests__/authController.test.js`, `frontend/src/__tests__/apiAuthInterceptor.test.js`).
+
+**Si vuelve a pasar:** revisar primero si el 401 realmente viene de `/auth/login` o `/auth/register` (Network tab) — si es así y la pantalla no muestra nada, algo volvió a romper esa exclusión en el interceptor. Si el 401 viene de otra ruta, es el comportamiento correcto (sesión expirada) y hay que investigar por qué el token dejó de ser válido, no este caso.
+
 ## 5. Mejoras recomendadas (no implementadas — quedan como backlog)
 
 Documentado aquí para que quien retome esto no tenga que re-descubrirlo:

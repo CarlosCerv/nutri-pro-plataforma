@@ -632,11 +632,21 @@ const seedFoods = async () => {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Connected to MongoDB');
 
-        await Food.deleteMany({}); // Optional: clear existing foods
-        console.log('Cleared existing foods');
-
-        await Food.insertMany(foods);
-        console.log('Foods seeded successfully');
+        // Upsert por nombre en vez de deleteMany({}) + insertMany: los
+        // nutriólogos pueden agregar sus propios alimentos (`addedBy`, ver
+        // foods.controller.js). Un deleteMany({}) sin filtro borraría esos
+        // también. Al no incluir `addedBy` en $set, un alimento existente
+        // con ese nombre conserva su dueño; solo se actualiza/crea como
+        // parte del catálogo curado (`verified: true`).
+        const ops = foods.map((food) => ({
+            updateOne: {
+                filter: { name: food.name },
+                update: { $set: { ...food, verified: true } },
+                upsert: true,
+            },
+        }));
+        const result = await Food.bulkWrite(ops);
+        console.log(`Foods seeded successfully (upserted: ${result.upsertedCount}, updated: ${result.modifiedCount})`);
 
         process.exit(0);
     } catch (error) {

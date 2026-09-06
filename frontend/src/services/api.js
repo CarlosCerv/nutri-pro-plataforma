@@ -42,11 +42,25 @@ api.interceptors.request.use(
     }
 );
 
+// Rutas de entrada de auth: un 401 aquí es "credenciales inválidas", el
+// resultado normal y esperado de un login/registro fallido — no "la sesión
+// expiró". El interceptor de abajo no debe tratarlas igual que un 401 de
+// cualquier otra ruta protegida.
+const AUTH_ENTRY_POINTS = new Set(['auth/login', 'auth/register']);
+
 // Response interceptor for error handling
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const isAuthEntryPoint = AUTH_ENTRY_POINTS.has(error.config?.url);
+        if (error.response?.status === 401 && !isAuthEntryPoint) {
+            // Un 401 en cualquier otra ruta sí significa sesión inválida/expirada:
+            // se limpia el storage y se fuerza recarga a /login. Antes esto
+            // también corría para el propio POST /auth/login: la recarga completa
+            // (window.location.href, no un navigate de React Router) interrumpía
+            // la promesa antes de que AuthContext.login() pudiera mostrar el
+            // "Invalid credentials" — el usuario solo veía la pantalla de login
+            // parpadear sin ningún mensaje, como si el login estuviera roto.
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             sessionStorage.removeItem('token');

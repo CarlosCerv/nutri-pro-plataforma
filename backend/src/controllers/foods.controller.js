@@ -6,6 +6,21 @@ import asyncHandler from '../utils/asyncHandler.js';
 // MongoDB y puede causar backtracking catastrofico (ReDoS).
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// La collation de Mongo no ayuda aquí: solo afecta sort/igualdad, no el
+// matching de $regex. Para que "platano" encuentre "Plátano" sin acentos, se
+// expande cada vocal/ñpicable del término de búsqueda a una clase de
+// caracteres con sus variantes acentuadas, antes de armar el regex.
+const ACCENT_VARIANTS = { a: 'aáàäâ', e: 'eéèëê', i: 'iíìïî', o: 'oóòöô', u: 'uúùüû', n: 'nñ' };
+const accentInsensitivePattern = (str) =>
+    escapeRegex(str)
+        .split('')
+        .map((ch) => {
+            const variants = ACCENT_VARIANTS[ch.toLowerCase()];
+            if (!variants) return ch;
+            return `[${variants}${variants.toUpperCase()}]`;
+        })
+        .join('');
+
 // Get all foods with optional filters
 export const getAll = asyncHandler(async (req, res) => {
     const {
@@ -43,7 +58,7 @@ export const getAll = asyncHandler(async (req, res) => {
 
     // Text search - using regex for partial, case-insensitive matches
     if (search) {
-        query.name = { $regex: escapeRegex(search), $options: 'i' };
+        query.name = { $regex: accentInsensitivePattern(search), $options: 'i' };
     }
 
     const foods = await Food.find(query)

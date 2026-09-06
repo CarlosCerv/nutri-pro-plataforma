@@ -131,21 +131,28 @@ const templates = [
     }
 ];
 
+const OWNER_EMAIL = 'carlos.cervantes.arteaga@gmail.com';
+
 const seedTemplates = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Connected to MongoDB');
 
-        // Find a user to assign the templates to
-        const adminUser = await User.findOne();
+        // Cuenta dueña de las plantillas de sistema. No usar User.findOne()
+        // a secas: en producción devolvería un usuario arbitrario (el
+        // primero insertado), que podría ser un nutriólogo real.
+        const adminUser = await User.findOne({ email: OWNER_EMAIL });
         if (!adminUser) {
-            console.error('No users found. Please seed users first.');
+            console.error(`No existe ningún usuario con el email "${OWNER_EMAIL}". Regístralo primero.`);
             process.exit(1);
         }
         console.log(`Assigning templates to user: ${adminUser.name} (${adminUser._id})`);
 
-        await DietTemplate.deleteMany({ isSystemTemplate: true });
-        console.log('Cleared existing system templates');
+        // Solo las plantillas manuales de este script (sin generatorTag);
+        // no tocar las 340 de seedGeneratedTemplates.js, que también son
+        // isSystemTemplate: true pero sí traen generatorTag.
+        await DietTemplate.deleteMany({ isSystemTemplate: true, generatorTag: null });
+        console.log('Cleared existing manual system templates');
 
         // Import Food model dynamically if needed or rely on global if already registered
         // Safe bet: import it

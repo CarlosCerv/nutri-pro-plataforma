@@ -17,6 +17,7 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // tocar las plantillas manuales de `seedTemplates.js` (que también usan
 // `isSystemTemplate: true`, pero no ponen `generatorTag`).
 const GENERATOR_TAG = 'meal-algebra-v1';
+const OWNER_EMAIL = 'carlos.cervantes.arteaga@gmail.com';
 
 /**
  * Genera plantillas de sistema (DietTemplate) a partir del catálogo real de
@@ -385,9 +386,12 @@ async function run() {
         process.exit(0);
     }
 
-    const adminUser = await User.findOne();
+    // No usar User.findOne() a secas: en producción devolvería un usuario
+    // arbitrario (el primero insertado), que podría ser un nutriólogo real
+    // en vez de la cuenta dueña de las plantillas de sistema.
+    const adminUser = await User.findOne({ email: OWNER_EMAIL });
     if (!adminUser) {
-        console.error('No hay usuarios — corre seed:users primero.');
+        console.error(`No existe ningún usuario con el email "${OWNER_EMAIL}". Regístralo primero.`);
         process.exit(1);
     }
 
