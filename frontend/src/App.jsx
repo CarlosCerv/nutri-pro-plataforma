@@ -7,6 +7,7 @@ import { LEGACY_REDIRECTS } from './lib/redirects';
 // Design System
 import Sidebar from './design-system/components/Sidebar';
 import Topbar from './design-system/components/Topbar';
+import AdminLayout from './pages/admin/AdminLayout';
 
 // Lazy pages
 const Login = lazy(() => import('./pages/Login'));
@@ -24,6 +25,15 @@ const DietTemplates = lazy(() => import('./pages/DietTemplates'));
 const MenuBuilder = lazy(() => import('./pages/MenuBuilder'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Finance = lazy(() => import('./pages/Finance'));
+
+// Panel de administrador: mismo login/JWT, distinto rol y layout (ver
+// pages/admin/AdminLayout.jsx) — nunca lo ve un nutriólogo normal.
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminNutritionists = lazy(() => import('./pages/admin/AdminNutritionists'));
+const AdminNutritionistDetail = lazy(() => import('./pages/admin/AdminNutritionistDetail'));
+const AdminCampaigns = lazy(() => import('./pages/admin/AdminCampaigns'));
+const AdminCampaignNew = lazy(() => import('./pages/admin/AdminCampaignNew'));
+const AdminCampaignDetail = lazy(() => import('./pages/admin/AdminCampaignDetail'));
 
 // Públicas: las abre un paciente o un visitante sin cuenta, nunca dentro de
 // AppLayout (ver pages/public/PublicPageShell.jsx).
@@ -65,6 +75,30 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
+  return children;
+};
+
+// ── Admin Protected Route ─────────────────────────────────────────
+// Igual que ProtectedRoute, pero exige además role:'admin' — un nutriólogo
+// normal autenticado que navegue a /admin rebota a su propio dashboard, no
+// a /login (sí está autenticado, solo no tiene el rol).
+const AdminProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading, user } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--surface-alt)] flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-[var(--border)] border-t-[var(--accent)] rounded-full animate-spin" />
+          <span className="text-sm text-[var(--ink-muted)]">Cargando NutriPro…</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" replace />;
 
   return children;
 };
@@ -111,6 +145,14 @@ const ProtectedPage = ({ element }) => (
       <Suspense fallback={<PageFallback />}>{element}</Suspense>
     </AppLayout>
   </ProtectedRoute>
+);
+
+const AdminProtectedPage = ({ element }) => (
+  <AdminProtectedRoute>
+    <AdminLayout>
+      <Suspense fallback={<PageFallback />}>{element}</Suspense>
+    </AdminLayout>
+  </AdminProtectedRoute>
 );
 
 // ── App ───────────────────────────────────────────────────────────
@@ -188,6 +230,14 @@ function App() {
             {/* Cuenta */}
             <Route path="/finanzas" element={<ProtectedPage element={<Finance />} />} />
             <Route path="/perfil" element={<ProtectedPage element={<Profile />} />} />
+
+            {/* Panel de administrador: solo role:'admin', ver AdminProtectedRoute */}
+            <Route path="/admin" element={<AdminProtectedPage element={<AdminDashboard />} />} />
+            <Route path="/admin/nutriologos" element={<AdminProtectedPage element={<AdminNutritionists />} />} />
+            <Route path="/admin/nutriologos/:id" element={<AdminProtectedPage element={<AdminNutritionistDetail />} />} />
+            <Route path="/admin/campanas" element={<AdminProtectedPage element={<AdminCampaigns />} />} />
+            <Route path="/admin/campanas/nueva" element={<AdminProtectedPage element={<AdminCampaignNew />} />} />
+            <Route path="/admin/campanas/:id" element={<AdminProtectedPage element={<AdminCampaignDetail />} />} />
 
             {/* Redirecciones de URLs heredadas. La tabla vive en
                 `lib/redirects.js` para que las pruebas comprueben la misma

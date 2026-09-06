@@ -21,6 +21,7 @@ import cronRoutes from './routes/cron.routes.js';
 import foodExchangeRoutes from './routes/foodExchange.routes.js';
 import publicRoutes from './routes/public.routes.js';
 import webhookRoutes from './routes/webhooks.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -144,6 +145,7 @@ app.use('/api/cron', cronRoutes);
 app.use('/api/food-exchange', foodExchangeRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({

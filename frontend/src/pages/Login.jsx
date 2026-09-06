@@ -26,7 +26,7 @@ export default function Login() {
     // perdía la sesión al cerrar el navegador, sin manera de evitarlo.
     const result = await login(email, password, recordarme);
     if (result?.success) {
-      navigate('/dashboard');
+      navigate(result.user?.role === 'admin' ? '/admin' : '/dashboard');
     } else {
       setError(result?.message || 'No pudimos iniciar sesión. Revisa tus datos.');
       setLoading(false);

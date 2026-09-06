@@ -94,7 +94,10 @@ export const AuthProvider = ({ children }) => {
 
             setUser(user);
 
-            return { success: true };
+            // Se devuelve `user` (trae `role`) para que Login.jsx pueda
+            // decidir a dónde redirigir sin depender de un re-render
+            // asíncrono del contexto.
+            return { success: true, user };
         } catch (error) {
             return {
                 success: false,

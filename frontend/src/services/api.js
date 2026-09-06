@@ -141,4 +141,15 @@ export const foodExchangeAPI = {
     getEquivalents: (foodId, patientFilters) => api.post('/food-exchange/equivalents', { foodId, patientFilters }),
 };
 
+// Admin API (panel de administrador — solo accesible con role:'admin')
+export const adminAPI = {
+    getDashboard: () => api.get('/admin/dashboard'),
+    getNutritionists: (params) => api.get('/admin/nutritionists', { params }),
+    getNutritionist: (id) => api.get(`/admin/nutritionists/${id}`),
+    setNutritionistStatus: (id, isActive) => api.patch(`/admin/nutritionists/${id}/status`, { isActive }),
+    getCampaigns: () => api.get('/admin/campaigns'),
+    getCampaign: (id) => api.get(`/admin/campaigns/${id}`),
+    createCampaign: (data) => api.post('/admin/campaigns', data),
+};
+
 export default api;

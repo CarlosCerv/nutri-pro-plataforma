@@ -67,6 +67,26 @@ const userSchema = new mongoose.Schema({
         slotDurationMinutes: { type: Number, min: 5, max: 240, default: 60 },
     },
 
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
+    lastLoginAt: {
+        type: Date,
+        default: null,
+    },
+    // Marca el último período (mes) en que se envió el reporte de uso
+    // automático, para que el cron mensual no lo duplique si se invoca más de
+    // una vez dentro del mismo mes (mismo patrón que `reminderSent` en Appointment).
+    lastUsageReportSentAt: {
+        type: Date,
+        default: null,
+    },
+    notificationPreferences: {
+        marketingEmails: { type: Boolean, default: true },
+        usageReports: { type: Boolean, default: true },
+    },
+
     createdAt: {
         type: Date,
         default: Date.now,

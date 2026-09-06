@@ -12,6 +12,7 @@
     "seed:foods": "node src/scripts/seedFoods.js",
     "seed:templates": "node src/scripts/seedTemplates.js",
     "seed:users": "node src/scripts/seedUsers.js",
+    "seed:admin": "node src/scripts/promoteAdmin.js",
     "seed:generated-templates": "node src/scripts/seedGeneratedTemplates.js",
     "seed:generated-templates:dry-run": "node src/scripts/seedGeneratedTemplates.js --dry-run",
     "audit:patients": "node src/scripts/auditPatients.js",
@@ -38,9 +39,9 @@
     "mongoose": "^8.0.3",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^4.2.1",
-    "nodemailer": "^9.0.6",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
+    "resend": "^6.26.0",
     "twilio": "^5.11.1"
   },
   "devDependencies": {

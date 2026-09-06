@@ -1,8 +1,26 @@
 import reminderService from '../services/reminderService.js';
+import usageReportService from '../services/usageReportService.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { createModuleLogger } from '../config/logger.js';
 
 const logger = createModuleLogger('cron');
+
+function checkCronSecret(req, res) {
+    const expectedSecret = process.env.CRON_SECRET;
+
+    if (!expectedSecret) {
+        logger.error('CRON_SECRET no esta configurado — rechazando por seguridad.');
+        res.status(500).json({ success: false, message: 'CRON_SECRET is not configured' });
+        return false;
+    }
+
+    if (req.headers.authorization !== `Bearer ${expectedSecret}`) {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+        return false;
+    }
+
+    return true;
+}
 
 /**
  * Endpoint HTTP para el cron de recordatorios (reemplaza a node-cron en
@@ -13,22 +31,7 @@ const logger = createModuleLogger('cron');
  * propias invocaciones cuando esa variable de entorno esta configurada.
  */
 export const runReminders = asyncHandler(async (req, res) => {
-    const expectedSecret = process.env.CRON_SECRET;
-
-    if (!expectedSecret) {
-        logger.error('CRON_SECRET no esta configurado — rechazando por seguridad.');
-        return res.status(500).json({
-            success: false,
-            message: 'CRON_SECRET is not configured',
-        });
-    }
-
-    if (req.headers.authorization !== `Bearer ${expectedSecret}`) {
-        return res.status(401).json({
-            success: false,
-            message: 'Unauthorized',
-        });
-    }
+    if (!checkCronSecret(req, res)) return;
 
     const result = await reminderService.checkAndSendReminders();
 
@@ -37,3 +40,19 @@ export const runReminders = asyncHandler(async (req, res) => {
         ...result,
     });
 }, { message: 'Error running reminder cron' });
+
+/**
+ * Endpoint HTTP para el cron mensual de reportes de uso (bienvenida/campañas
+ * usan su propio disparador; este es el único periódico además de
+ * recordatorios). Mismo esquema de seguridad que `runReminders`.
+ */
+export const runUsageReports = asyncHandler(async (req, res) => {
+    if (!checkCronSecret(req, res)) return;
+
+    const result = await usageReportService.sendUsageReports();
+
+    res.status(200).json({
+        success: true,
+        ...result,
+    });
+}, { message: 'Error running usage report cron' });

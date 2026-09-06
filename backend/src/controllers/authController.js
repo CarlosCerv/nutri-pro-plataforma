@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import * as emailService from '../services/emailService.js';
+import { createModuleLogger } from '../config/logger.js';
+
+const logger = createModuleLogger('auth-controller');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -41,6 +45,16 @@ export const register = asyncHandler(async (req, res) => {
         specialty,
         phone,
     });
+
+    // El correo de bienvenida se espera (no fire-and-forget): en una función
+    // serverless una promesa sin await puede quedar cancelada cuando el
+    // runtime recicla el contenedor justo después de responder. Un fallo de
+    // envío nunca debe tumbar el registro, así que solo se loguea.
+    try {
+        await emailService.sendWelcomeEmail(user);
+    } catch (err) {
+        logger.error({ err, userId: user._id }, 'No se pudo enviar el correo de bienvenida');
+    }
 
     // Generate token
     const token = generateToken(user._id);
@@ -92,6 +106,18 @@ export const login = asyncHandler(async (req, res) => {
             message: 'Invalid credentials',
         });
     }
+
+    // Cuenta desactivada desde el panel de administrador: el password es
+    // correcto, pero no se le permite entrar. Se distingue de "credenciales
+    // inválidas" para que el mensaje sea honesto.
+    if (user.isActive === false) {
+        return res.status(403).json({
+            success: false,
+            message: 'Esta cuenta está desactivada. Contacta al administrador de la plataforma.',
+        });
+    }
+
+    await User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() });
 
     // Generate token
     const token = generateToken(user._id);

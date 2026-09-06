@@ -22,7 +22,7 @@ Plataforma SaaS para nutricionistas: gestión de pacientes, citas, planes de ali
 - Node.js (ESM) + Express 4
 - MongoDB + Mongoose 8
 - Autenticacion JWT + bcryptjs
-- express-validator, multer, node-cron, nodemailer, twilio
+- express-validator, multer, node-cron, resend, twilio
 
 **Frontend**
 - React 19 + Vite 5
@@ -124,10 +124,10 @@ cd frontend && npm run dev   # http://localhost:5173
 | `JWT_EXPIRE` | No (default `30d`) | Duracion del token |
 | `NODE_ENV` | No | `development` o `production` |
 | `FRONTEND_URL` | Recomendada | Origen permitido por CORS ademas de `localhost` |
-| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` | No | Envio de recordatorios de citas por correo (nodemailer). Si faltan, el servicio se desactiva silenciosamente sin romper el servidor. |
+| `RESEND_API_KEY`, `EMAIL_FROM` | No | Envio de correo (Resend): recordatorios de citas a pacientes, y bienvenida/reportes de uso/campañas a nutriólogos. Si falta `RESEND_API_KEY`, el servicio se desactiva silenciosamente sin romper el servidor. |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | No | Envio de recordatorios por SMS (Twilio). Mismo comportamiento: opcional y silencioso si falta. |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Recomendada en produccion | Almacenamiento persistente de archivos subidos (fotos/documentos de pacientes). Sin esto, los uploads en Vercel no persisten entre invocaciones. |
-| `CRON_SECRET` | Solo en Vercel | Autentica las invocaciones de `GET /api/cron/reminders` — Vercel la manda automaticamente como `Authorization: Bearer <valor>` en sus propios cron jobs cuando esta configurada en el proyecto. Sin ella, el endpoint rechaza toda invocacion. |
+| `CRON_SECRET` | Solo en Vercel | Autentica las invocaciones de `GET /api/cron/reminders` y `/usage-reports` — Vercel la manda automaticamente como `Authorization: Bearer <valor>` en sus propios cron jobs cuando esta configurada en el proyecto. Sin ella, el endpoint rechaza toda invocacion. |
 
 ### `frontend/.env`
 

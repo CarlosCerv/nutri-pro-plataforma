@@ -45,8 +45,8 @@ El monorepo tiene tres `package.json`: raíz (concurrently + dependencias que Ve
 Diez colecciones en `backend/src/models/` (antes nueve — se sumó `PreConsultationToken`).
 
 ### `User` — el nutriólogo
-`name`, `email`, `password` (bcrypt), `role`, `specialty`, `phone`, `firstAccess`.
-El campo `role` existe y `middleware/auth.js` define `authorize(...roles)`, **pero `authorize` no se aplica en ninguna ruta**. Cualquier control de rol hoy es cosmético.
+`name`, `email`, `password` (bcrypt), `role`, `specialty`, `phone`, `firstAccess`, `isActive`, `lastLoginAt`, `lastUsageReportSentAt`, `notificationPreferences` (`marketingEmails`, `usageReports`).
+El campo `role` (`'nutritionist' | 'admin'`) y `authorize(...roles)` de `middleware/auth.js` ya están en uso real: protegen `/api/admin/*` (ver "Panel de administrador" más abajo). Esto NO cambia el aislamiento entre nutriólogos, que sigue siendo por ownership manual en cada controlador (`req.user.id`/`nutritionist`) — `authorize('admin')` solo gobierna quién puede cruzar tenants desde el panel de administrador.
 
 Se agregó `username` (único, minúsculas, valida formato) y el bloque `publicBooking` (`enabled`, `bio`, `services[]` con duración y precio, `workingHours[]` por día de la semana, `slotDurationMinutes`) para la página pública de agendamiento — ver §4 y §6.
 
@@ -86,11 +86,12 @@ Comparten forma: `meals`, `nutrition`, `tags`, `clinicalFilters`. `MealPlan` pue
 
 ## 4. La API
 
-Catorce routers montados en `backend/src/app.js` (antes trece — se sumaron `/api/public` y `/api/webhooks`). **Todos exigen JWT salvo `/auth/register`, `/auth/login` y los dos routers públicos.**
+Quince routers montados en `backend/src/app.js` (antes catorce — se sumó `/api/admin`). **Todos exigen JWT salvo `/auth/register`, `/auth/login` y los dos routers públicos.**
 
 | Router | Endpoints |
 |---|---|
 | `/api/auth` | `POST /register`, `POST /login`, `GET /me`, `PUT /profile` |
+| `/api/admin` | `GET /dashboard`, `GET /nutritionists`, `GET|PATCH /nutritionists/:id[/status]`, `GET|POST /campaigns`, `GET /campaigns/:id` — solo `role:'admin'` (`authorize('admin')`), ver "Panel de administrador" más abajo |
 | `/api/patients` | `GET /`, `POST /`, `GET /export`, `GET|PUT|DELETE /:id`, `POST /:id/upload`, `GET|POST /:id/lab` |
 | `/api/appointments` | `GET /`, `POST /`, `GET /today`, `GET|PUT|DELETE /:id` |
 | `/api/mealplans` | `GET /`, `POST /`, `GET|PUT|DELETE /:id` |
@@ -101,7 +102,7 @@ Catorce routers montados en `backend/src/app.js` (antes trece — se sumaron `/a
 | `/api/clinical-notes` | `GET|POST /patient/:patientId`, `PUT|DELETE /:noteId` |
 | `/api/payments` | `GET /summary`, `GET /`, `POST /`, `PUT|DELETE /:id` |
 | `/api/dashboard` | `GET /stats`, `/weight-data`, `/pathology-data`, `/macro-data`, `/activity`, `/population` |
-| `/api/cron` | `GET /reminders` (protegido por `CRON_SECRET`) |
+| `/api/cron` | `GET /reminders`, `GET /usage-reports` (ambos protegidos por `CRON_SECRET`) |
 | `/api/public` | `GET|POST /pre-consultation/:token`, `GET /portal/:token`, `GET /portal/:token/sustitutos/:foodId`, `GET /booking/:username`, `GET /booking/:username/availability`, `POST /booking/:username` — **sin JWT** |
 | `/api/webhooks` | `POST /twilio/whatsapp` — **sin JWT**, autenticado por la firma `X-Twilio-Signature` dentro del controlador |
 
@@ -138,7 +139,9 @@ Cuenta      Finanzas · Cuenta y ajustes
 | `/herramientas` | Calculadoras clínicas |
 | `/herramientas/estadisticas` | Estadísticas poblacionales |
 
-`lib/redirects.js` mantiene **26 redirecciones** de URLs heredadas: los alias en inglés de la primera versión (`/patients`, `/appointments`, `/mealplans`…), las subrutas que renderizaban exactamente la misma vista que su padre (`/calculos/imc`, `/reportes/nuevo`, `/alimentos/nuevo`), y `/admin/*`, que se retiró del release. Vive en su propio módulo para que el router y las pruebas lean la misma tabla en vez de una copia.
+`lib/redirects.js` mantiene las redirecciones de URLs heredadas: los alias en inglés de la primera versión (`/patients`, `/appointments`, `/mealplans`…) y las subrutas que renderizaban exactamente la misma vista que su padre (`/calculos/imc`, `/reportes/nuevo`, `/alimentos/nuevo`). Vive en su propio módulo para que el router y las pruebas lean la misma tabla en vez de una copia.
+
+`/admin/*` YA NO es una redirección heredada: es el panel de administrador real (ver sección propia más abajo). Las redirecciones viejas de `/admin/*` hacia `/dashboard` (del módulo de licencias archivado) se eliminaron de la tabla porque habrían colisionado con la ruta nueva.
 
 ### Las dos rutas que faltaban
 
@@ -206,6 +209,20 @@ Cada nutriólogo puede activar `publicBooking` en su perfil (`username`, `bio`, 
 ### Recordatorios por WhatsApp
 `services/whatsappService.js` usa el canal de WhatsApp Business de Twilio (no SMS) para el recordatorio de cita; normaliza el teléfono a E.164 asumiendo lada de México (`+52`) si no trae una. `POST /api/webhooks/twilio/whatsapp` (`whatsappWebhook.controller.js`) recibe las respuestas del paciente; Twilio firma cada request y el controlador valida esa firma en vez de depender de JWT.
 
+### Panel de administrador (`/admin/*`)
+Área para el dueño de la plataforma, no para un nutriólogo: gestiona las cuentas registradas y les envía correo. Reusa el login normal (`/login`, mismo `AuthContext`/JWT) — al iniciar sesión, si `user.role === 'admin'` se redirige a `/admin` en vez de `/dashboard` (`Login.jsx`). Un nutriólogo normal que navegue a `/admin` rebota a su propio `/dashboard` (`AdminProtectedRoute` en `App.jsx`), no a `/login` — sí está autenticado, solo no tiene el rol.
+
+- **Backend**: `routes/admin.routes.js` monta `protect` + `authorize('admin')` a nivel router — la primera vez que `authorize` se usa de verdad en el repo. `controllers/adminController.js` resuelve KPIs globales (`GET /dashboard`, incluida una serie de altas por mes de los últimos 6 meses) y el listado de nutriólogos con conteos de pacientes/citas vía `$lookup` de sub-pipeline (`GET /nutritionists`), activar/desactivar una cuenta (`PATCH /nutritionists/:id/status` — una cuenta desactivada no puede volver a iniciar sesión, ver `authController.login`), y crear/enviar campañas de correo (`POST /campaigns`, modelo nuevo `EmailCampaign` con los destinatarios **embebidos** como array — volumen esperado de decenas/cientos de nutriólogos, muy por debajo del límite de 16MB de un documento).
+- **Frontend**: `pages/admin/` con su propio `AdminLayout.jsx` (nav lateral simple: Dashboard/Nutriólogos/Campañas) — deliberadamente NO reusa el `Sidebar`/`Topbar` de nutriólogo, que están acoplados a ese dominio (quick actions de "nuevo paciente/dieta/cita", búsqueda de pacientes).
+- **Primer admin**: no hay UI para promover una cuenta. `backend/src/scripts/promoteAdmin.js` (`npm run seed:admin -- correo@ejemplo.com`) marca como `role:'admin'` a un usuario **ya registrado** — a diferencia de `seedUsers.js`, no borra ni crea nada, así que es seguro correrlo contra producción.
+
+### Correo a nutriólogos (bienvenida, reportes de uso, campañas)
+`services/emailService.js` migró de Nodemailer/SMTP a **Resend** (`RESEND_API_KEY`, `EMAIL_FROM`) alrededor de una función genérica `sendEmail({to, subject, html})`; `sendAppointmentReminder` (a pacientes) se reescribió sobre esa función sin cambiar su comportamiento observable. Tres correos nuevos, todos hacia el nutriólogo (nunca antes existió ninguno):
+
+- **Bienvenida** (`sendWelcomeEmail`): se envía desde `authController.register`, con `await` (no fire-and-forget — en una función serverless una promesa sin esperar puede quedar cancelada al reciclarse el contenedor tras responder) y try/catch que solo loguea, para que un correo caído nunca tumbe el registro.
+- **Reporte de uso mensual** (`sendUsageReportEmail`): cron nuevo `GET /api/cron/usage-reports` (mismo esquema `CRON_SECRET` que `/reminders`), día 1 a las 9:00 (`vercel.json`). Idempotente vía `User.lastUsageReportSentAt` — no reenvía si ya se mandó dentro del mismo mes, mismo principio que `Appointment.reminderSent`. Respeta `notificationPreferences.usageReports` y `isActive`.
+- **Campañas de marketing** (`sendCampaignEmail`): manuales, disparadas desde el panel de administrador. Respeta `notificationPreferences.marketingEmails` (un opt-out queda en `recipients[].status: 'skipped_optout'` sin llamar al proveedor). Envío secuencial, no en paralelo, por el rate limit del plan gratuito de Resend.
+
 ---
 
 ## 7. Sistema de diseño
@@ -259,8 +276,7 @@ De ahí salieron tres piezas que conviene conocer: `lib/apiError.js` (traduce el
 - **`vite` y `react-router-dom` en `npm audit`.** El de `vite` afecta al servidor de desarrollo, no al build; subir de la 5 a la 8 arrastra un major en cadena con `@vitejs/plugin-react`. El de `react-router-dom` exige migrar a la v7. El resto del árbol está limpio y sin vulnerabilidades críticas.
 - **Alias de tokens heredados.** `index.css` mantiene un bloque (`--text-primary`, `--surface-muted`, `--radius-md`…) que apunta a los tokens canónicos, para migrar por partes. Se borra cuando `grep -r "var(--text-primary" src` no devuelva nada. Igual con las paletas `emerald`/`gold`/`navy` de `tailwind.config.js`.
 - **Hex literales sueltos.** Quedan colores a mano fuera del sistema de tokens: `Patients.jsx` usa `#E8C96A` y `#EF4444` en las tarjetas de resumen, y `CHART_PALETTE` en `DashboardInsights.jsx` son seis hex a pesar de que `--chart-*` ya existe en `index.css`.
-- **`authorize` sin aplicar.** Definido en `middleware/auth.js`, no usado en ninguna ruta.
-- **Módulo de licencias archivado** en `src/_archive/` junto con `ReportsHub.jsx`. Reactivarlo exige un modelo `License`, sus endpoints y `authorize('admin')` en servidor.
+- **Módulo de licencias archivado** en `src/_archive/` junto con `ReportsHub.jsx`. Sigue archivado — es un módulo distinto del panel de administrador (ver "Resuelto" y la sección propia más abajo); reactivarlo seguiría exigiendo su propio modelo `License` y endpoints.
 - **Doble captura antropométrica.** Peso, talla y pliegues viven a la vez en `Patient.anthropometry` y en la colección `BodyComposition`.
 
 ### Detectada en la última auditoría
@@ -285,6 +301,7 @@ De ahí salieron tres piezas que conviene conocer: `lib/apiError.js` (traduce el
 - **Logger estructurado en el backend.** Los 134 `console.*` de código de producción (excluye los scripts CLI de `backend/src/scripts/`, ver su `README.md`) se migraron a [pino](https://getpino.io) vía `backend/src/config/logger.js`: JSON a stdout en producción (lo que Vercel indexa), formato legible con `pino-pretty` en desarrollo, y `createModuleLogger()` para la metadata `module` que reemplaza los prefijos `[Cloudinary]`/`[SMS Service]`/etc. `pino-http` reemplaza el logging manual de requests en `app.js`. El saneo de credenciales de `MONGODB_URI` en los mensajes de error se conservó igual.
 - **`seedGeneratedTemplates.js` ahora es idempotente y forma parte de `seed:all`.** Antes de insertar, borra por `generatorTag: 'meal-algebra-v1'` (campo nuevo en `DietTemplate`) — correrlo dos veces ya no duplica las 340 plantillas, y no toca las 3 manuales de `seedTemplates.js`. Tiene su propio npm script (`seed:generated-templates`, `:dry-run`) y quedó incluido en `seed:all`. El álgebra pura del script (`solve3x3`, `solveMainMeal`, `solveSnack`, `buildTemplate`) se extrajo a `backend/src/services/mealTemplateAlgebra.js` para poder testearla sin tocar la base de datos — ver `mealTemplateAlgebra.test.js`.
 - **Backend con tests, por primera vez.** Vitest + Supertest + `mongodb-memory-server` (`backend/vitest.config.js`, `npm test`), cubriendo `NutritionCalculator`, el álgebra de plantillas generadas, `bodyComposition.controller` (incluyendo ownership), `reminderService` (con los servicios de envío mockeados) y `clinicalNotes.controller` (CRUD + ownership). Sigue sin cubrir el resto de los controladores.
+- **`authorize` en uso real.** Definido desde hace tiempo en `middleware/auth.js` sin ninguna ruta que lo aplicara; ahora protege `/api/admin/*` (ver "Panel de administrador"), con tests que cubren 401/403/200 en `admin.controller.test.js`.
 
 ### Comportamiento correcto, pero conviene saberlo
 
@@ -295,7 +312,7 @@ Correo, SMS y Cloudinary degradan bien: sin variables de entorno registran un `w
 1. **Unificar la historia clínica** en un solo esquema y migrar los datos existentes.
 2. **Resolver la doble captura antropométrica**: `Patient.anthropometry` frente a `BodyComposition`.
 3. **`/api/food-exchange` sigue sin pantalla para el nutriólogo**: ya no está huérfano del todo — el portal público del paciente lo consume internamente para sugerir sustitutos —, pero nadie en la app autenticada puede usarlo directamente. Falta decidir si vale la pena una interfaz para el nutriólogo o si el uso desde el portal es suficiente.
-4. **Multi-usuario y roles**: hoy `role` existe sin efecto. ¿Hace falta un consultorio con varios nutriólogos, o asistentes?
+4. **Multi-usuario y roles**: `role: 'admin'` ya tiene efecto real para el panel de administrador de la plataforma (ver sección propia). Sigue abierto lo específico de un *consultorio*: ¿hace falta que varios nutriólogos o asistentes compartan los pacientes de un mismo tenant?
 5. **Profundizar el portal del paciente**: ya existe (`/portal/:token`) y muestra el plan activo, lista de compras y sustitutos — antes el paciente no tenía ningún acceso y el plan solo se entregaba en PDF. Queda por decidir cuánto más se le expone (historial, próximas citas, seguimiento de peso).
 6. **Cobertura de pruebas de página** en las pantallas autenticadas (incluida la nueva sesión de consulta) y en las cuatro pantallas públicas (pre-consulta, portal, agendamiento, webhook de WhatsApp), y verificación de tipos en `.jsx`.
 7. **Vercel Pro**: recordatorios horarios en vez de diarios, cambiando solo el `schedule`.

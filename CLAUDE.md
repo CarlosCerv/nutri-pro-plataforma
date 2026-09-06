@@ -33,6 +33,8 @@ Plataforma SaaS para nutriólogos (gestión de pacientes, citas, planes de alime
 | Pagos | `controllers/paymentController.js`, `routes/paymentRoutes.js`, modelo `Payment.js` | `pages/Finance.jsx` | — |
 | Dashboard | `controllers/dashboardController.js`, `routes/dashboard.routes.js` | `pages/Dashboard.jsx`, `components/Dashboard/*` (`ConsultaHoyHero`, `DashboardInsights`, `RadarEpidemiologico`, `RetencionRadar`) | CONTEXTO §9 (`DashboardInsights.jsx` traga errores de red como "sin datos") |
 | Cron / recordatorios | `controllers/cron.controller.js`, `routes/cron.routes.js`, `scripts/reminderCron.js` | — | MANEJO-DE-ERRORES Caso 4, CONTEXTO §2 (límite de Vercel Hobby: cron diario) |
+| Panel de administrador | `controllers/adminController.js`, `routes/admin.routes.js`, modelo `EmailCampaign.js`, `authorize('admin')` en `middleware/auth.js`, `scripts/promoteAdmin.js` | `pages/admin/*` (`AdminLayout`, `AdminDashboard`, `AdminNutritionists[Detail]`, `AdminCampaigns[New\|Detail]`) | CONTEXTO §6 ("Panel de administrador", "Correo a nutriólogos") |
+| Correo a nutriólogos (bienvenida/reportes/campañas) | `services/emailService.js` (Resend), `services/usageReportService.js`, cron `GET /api/cron/usage-reports` | — | CONTEXTO §6, `backend/README.md` §"Correo a nutriólogos" |
 | Logging / errores | `config/logger.js` (pino), `utils/asyncHandler.js`, error handler en `app.js` | `lib/apiError.js` | `docs/MANEJO-DE-ERRORES.md` completo |
 | Subida de archivos | `services/cloudinaryService.js`, `middleware/uploadMiddleware.js` | — | README raíz (Cloudinary) |
 | Frontend — API client | — | `services/api.js`, `services/publicApi.js`, `lib/apiError.js` | — |
@@ -41,8 +43,8 @@ Plataforma SaaS para nutriólogos (gestión de pacientes, citas, planes de alime
 ## Testing — referencia rápida
 
 ```bash
-cd backend && npm test          # Vitest + Supertest + mongodb-memory-server (46 tests)
-cd frontend && npm test         # Vitest + Testing Library (172 tests)
+cd backend && npm test          # Vitest + Supertest + mongodb-memory-server (56 tests)
+cd frontend && npm test         # Vitest + Testing Library (175 tests)
 cd frontend && npm run typecheck  # tsc --noEmit
 ```
 

@@ -35,7 +35,7 @@ En Vercel, `../api/[...path].js` importa `src/app.js` directamente y lo envuelve
   - `protect`: exige header `Authorization: Bearer <token>`, verifica el JWT y adjunta el usuario (sin password) a `req.user`. Responde 401 si falta o es invalido.
   - `authorize(...roles)`: middleware adicional para restringir por rol (`nutritionist` | `admin`).
 - Passwords hasheados con bcrypt (`User.pre('save')`), nunca se devuelven en las respuestas (`select: false` en el esquema).
-- Todas las rutas de recursos aplican `router.use(protect)`, `/api/calculations/*` incluido. Las unicas rutas realmente publicas son `/api/auth/register`, `/api/auth/login`, `/api/health`, y `/api/cron/reminders` (protegida aparte por `CRON_SECRET`, no por JWT — ver [Sistema de recordatorios](#sistema-de-recordatorios-de-citas)).
+- Todas las rutas de recursos aplican `router.use(protect)`, `/api/calculations/*` incluido; `/api/admin/*` ademas aplica `authorize('admin')`. Las unicas rutas realmente publicas son `/api/auth/register`, `/api/auth/login`, `/api/health`, y `/api/cron/reminders`/`/api/cron/usage-reports` (protegidas aparte por `CRON_SECRET`, no por JWT — ver [Sistema de recordatorios](#sistema-de-recordatorios-de-citas)).
 - `middleware/validators.js` valida `register`/`login` con `express-validator` antes de tocar la base de datos: rechaza email/password que no sean string (sin esto, un body como `{"email": {"$gt": ""}}` llega intacto a `User.findOne({ email })` y Mongoose lo interpreta como operador de consulta — una inyeccion NoSQL real que existia en el login) y devuelve errores 400 por campo en vez de un 500 generico.
 
 ## Controladores: `asyncHandler` y `isOwnedBy`
@@ -186,13 +186,27 @@ Los cinco endpoints de graficas se implementaron porque el frontend ya los llama
 | Metodo | Ruta | Descripcion |
 |---|---|---|
 | GET | `/reminders` | Dispara `reminderService.checkAndSendReminders()`. Sin `protect` — se autentica con `CRON_SECRET`, no con JWT de usuario (ver [Sistema de recordatorios](#sistema-de-recordatorios-de-citas)) |
+| GET | `/usage-reports` | Dispara `usageReportService.sendUsageReports()` — reporte mensual de uso a cada nutriólogo. Mismo esquema de `CRON_SECRET` (ver [Correo a nutriólogos](#correo-a-nutriólogos-bienvenida-reportes-de-uso-campañas)) |
+
+### Admin (`/api/admin`) — `routes/admin.routes.js`
+Todas exigen `protect` + `authorize('admin')` — un JWT de nutriólogo normal recibe 403, no 401 (esta autenticado, solo no tiene el rol).
+
+| Metodo | Ruta | Descripcion |
+|---|---|---|
+| GET | `/dashboard` | KPIs globales de la plataforma: nutriologos totales/activos, pacientes totales, altas del mes, campañas enviadas, serie de altas de los ultimos 6 meses |
+| GET | `/nutritionists` | Lista de nutriologos con conteo de pacientes/citas (`$lookup` de sub-pipeline). Filtros `?q=`, `?status=active|inactive`, paginacion `?page=`/`?limit=` |
+| GET | `/nutritionists/:id` | Detalle + estadisticas de un nutriologo |
+| PATCH | `/nutritionists/:id/status` | `{ isActive: boolean }` — activa o desactiva la cuenta (una cuenta desactivada no puede volver a iniciar sesion, ver `authController.login`) |
+| GET | `/campaigns` | Historial de campañas de correo enviadas |
+| POST | `/campaigns` | Crea y envia de inmediato una campaña: `{ subject, bodyHtml, segment: { type: 'all'\|'active'\|'inactive'\|'custom', userIds? } }` |
+| GET | `/campaigns/:id` | Detalle de una campaña, incluido el resultado por destinatario |
 
 ### Salud del servicio
 `GET /api/health` — publica, sin autenticacion. Responde `{ success: true, message, timestamp }`.
 
 ## Sistema de recordatorios de citas
 
-`reminderService.js` busca citas en estado `scheduled` cuya fecha caiga **dentro de las proximas 36 horas** y que no tengan `reminderSent: true`, e intenta notificar por email (`emailService.js`, via nodemailer) y SMS (`smsService.js`, via Twilio). Marca `reminderSent`, `reminderSentAt`, `reminderEmail` y `reminderSMS` en el documento de la cita al terminar. Ambos servicios de notificacion son lazy: si las variables `EMAIL_*` o `TWILIO_*` no estan configuradas, el servicio correspondiente registra un aviso en consola y no falla.
+`reminderService.js` busca citas en estado `scheduled` cuya fecha caiga **dentro de las proximas 36 horas** y que no tengan `reminderSent: true`, e intenta notificar por email (`emailService.js`, via Resend) y SMS (`smsService.js`, via Twilio). Marca `reminderSent`, `reminderSentAt`, `reminderEmail` y `reminderSMS` en el documento de la cita al terminar. Ambos servicios de notificacion son lazy: si las variables `RESEND_API_KEY` o `TWILIO_*` no estan configuradas, el servicio correspondiente registra un aviso en consola y no falla.
 
 Ese servicio se dispara de **dos formas independientes**, segun el entorno:
 
@@ -206,6 +220,20 @@ El plan Hobby de Vercel no permite cron jobs mas frecuentes que una vez al dia. 
 La combinacion actual —cron diario a las 8:00 y ventana de 0 a 36 horas— cubre toda cita al menos una vez, con entre 12 y 36 horas de anticipacion. Ampliar la ventana es seguro porque el flag `reminderSent` impide el reenvio: una cita que cae en dos ejecuciones consecutivas recibe un solo aviso.
 
 Con Vercel Pro puede volverse horario cambiando unicamente el `schedule` de `vercel.json`. La ventana mas amplia no estorba, por el mismo motivo.
+
+## Correo a nutriólogos (bienvenida, reportes de uso, campañas)
+
+A diferencia de los recordatorios (que van al paciente), estos tres correos van al **nutriólogo** — la primera vez que el sistema le escribe a su propio cliente, no al cliente de su cliente.
+
+- **Bienvenida** (`emailService.sendWelcomeEmail`): se dispara desde `authController.register` con `await` (no fire-and-forget: en una funcion serverless una promesa sin esperar puede quedar cancelada cuando el runtime recicla el contenedor justo despues de responder), envuelto en try/catch que solo loguea — un correo caido nunca tumba el registro.
+- **Reporte de uso mensual** (`emailService.sendUsageReportEmail`, orquestado por `services/usageReportService.js`): cron `GET /api/cron/usage-reports`, dia 1 de cada mes a las 9:00 (`vercel.json`). Idempotente via `User.lastUsageReportSentAt` — si ya se envio dentro del mes actual, se omite (mismo principio que `reminderSent` en las citas). Se salta a cuentas `isActive: false` y a quien tenga `notificationPreferences.usageReports: false`.
+- **Campañas de marketing** (`emailService.sendCampaignEmail`): manuales, desde `POST /api/admin/campaigns` (ver tabla de Admin arriba). Respeta `notificationPreferences.marketingEmails` — un opt-out queda registrado como `recipients[].status: 'skipped_optout'` sin llamar a Resend. El envio es secuencial (no `Promise.all`), por el rate limit del plan gratuito de Resend.
+
+## Panel de administrador
+
+Vive en `pages/admin/` del frontend y en `routes/admin.routes.js` + `controllers/adminController.js` del backend (ver tabla arriba). Reusa el login y el JWT normales — no hay una pantalla de login separada ni un esquema de auth distinto, solo `authorize('admin')` en el servidor y una redireccion por rol en el cliente tras iniciar sesion.
+
+No existe todavia una interfaz para promover a alguien a administrador. `npm run seed:admin -- correo@ejemplo.com` (`src/scripts/promoteAdmin.js`) marca `role: 'admin'` en un usuario **que ya se registro normalmente** — a diferencia de `seedUsers.js`, no borra ni crea nada, asi que es seguro correrlo contra la base de produccion.
 
 ## Validacion de entrada
 
@@ -236,17 +264,17 @@ Los controladores que actualizan con `findByIdAndUpdate` ya pasan `runValidators
    CLOUDINARY_API_SECRET=tu_api_secret
    ```
 
-### Configurar email (Gmail de ejemplo)
+### Configurar email (Resend)
 
-1. Activa verificacion en dos pasos en la cuenta de Gmail.
-2. Genera una "contraseña de aplicacion" (Google Account → Security → App passwords).
-3. En `.env`:
+`services/emailService.js` usa [Resend](https://resend.com) para todo el correo saliente: recordatorios de citas a pacientes, bienvenida/reportes de uso/campañas a nutriólogos (ver [Correo a nutriólogos](#correo-a-nutriólogos-bienvenida-reportes-de-uso-campañas)). Sin `RESEND_API_KEY` configurada, `sendEmail()` registra un `warn` y devuelve `false` — nada truena, simplemente no sale ningún correo.
+
+1. Crea una cuenta gratuita en [resend.com](https://resend.com) (100 correos/dia, 3000/mes en el plan gratuito).
+2. Dashboard → **API Keys** → crear una nueva.
+3. Dashboard → **Domains** → agrega el dominio real de NutriPro y configura los registros DNS (SPF/DKIM) que Resend indica — sin esto, los correos se van a spam o Resend los rechaza. Mientras se verifica, se puede probar enviando desde `onboarding@resend.dev`.
+4. En `.env` (local) y en Vercel → Settings → Environment Variables (Production, Preview y Development por separado):
    ```env
-   EMAIL_HOST=smtp.gmail.com
-   EMAIL_PORT=587
-   EMAIL_USER=tu-email@gmail.com
-   EMAIL_PASSWORD=contraseña-de-aplicacion-de-16-caracteres
-   EMAIL_FROM=NutriPro <tu-email@gmail.com>
+   RESEND_API_KEY=re_tu_api_key
+   EMAIL_FROM=NutriPro <noreply@tudominio.com>
    ```
 
 ### Configurar SMS (Twilio)

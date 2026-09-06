@@ -10,8 +10,13 @@
  * 1. Los alias en inglés de la primera versión de la aplicación.
  * 2. Las URLs que prometían una subpantalla y renderizaban exactamente la
  *    misma vista que su ruta padre (las tres de `/calculos`, las dos de
- *    `/reportes`, `/alimentos/nuevo` y las tres de `/admin`), más las
- *    secciones que pasaron a ser pestañas al reorganizar el menú.
+ *    `/reportes`, `/alimentos/nuevo`), más las secciones que pasaron a ser
+ *    pestañas al reorganizar el menú.
+ *
+ * `/admin/*` YA NO está aquí: existió un módulo de licencias con datos
+ * simulados que se archivó (ver src/_archive/README.md) y esas rutas
+ * redirigían a /dashboard, pero `/admin` es ahora el panel de administrador
+ * real (ver App.jsx) — mantenerlas habría colisionado con esa ruta.
  */
 export const LEGACY_REDIRECTS = {
   // Alias en inglés
@@ -39,10 +44,4 @@ export const LEGACY_REDIRECTS = {
   '/reportes/nuevo': '/dietas',
   '/reportes/historial': '/dietas',
   '/reportes-poblacionales': '/herramientas/estadisticas',
-
-  // Módulo de licencias, retirado del release (ver src/_archive/README.md)
-  '/admin': '/dashboard',
-  '/admin/licencias': '/dashboard',
-  '/admin/usuarios': '/dashboard',
-  '/admin/ingresos': '/dashboard',
 };
