@@ -69,12 +69,27 @@ export const AuthProvider = ({ children }) => {
             const response = await authAPI.login({ email, password });
             const { user, token } = response.data.data;
 
+            // Limpiar el almacén que NO se va a usar es obligatorio, no solo
+            // prolijo: el interceptor de `services/api.js` lee
+            // `localStorage.getItem('token') || sessionStorage.getItem('token')`,
+            // así que un token viejo/expirado que haya quedado en localStorage
+            // de una sesión anterior (p. ej. de probar con "recordarme"
+            // destildado después de haberlo usado tildado) gana sobre el
+            // token recién emitido en sessionStorage. La primera petición
+            // autenticada tras el login entonces manda el token equivocado,
+            // recibe 401, y el interceptor fuerza un `window.location.href =
+            // '/login'` sin mostrar ningún error — se ve como que el login
+            // nunca redirige al dashboard.
             if (rememberMe) {
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(user));
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
             } else {
                 sessionStorage.setItem('token', token);
                 sessionStorage.setItem('user', JSON.stringify(user));
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
             }
 
             setUser(user);
@@ -97,6 +112,8 @@ export const AuthProvider = ({ children }) => {
             // Let's default to persistent for now as it's standard behavior
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
             setUser(user);
 
             return { success: true };

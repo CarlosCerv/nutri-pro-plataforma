@@ -17,6 +17,18 @@ Registro cronológico de errores reportados en producción, para que retomar uno
 
 ---
 
+### 2026-09-05 — Login exitoso (200) pero no redirige al dashboard, sin error visible
+
+- **Estado:** corregido y verificado contra producción (endpoints reales), pendiente de deploy.
+- **Reportado por:** el usuario, justo después de que el 500 de login (entrada de abajo) dejó de reproducirse — "ahora logeándome no me redirecciona al dashboard principal". Confirmó: en producción, se queda en `/login` sin ningún mensaje de error visible.
+- **Síntoma:** el formulario de login termina de cargar y la pantalla se queda en `/login`. No hay banner rojo de error, lo que descarta que `authAPI.login` haya devuelto un 4xx/5xx manejado por `Login.jsx`.
+- **Diagnóstico:** se reprodujo el flujo completo contra la API real de producción con una cuenta de prueba desechable (creada y borrada en la misma sesión): `POST /api/auth/register` → `POST /api/auth/login` → `GET /api/auth/me`, `GET /api/dashboard/stats`, `GET /api/payments/summary` con el token recién emitido — los cinco devolvieron 200 con JSON correcto. Esto descartó cualquier causa de backend (el Caso 6 de abajo, JWT_SECRET, CORS, etc.) para este síntoma en particular.
+- **Causa:** bug de frontend en `frontend/src/contexts/AuthContext.jsx`. `login()` guardaba el token nuevo en `localStorage` (si "recordarme" está tildado) o en `sessionStorage` (si no), pero nunca limpiaba el otro almacén. El interceptor de peticiones de `frontend/src/services/api.js` arma el header `Authorization` leyendo `localStorage.getItem('token') || sessionStorage.getItem('token')` — `localStorage` siempre gana. Si quedó un token viejo/expirado en `localStorage` de una sesión anterior (p. ej. probar primero con "recordarme" tildado y después destildado, algo muy probable durante las pruebas repetidas de la entrada de abajo) y el login actual escribe el token fresco en `sessionStorage`, la primera petición autenticada tras el login manda el token viejo, recibe 401, y el interceptor de respuesta de `services/api.js` limpia todo el almacenamiento y fuerza `window.location.href = '/login'` — una recarga completa, sin pasar por el estado de error de `Login.jsx`. De ahí "se queda en login sin error visible".
+- **Fix:** `frontend/src/contexts/AuthContext.jsx` — tanto `login()` como `register()` ahora limpian explícitamente el almacén que NO usan (`sessionStorage.removeItem(...)` cuando se guarda en `localStorage`, y viceversa), para que nunca convivan dos tokens de sesiones distintas.
+- **Verificación:** los 172 tests de `frontend/` siguen en verde. No se pudo forzar el escenario exacto (token viejo en el otro almacén) porque requeriría automatizar un navegador real, que no está disponible en esta sesión — la corrección es directa por inspección de código y consistente con el síntoma reportado. Si vuelve a pasar tras el deploy, lo primero a revisar en el navegador del usuario es `localStorage` y `sessionStorage` (pestaña Almacenamiento en las herramientas de desarrollo) por un `token` residual en el almacén contrario al que se está usando.
+
+---
+
 ### 2026-09-05 — 500 en login con el JSON genérico de Vercel (`{"error":{"code":"500","message":"A server error has occurred"}}`), no con el formato de esta API
 
 - **Estado:** corregido (mitigación de causa raíz + mejoras de diagnóstico), pendiente de confirmación del usuario tras el deploy — no se pudo confirmar la causa exacta porque no hay acceso a los Runtime Logs de Vercel desde esta sesión.

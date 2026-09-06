@@ -95,6 +95,16 @@ Cualquier línea que aparezca del lado de `backend/package.json` y no del lado d
 
 **Diagnóstico:** no hay forma de confirmarlo sin ver los Runtime Logs de Vercel del momento exacto del reporte (buscar una línea que corte sin el patrón habitual de `asyncHandler`/error handler, o un stack trace de Node fuera de cualquier request loggeado) — no es reproducible localmente si la base de datos y el código son los mismos, porque localmente cada arranque crea una conexión nueva en vez de reusar una cacheada entre invocaciones frías/congeladas.
 
+### Caso 7 — Login responde 200 pero la app se queda en `/login`, sin ningún error visible
+
+**Cómo distinguirlo del resto:** este NO es un error HTTP — `POST /api/auth/login` responde 200 con `{success:true, data:{user, token}}` normal. El problema es 100% de frontend, después de que el login ya fue exitoso.
+
+**Causa:** `frontend/src/contexts/AuthContext.jsx` guarda el token en `localStorage` (si "recordarme" está tildado) o en `sessionStorage` (si no), pero históricamente no limpiaba el otro almacén. El interceptor de peticiones de `frontend/src/services/api.js` arma el header `Authorization` con `localStorage.getItem('token') || sessionStorage.getItem('token')` — `localStorage` siempre gana si existe. Si quedó ahí un token viejo/expirado de una sesión anterior con otra combinación de "recordarme", la primera petición autenticada después de un login nuevo (el `getMe()`/`getStats()` que dispara el dashboard al montar) manda el token equivocado, recibe 401, y el interceptor de respuesta borra todo el almacenamiento y hace `window.location.href = '/login'` — una recarga completa que nunca pasa por el estado de error de `Login.jsx`. Se ve exactamente como "el login no hace nada".
+
+**Diagnóstico:** en las herramientas de desarrollo del navegador, pestaña de almacenamiento (Application/Storage) → revisar si `localStorage` y `sessionStorage` tienen un `token` **simultáneamente** justo después de un login que no redirige. Si es así, es este caso.
+
+**Fix (ya aplicado el 2026-09-05):** `login()` y `register()` en `AuthContext.jsx` limpian explícitamente el almacén que no usan en cada llamada, para que nunca convivan dos tokens de sesiones distintas. Ver `docs/BITACORA-ERRORES.md` para el detalle completo de la investigación (se reprodujo el flujo end-to-end contra la API real de producción con una cuenta desechable para descartar causas de backend antes de mirar el frontend).
+
 ## 5. Mejoras recomendadas (no implementadas — quedan como backlog)
 
 Documentado aquí para que quien retome esto no tenga que re-descubrirlo:
